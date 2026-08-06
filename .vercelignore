@@ -1,0 +1,6 @@
+# The brand deck is a 25MB source asset that's never served — no reason to
+# upload it on every deploy.
+docs/
+
+# Local editor / agent config.
+.claude/
