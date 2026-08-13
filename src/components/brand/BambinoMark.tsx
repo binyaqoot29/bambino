@@ -1,24 +1,23 @@
 /**
  * The Bambino elephant.
  *
- * Redrawn as vector from the mockups in docs/Bambino-brand-identity.pdf — the
- * deck ships the mark only as flattened artwork inside photography, so this is
- * a reconstruction. If the original .ai/.svg turns up, swap the paths here and
- * nothing else needs to change.
+ * Real vector artwork, extracted from the logo PDF the client supplied
+ * (`docs/Bambino-logo.pdf`, page 1 — the light/white-background lockup). These
+ * are the original filled outlines, not a trace, so the mark is exact at any
+ * size.
  *
- * Uniform stroke, round caps and joins, drawn on a 240×165 grid.
+ * The leaf sprig is kept as separate paths so it can take a second colour, as
+ * it does on the packaging.
  */
 
 type MarkProps = {
-  /** Stroke + leaf colour. Defaults to `currentColor` so it inherits. */
+  /** Defaults to `currentColor` so it inherits from a text colour class. */
   color?: string;
-  /** Leaf sprig colour, when it should differ from the line. */
+  /** Leaf sprig colour, when it should differ from the body. */
   leafColor?: string;
   className?: string;
   title?: string;
 };
-
-const STROKE = 7;
 
 export function BambinoMark({
   color = "currentColor",
@@ -28,40 +27,23 @@ export function BambinoMark({
 }: MarkProps) {
   return (
     <svg
-      viewBox="38 20 166 136"
+      viewBox="0 0 54.52 39.35"
       className={className}
       role={title ? "img" : "presentation"}
       aria-label={title}
       aria-hidden={title ? undefined : true}
       focusable="false"
+      fill="none"
     >
       {title ? <title>{title}</title> : null}
-      <g
-        fill="none"
-        stroke={color}
-        strokeWidth={STROKE}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* head, forehead, and the trunk curling up to the leaves */}
-        <path d="M100 33C108 28 118 26 128 27C142 29 152 36 158 47C163 57 164 68 162 79C160 90 156 96 153 100C157 106 164 110 171 111C180 111 187 106 190 98C193 90 192 84 188 80" />
-        {/* ear */}
-        <path d="M126 52C126 42 126 35 125 31C118 27 108 28 100 33C91 39 85 48 83 59C81 70 83 81 88 88C93 94 101 97 109 95C117 93 122 86 124 78" />
-        {/* inner ear fold */}
-        <path d="M93 74C87 76 83 82 82 89C81 97 86 103 94 105C103 107 112 105 117 99" />
-        {/* back, rump, hind leg, belly arch, foreleg, chest */}
-        <path d="M81 58C72 63 65 72 61 83C57 94 56 105 58 116C60 127 66 137 74 144C79 148 85 147 88 141C91 134 94 126 99 121C104 121 107 128 110 136C113 143 117 148 123 147C129 146 133 139 134 130C135 120 135 110 136 102C137 96 139 92 143 88" />
-        {/* tail */}
-        <path d="M58 100C54 105 50 109 46 113" />
-        {/* jaw */}
-        <path d="M143 88C146 94 149 99 153 101" />
-        {/* eye, closed and happy */}
-        <path d="M137 72C139 67 144 66 147 70" />
+      <g fill={color}>
+        <path d="M51.35 15.92C50.8 15.82 50.01 16.03 49.87 16.71C49.69 17.53 49.63 18.4 49.27 19.15C48.75 20.2 47.78 20.79 46.66 20.75C45.63 20.72 44.74 20.05 44.3 19.01C43.86 17.97 43.77 16.8 43.76 15.63L43.72 10.98C43.3 4.58 37.97 -0.24 31.54 0C29.75 0.07 28.1 0.54 26.4 1.28C22.12 -0.86 17.05 1.13 15.52 5.72C14.56 8.59 15.19 11.68 17.21 14.1C13.21 14.75 11.14 19.21 12.62 22.85C14.46 27.38 19.71 29.3 24.1 27.22C25.26 26.67 26.27 25.96 27.06 24.93C27.41 24.48 27.15 23.78 26.71 23.51C26.24 23.22 25.74 23.36 25.31 23.79C23.36 25.8 20.47 26.5 17.89 25.41C15.91 24.56 14.48 22.81 14.32 20.66C14.17 18.74 15.2 16.95 16.96 16.32C18.23 15.87 19.46 16.43 19.87 17.68C20.09 18.35 20.35 19.02 20.74 19.61C22.17 21.78 25.06 22.18 27.12 20.56C28.75 19.28 29.46 17.04 28.89 14.94C28.21 17.02 27.28 18.99 25.1 19.39C23.69 19.65 22.5 18.89 22.06 17.56C21.52 15.9 20.64 14.5 19.37 13.29C17.43 11.45 16.69 8.72 17.61 6.2C18.48 3.83 20.73 2.35 23.27 2.56C24.86 2.69 26.25 3.44 27.31 4.63C28.01 5.4 28.53 6.39 29 7.31C29.07 7.45 29.43 7.68 29.52 7.57L29.85 7.17C29.87 5.55 29.38 4.02 28.29 2.83C31.42 1.58 34.84 1.92 37.63 3.92C40.11 5.69 41.64 8.6 41.65 11.87L41.65 16.24C41.65 19.26 42.94 22.33 46 22.8C47.53 23.04 48.9 22.54 50.03 21.49C49.63 22.78 48.69 23.75 47.55 24.41C43.52 26.78 38.29 24.13 36.72 19.89C36.5 19.27 36.05 18.94 35.43 19.07C34.9 19.19 34.36 19.78 34.64 20.38L35.57 22.33C31.82 22.27 29.57 25.76 29.55 29.32L29.53 35.55C29.52 36.39 28.99 37.05 28.1 37.17C27.47 37.25 26.78 37.22 26.27 36.93C25.74 36.63 25.54 36.03 25.43 35.45C25.14 33.82 24.43 32.32 23.14 31.28C20.62 29.25 16.98 29.8 15.11 32.41C14.39 33.41 14 34.54 13.81 35.74C13.65 36.75 12.84 37.23 11.91 37.23C10.84 37.22 10.1 36.77 9.64 35.82C7.61 31.65 6.15 26.8 6.45 22.14C6.77 17.25 9.66 13.01 14.14 11.02L13.73 8.88C8.27 11.35 5.41 15.21 4.33 21.03C4.05 22.55 3.52 23.93 2.65 25.2C1.97 26.2 1.04 26.83 0 27.59C1.67 28.15 3.31 26.95 4.38 25.64C4.84 29.64 6.06 33.56 7.95 37.15C8.74 38.65 10.26 39.35 11.89 39.35C13.95 39.35 15.56 38.06 15.94 36.02C16.08 35.28 16.28 34.5 16.68 33.87C17.41 32.71 18.56 32.1 19.87 32.17C22 32.28 23.02 34.02 23.4 36.11C23.79 38.25 25.57 39.42 27.65 39.35C29.92 39.28 31.66 37.72 31.66 35.41L31.67 29.31C31.68 27.45 32.63 25.16 34.42 24.61C37.36 23.73 38.2 25.91 41.27 26.94C44.16 27.91 47.36 27.43 49.71 25.48C51.13 24.31 51.99 22.73 52.39 20.94C52.66 19.72 52.65 18.5 52.54 17.27C52.48 16.53 52.02 16.04 51.35 15.92" />
+        <path d="M36.09 14.01C36.94 14.42 37.19 15.59 37.47 15.39L37.81 15.14C38.19 13.89 37.59 12.61 36.38 12.21C35.22 11.84 33.91 12.43 33.47 13.69C33.39 13.93 33.55 14.36 33.78 14.45C34.38 14.69 35.1 13.54 36.09 14.01" />
       </g>
       <g fill={leafColor ?? color}>
-        <path d="M182 48C187 53 187 61 182 67C177 61 177 53 182 48Z" />
-        <path d="M168 57C175 57 181 62 182 69C175 70 169 65 168 57Z" />
-        <path d="M196 57C196 65 190 70 183 69C184 62 189 57 196 57Z" />
+        <path d="M49.96 14.49C50.06 12.2 48.36 10.61 46.21 10.58C46.09 12.82 47.8 14.54 49.96 14.49" />
+        <path d="M50.35 6.78C48.79 8.51 48.7 10.51 50.37 12.17C51.98 10.68 51.97 8.31 50.35 6.78" />
+        <path d="M50.74 14.48C52.87 14.53 54.58 12.86 54.52 10.58C52.36 10.55 50.66 12.2 50.74 14.48" />
       </g>
     </svg>
   );

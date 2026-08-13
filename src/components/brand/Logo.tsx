@@ -1,4 +1,5 @@
 import { BambinoMark } from "./BambinoMark";
+import { Wordmark } from "./Wordmark";
 
 type LogoProps = {
   /** `stacked` = mark above wordmark (hero, footer). `inline` = side by side (header). */
@@ -16,6 +17,11 @@ const TONE = {
   plum: { mark: "text-brand-900", word: "text-brand-900" },
 } as const;
 
+/**
+ * The lockup. Both parts are outlines from the supplied logo artwork, sized so
+ * the wordmark sits at ~0.52× the mark's height — the ratio in the original
+ * stacked lockup.
+ */
 export function Logo({
   layout = "inline",
   tone = "brand",
@@ -24,38 +30,33 @@ export function Logo({
   wordClassName = "",
 }: LogoProps) {
   const t = TONE[tone];
+  const stacked = layout === "stacked";
 
   return (
     <span
       className={[
         "inline-flex select-none",
-        layout === "stacked"
-          ? "flex-col items-center gap-1"
-          : "flex-row items-center gap-2",
+        stacked ? "flex-col items-center gap-2" : "flex-row items-center gap-2.5",
         className,
       ].join(" ")}
+      // The brand name is Latin on both locales; keep the lockup LTR.
+      dir="ltr"
     >
       <BambinoMark
+        title="Bambino"
         className={[
           t.mark,
-          layout === "stacked" ? "h-12 w-auto" : "h-8 w-auto",
+          stacked ? "h-14 w-auto" : "h-9 w-auto",
           markClassName,
         ].join(" ")}
       />
-      <span
+      <Wordmark
         className={[
           t.word,
-          "font-medium tracking-tight",
-          layout === "stacked" ? "text-2xl" : "text-xl",
+          stacked ? "h-7 w-auto" : "h-5 w-auto",
           wordClassName,
         ].join(" ")}
-        // The wordmark is always Latin "Bambino", even on the Arabic site —
-        // it's the brand name, not a translatable string.
-        style={{ fontFamily: "var(--font-poppins), sans-serif" }}
-        dir="ltr"
-      >
-        Bambino
-      </span>
+      />
     </span>
   );
 }

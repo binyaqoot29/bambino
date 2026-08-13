@@ -32,23 +32,27 @@ Everything visual derives from the identity deck. Tokens live in
 
 | Role | Hex |
 |---|---|
-| Primary orchid (`brand-500`) | `#BD73A8` |
+| Primary orchid (`brand-500`) | `#BD72A2` |
 | Deep plum (`brand-900`) | `#661F47` |
 | Mint accent (`mint-300`) | `#B7D2DD` |
 | Cloud (`mint-200`) | `#D3E1EC` |
 
-Type is **Poppins** (Latin) and **Tajawal** (Arabic), both via `next/font`.
+Body type is **Poppins** (Latin) and **Tajawal** (Arabic), both via `next/font`.
 
-Two things about the brand assets are worth knowing:
+**The logo is the real artwork.** Both the elephant
+([`BambinoMark.tsx`](src/components/brand/BambinoMark.tsx)) and the wordmark
+([`Wordmark.tsx`](src/components/brand/Wordmark.tsx)) are the original filled
+outlines, extracted from the vector logo PDF in
+[`docs/Bambino-logo.pdf`](docs/Bambino-logo.pdf) — page 1, the light-background
+lockup. Not a trace, so they're exact at any size.
 
-- **The elephant is a reconstruction.** The deck ships the mark only as
-  flattened artwork inside mockup photography — there is no vector file. It was
-  re-traced against the packaging shots and lives in
-  [`src/components/brand/BambinoMark.tsx`](src/components/brand/BambinoMark.tsx).
-  If the original `.ai`/`.svg` turns up, swapping the paths in that one file is
-  the whole job.
-- **The palette was sampled from photographs**, so the hexes carry some lighting
-  bias. If exact brand values exist, update the `@theme` block.
+The wordmark is drawn rather than set in Poppins: the brand's letterforms are
+close to Poppins but not identical, and outlines mean the logo can't shift while
+a webfont loads or drift if the font stack changes.
+
+`brand-500` is sampled straight from that artwork. The rest of the palette still
+comes from photographs of the printed collateral, so those hexes carry some
+lighting bias — worth replacing if a proper colour spec ever surfaces.
 
 ## Product imagery
 
