@@ -1,0 +1,10 @@
+# Normalise line endings so Windows checkouts don't produce phantom diffs.
+* text=auto eol=lf
+
+# Binary source assets — never diff or merge these.
+*.pdf binary
+*.png binary
+*.ico binary
+
+# Generated; collapse it in PR reviews.
+package-lock.json linguist-generated=true -diff
