@@ -129,6 +129,71 @@ fully static.
   `12.500 KD` / `12.500 د.ك`. Latin digits are used in both languages, matching
   Kuwaiti retail convention. See [`src/lib/money.ts`](src/lib/money.ts).
 
+## Database
+
+The catalogue lives in Postgres — it has to, because the admin panel writes to
+it. One Drizzle schema (`src/db/schema.ts`), two drivers:
+
+| Environment | Driver | Notes |
+|---|---|---|
+| Local (no `DATABASE_URL`) | **PGlite** — Postgres compiled to WASM, in `.pglite/` | No Docker or Postgres install needed |
+| Anywhere with `DATABASE_URL` | **Neon** over HTTP | Serverless-safe, no connection pool to exhaust |
+
+```bash
+npm run db:migrate   # apply drizzle/*.sql
+npm run db:seed      # load the 44 seed products
+npm run db:reset     # wipe the local DB and rebuild it
+npm run db:generate  # regenerate SQL after editing schema.ts
+```
+
+Two things about the local PGlite database. It's **single-writer**, so a script
+run while `next dev` is holding it will fail — stop the dev server first. And
+killing the dev server mid-write can leave the data directory unopenable
+(`RuntimeError: Aborted()`); it's disposable, so `npm run db:reset` fixes it in
+seconds.
+
+`src/lib/catalog/products.ts` stays in the repo as the seed fixture. It is no
+longer what the storefront reads.
+
+### Going live on Neon
+
+1. In Vercel → Storage, create a **Neon** Postgres database and link it to the
+   project. That sets `DATABASE_URL` automatically.
+2. Run the migration and seed against it once:
+   ```bash
+   DATABASE_URL='<connection string>' npm run db:migrate
+   DATABASE_URL='<connection string>' npm run db:seed
+   ```
+
+## Admin panel
+
+At **`/admin`** — outside `/[lang]`, because it's a single-language internal
+tool rather than part of the bilingual storefront.
+
+List, search, create, edit and delete products, including bilingual copy,
+price, category, illustration, age groups, and variants generated from every
+colour × size combination. Editing a product's colours or sizes preserves the
+stock of combinations that already existed, so it doesn't silently zero
+inventory.
+
+Access is a single shared password:
+
+```bash
+# .env.local
+ADMIN_PASSWORD=choose-something-long
+ADMIN_SESSION_SECRET=optional-but-better   # falls back to ADMIN_PASSWORD
+```
+
+The password is exchanged for an HMAC-signed, HTTP-only cookie that expires
+after 12 hours; the cookie holds a signed expiry, never the password. Without
+`ADMIN_PASSWORD` set, the panel stays locked — it never falls back to open.
+
+Every Server Action re-checks the session itself rather than trusting the
+route, since a Server Action is its own endpoint and can be called directly.
+
+Deliberately not built: user accounts, roles and an audit trail. There's one
+shop owner. `src/admin/auth.ts` is the seam if that changes.
+
 ## Catalogue
 
 Hand-written seed data in [`src/lib/catalog/`](src/lib/catalog) — 44 products
@@ -165,9 +230,12 @@ far:
 
 - **Checkout.** The button is present and inert; there is no payment
   integration (KNET, cards, Apple Pay, COD are shown as badges only).
-- **Accounts.** No auth, orders, or addresses — the account icon is a stub.
-- **Backend.** Catalogue and bag are in-process and in `localStorage`; nothing
-  is persisted server-side, and stock is not decremented.
+- **Customer accounts.** No shopper auth, orders, or addresses — the account
+  icon is a stub. (The *admin* has its own password; see above.)
+- **Orders.** The bag lives in `localStorage` and stock is never decremented,
+  because nothing places an order yet.
+- **Image upload.** Products pick from the built-in illustration set; there's no
+  photo upload, which needs blob storage.
 - **Reviews.** Ratings are seed data; there is no review submission.
 - **Search** is a substring match over the seed catalogue, not a search engine.
 

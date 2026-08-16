@@ -15,6 +15,13 @@ import * as schema from "./schema";
  *
  * PGlite is imported lazily and only on the local path, so it never ends up in
  * a serverless bundle.
+ *
+ * Two things to know about the local PGlite database:
+ * - It is **single-writer**. Running a script while `next dev` holds it will
+ *   fail; stop the dev server first.
+ * - Killing the dev server mid-write can leave the data directory unopenable
+ *   ("RuntimeError: Aborted()"). It's disposable — `npm run db:reset` rebuilds
+ *   it from the seed in a couple of seconds.
  */
 
 export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;

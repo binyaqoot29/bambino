@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Local PGlite database
 .pglite/
+
+# macOS drops these into the Postgres data dir and Postgres rejects them
+.DS_Store

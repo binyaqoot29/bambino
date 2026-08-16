@@ -47,6 +47,7 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next internals, the API surface and anything with a file extension.
-  matcher: ["/((?!_next|api|.*\\..*).*)"],
+  // Skip Next internals, the API surface, the admin (English-only, outside the
+  // localised storefront) and anything with a file extension.
+  matcher: ["/((?!_next|api|admin|.*\\..*).*)"],
 };
