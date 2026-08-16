@@ -157,13 +157,18 @@ longer what the storefront reads.
 
 ### Going live on Neon
 
-1. In Vercel → Storage, create a **Neon** Postgres database and link it to the
-   project. That sets `DATABASE_URL` automatically.
-2. Run the migration and seed against it once:
-   ```bash
-   DATABASE_URL='<connection string>' npm run db:migrate
-   DATABASE_URL='<connection string>' npm run db:seed
-   ```
+1. In Vercel → Storage, create a **Neon** Postgres database and connect it to
+   the project. That sets `DATABASE_URL` automatically.
+2. Deploy. That's it.
+
+Migrations run during the build (`scripts/setup-db.ts`), which applies anything
+pending and seeds the catalogue **only when it's empty**. That guard is what
+makes it safe on every deploy: a fresh database gets the starter catalogue, and
+one the shop owner has since edited is never overwritten.
+
+This runs in the build because Vercel marks Neon's variables Sensitive —
+`vercel env pull` returns the literal `[SENSITIVE]`, so the connection string
+can't be used from a laptop.
 
 ## Admin panel
 
@@ -175,6 +180,36 @@ price, category, illustration, age groups, and variants generated from every
 colour × size combination. Editing a product's colours or sizes preserves the
 stock of combinations that already existed, so it doesn't silently zero
 inventory.
+
+The panel is available in **English and Arabic**, toggled in its header and
+remembered in its own cookie — separate from the storefront's, so previewing the
+Arabic shop doesn't flip the admin too.
+
+### What it manages
+
+| Section | What's editable |
+|---|---|
+| Products | Bilingual copy, price, category, illustration, ages, variants and stock |
+| Categories | Bilingual name and blurb, department, illustration, URL, order |
+| Settings | Social links shown in the shop footer |
+
+Categories live in the database so they can be added and renamed. Their
+**department** and **illustration** still come from fixed lists in
+`taxonomy.ts` — departments define the top-level nav and the `/d/[department]`
+URLs, and each illustration is a hand-drawn SVG, so an invented value for either
+would render nothing.
+
+Two integrity rules the actions enforce:
+
+- **Renaming a category's URL moves its products with it**, in the same
+  operation, so nothing is left pointing at a slug that no longer exists.
+- **A category with products can't be deleted.** It refuses rather than
+  cascading, because deleting a category should never quietly delete the shop
+  owner's products.
+
+Social links accept whatever gets pasted — a full URL, an `@handle`, or a phone
+number — and normalise to something openable. A blank field hides that icon
+rather than linking to a profile that doesn't exist.
 
 Access is a single shared password:
 

@@ -8,6 +8,7 @@ import { ArrowIcon } from "@/components/ui/Icons";
 import { createTranslator } from "@/i18n/t";
 import {
   buildFacets,
+  categoryLookup,
   filterProducts,
   sortProducts,
 } from "@/lib/catalog/queries";
@@ -27,7 +28,7 @@ const PAGE_SIZE = 20;
  * result count stated plainly, and the header collapsed to a single line so
  * products start higher up the page.
  */
-export function MarketListing({
+export async function MarketListing({
   title,
   description,
   crumbs,
@@ -52,6 +53,7 @@ export function MarketListing({
       query: params.query,
     },
     locale,
+    await categoryLookup(),
   );
   const sorted = sortProducts(filtered, params.sort);
 

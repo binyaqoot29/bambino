@@ -16,6 +16,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
+import { loadSettings } from "@/lib/site-settings";
 
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
 
@@ -23,7 +24,7 @@ const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
  * Market footer — a service band of guarantees first, then dense link columns
  * on white. Studio's footer is a plum showpiece; this one is a utility.
  */
-export function MarketFooter({
+export async function MarketFooter({
   locale,
   dict,
   nav,
@@ -33,6 +34,12 @@ export function MarketFooter({
   nav: NavDepartment[];
 }) {
   const links = dict.footer.links;
+  const { social } = await loadSettings();
+  const socials = [
+    { href: social.instagram, Icon: InstagramIcon, label: "Instagram" },
+    { href: social.tiktok, Icon: TiktokIcon, label: "TikTok" },
+    { href: social.whatsapp, Icon: WhatsappIcon, label: "WhatsApp" },
+  ].filter((s) => s.href);
   const guarantees = [
     { Icon: TruckIcon, item: dict.home.usp.delivery },
     { Icon: ReturnIcon, item: dict.home.usp.returns },
@@ -76,23 +83,23 @@ export function MarketFooter({
             <p className="text-ink-500 mt-4 max-w-xs text-xs leading-relaxed">
               {dict.footer.aboutBody}
             </p>
-            <ul className="mt-5 flex gap-2">
-              {[
-                { Icon: InstagramIcon, label: "Instagram" },
-                { Icon: TiktokIcon, label: "TikTok" },
-                { Icon: WhatsappIcon, label: "WhatsApp" },
-              ].map(({ Icon, label }) => (
-                <li key={label}>
-                  <span
-                    role="link"
-                    aria-label={label}
-                    className="ring-ink-300 text-ink-600 hover:border-brand-500 hover:text-brand-600 inline-flex size-9 cursor-pointer items-center justify-center rounded-lg ring-1"
-                  >
-                    <Icon className="size-4.5" />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {socials.length ? (
+              <ul className="mt-5 flex gap-2">
+                {socials.map(({ href, Icon, label }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      aria-label={label}
+                      className="ring-ink-300 text-ink-600 hover:border-brand-500 hover:text-brand-600 inline-flex size-9 items-center justify-center rounded-lg ring-1"
+                    >
+                      <Icon className="size-4.5" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
 
           <Column title={dict.footer.shopTitle}>

@@ -27,7 +27,7 @@ export default async function NewProductPage() {
 
       <ProductForm
         action={action}
-        categories={categoryOptions}
+        categories={await categoryOptions()}
         arts={artOptions}
         colours={colourOptions}
         sizes={sizeOptions}

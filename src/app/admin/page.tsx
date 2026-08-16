@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 
 import { deleteProduct } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { ProductArt } from "@/components/product/ProductArt";
 import { getAllProducts } from "@/lib/catalog/queries";
-import { categoryBySlug } from "@/lib/catalog/taxonomy";
+import { categoryLookup } from "@/lib/catalog/queries";
 import { inStock } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/money";
 
@@ -19,7 +20,12 @@ export default async function AdminProductsPage({
   const saved = params.saved ? String(params.saved) : null;
   const deleted = Boolean(params.deleted);
 
-  const all = await getAllProducts();
+  const [all, categoryFor, locale] = await Promise.all([
+    getAllProducts(),
+    categoryLookup(),
+    getAdminLocale(),
+  ]);
+  const t = adminDictionary(locale);
   const products = query
     ? all.filter((p) =>
         [p.name.en, p.name.ar, p.handle, p.category]
@@ -38,21 +44,21 @@ export default async function AdminProductsPage({
     <div>
       {saved ? (
         <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
-          Saved “{saved}”.
+          {t.products.saved}: “{saved}”
         </p>
       ) : null}
       {deleted ? (
         <p className="bg-ink-200 text-ink-700 mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
-          Product deleted.
+          {t.products.deleted}
         </p>
       ) : null}
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-ink-900 text-xl font-bold">Products</h1>
+          <h1 className="text-ink-900 text-xl font-bold">{t.products.title}</h1>
           <p className="text-ink-500 mt-0.5 text-xs tabular-nums">
-            {all.length} in the catalogue
-            {query ? ` · ${products.length} matching` : ""}
+            {all.length} {t.products.inCatalogue}
+            {query ? ` · ${products.length} ${t.products.matching}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -60,7 +66,7 @@ export default async function AdminProductsPage({
             <input
               name="q"
               defaultValue={query}
-              placeholder="Search products…"
+              placeholder={t.products.search}
               className="ring-ink-300 focus:ring-brand-500 h-9 w-52 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
             />
           </form>
@@ -68,7 +74,7 @@ export default async function AdminProductsPage({
             href="/admin/products/new"
             className="bg-brand-500 hover:bg-brand-600 inline-flex h-9 items-center rounded-lg px-4 text-sm font-semibold text-white"
           >
-            Add product
+            {t.products.add}
           </Link>
         </div>
       </div>
@@ -76,17 +82,17 @@ export default async function AdminProductsPage({
       <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
         <table className="w-full text-sm">
           <thead className="border-ink-200 bg-ink-50 border-b">
-            <tr className="text-ink-500 text-left text-[11px] tracking-wide uppercase">
-              <th className="px-4 py-2.5 font-semibold">Product</th>
-              <th className="px-4 py-2.5 font-semibold">Category</th>
-              <th className="px-4 py-2.5 font-semibold">Price</th>
-              <th className="px-4 py-2.5 font-semibold">Stock</th>
+            <tr className="text-ink-500 text-start text-[11px] tracking-wide uppercase">
+              <th className="px-4 py-2.5 text-start font-semibold">{t.products.product}</th>
+              <th className="px-4 py-2.5 text-start font-semibold">{t.products.category}</th>
+              <th className="px-4 py-2.5 text-start font-semibold">{t.products.price}</th>
+              <th className="px-4 py-2.5 text-start font-semibold">{t.products.stock}</th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
           <tbody className="divide-ink-100 divide-y">
             {products.map((product) => {
-              const category = categoryBySlug(product.category);
+              const category = categoryFor(product.category);
               const stock = totalStock(product.id);
               return (
                 <tr key={product.id} className="hover:bg-ink-50/60">
@@ -108,15 +114,15 @@ export default async function AdminProductsPage({
                     </div>
                   </td>
                   <td className="text-ink-600 px-4 py-3 text-xs">
-                    {category?.name.en ?? product.category}
+                    {category?.name[locale] ?? product.category}
                   </td>
                   <td className="px-4 py-3 text-xs tabular-nums">
                     <span className="text-ink-900 font-medium">
-                      {formatPrice(product.price, "en")}
+                      {formatPrice(product.price, locale)}
                     </span>
                     {product.compareAtPrice ? (
                       <span className="text-ink-400 ms-1.5 line-through">
-                        {formatPrice(product.compareAtPrice, "en")}
+                        {formatPrice(product.compareAtPrice, locale)}
                       </span>
                     ) : null}
                   </td>
@@ -132,15 +138,15 @@ export default async function AdminProductsPage({
                     </span>
                     <span className="text-ink-400">
                       {" "}
-                      / {product.variants.length} variants
+                      / {product.variants.length} {t.products.variants}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                  <td className="px-4 py-3 text-end whitespace-nowrap">
                     <Link
                       href={`/admin/products/${product.id}`}
                       className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
                     >
-                      Edit
+                      {t.products.edit}
                     </Link>
                     <form action={deleteProduct} className="ms-3 inline">
                       <input type="hidden" name="id" value={product.id} />
@@ -148,7 +154,7 @@ export default async function AdminProductsPage({
                         type="submit"
                         className="text-ink-400 hover:text-sale text-xs font-semibold"
                       >
-                        Delete
+                        {t.products.delete}
                       </button>
                     </form>
                   </td>
@@ -161,8 +167,8 @@ export default async function AdminProductsPage({
         {products.length === 0 ? (
           <p className="text-ink-500 px-4 py-12 text-center text-sm">
             {query
-              ? `Nothing matches “${query}”.`
-              : "No products yet — add the first one."}
+              ? `${t.products.noMatch} “${query}”`
+              : t.products.none}
           </p>
         ) : null}
       </div>

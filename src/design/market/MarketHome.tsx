@@ -11,7 +11,8 @@ import {
   getOnSale,
   getAllProducts,
 } from "@/lib/catalog/queries";
-import { CATEGORIES } from "@/lib/catalog/taxonomy";
+import { loadCategories } from "@/lib/catalog/categories";
+import type { Category } from "@/lib/catalog/types";
 import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/money";
 import { routes } from "@/lib/routes";
@@ -34,11 +35,12 @@ export async function MarketHome({
   locale: Locale;
   dict: Dictionary;
 }) {
-  const [onSale, newIn, bestsellers, all] = await Promise.all([
+  const [onSale, newIn, bestsellers, all, categories] = await Promise.all([
     getOnSale(6),
     getNewIn(6),
     getBestsellers(5),
     getAllProducts(),
+    loadCategories(),
   ]);
   // Entry price for the promo tile — of the department it links to, not the
   // whole catalogue, or the number is a lie.
@@ -49,7 +51,7 @@ export async function MarketHome({
   return (
     <div className="bg-canvas">
       <PromoGrid locale={locale} dict={dict} travelFrom={travelFrom} />
-      <CategoryStrip locale={locale} dict={dict} />
+      <CategoryStrip locale={locale} dict={dict} categories={categories} />
       <AgeChips locale={locale} dict={dict} />
 
       <Rail
@@ -175,9 +177,11 @@ function PromoGrid({
 function CategoryStrip({
   locale,
   dict,
+  categories,
 }: {
   locale: Locale;
   dict: Dictionary;
+  categories: Category[];
 }) {
   return (
     <section className="container-bambino pb-8">
@@ -186,7 +190,7 @@ function CategoryStrip({
           {dict.home.shopByCategory}
         </h2>
         <ul className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 lg:grid lg:grid-cols-7 lg:overflow-visible">
-          {CATEGORIES.slice(0, 7).map((category) => (
+          {categories.slice(0, 7).map((category) => (
             <li key={category.slug} className="shrink-0">
               <Link
                 href={routes.category(locale, category.slug)}

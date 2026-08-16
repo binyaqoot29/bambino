@@ -3,18 +3,12 @@ import { notFound } from "next/navigation";
 
 import { Listing } from "@/design";
 import { parseListingParams } from "@/components/plp/search-params";
-import { isLocale, locales, type Locale } from "@/i18n/config";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getProductsInCategory } from "@/lib/catalog/queries";
-import { CATEGORIES, categoryBySlug } from "@/lib/catalog/taxonomy";
+import { findCategory } from "@/lib/catalog/categories";
 import { DEPARTMENT_LABELS } from "@/lib/catalog/types";
 import { routes } from "@/lib/routes";
-
-export function generateStaticParams() {
-  return locales.flatMap((lang) =>
-    CATEGORIES.map((category) => ({ lang, slug: category.slug })),
-  );
-}
 
 export async function generateMetadata({
   params,
@@ -23,7 +17,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, slug } = await params;
   const locale: Locale = isLocale(lang) ? lang : "en";
-  const category = categoryBySlug(slug);
+  const category = await findCategory(slug);
   if (!category) return {};
 
   return {
@@ -46,7 +40,7 @@ export default async function CategoryPage({
   const { lang, slug } = await params;
   if (!isLocale(lang)) notFound();
 
-  const category = categoryBySlug(slug);
+  const category = await findCategory(slug);
   if (!category) notFound();
 
   const locale: Locale = lang;

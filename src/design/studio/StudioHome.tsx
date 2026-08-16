@@ -15,7 +15,8 @@ import {
 import type { Locale } from "@/i18n/config";
 import type { getDictionary } from "@/i18n/get-dictionary";
 import { getBestsellers, getNewIn, getOnSale } from "@/lib/catalog/queries";
-import { CATEGORIES } from "@/lib/catalog/taxonomy";
+import { loadCategories } from "@/lib/catalog/categories";
+import type { Category } from "@/lib/catalog/types";
 import { AGE_GROUP_LABELS, type AgeGroup } from "@/lib/catalog/types";
 import { routes } from "@/lib/routes";
 
@@ -36,7 +37,7 @@ export async function StudioHome({
     getBestsellers(4),
     getOnSale(4),
   ]);
-  const featuredCategories = CATEGORIES.slice(0, 8);
+  const featuredCategories = (await loadCategories()).slice(0, 8);
 
   return (
     <>
@@ -207,7 +208,7 @@ function ShopByCategory({
 }: {
   locale: Locale;
   dict: Dict;
-  categories: typeof CATEGORIES;
+  categories: Category[];
 }) {
   return (
     <section className="container-bambino py-14 lg:py-16">

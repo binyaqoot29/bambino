@@ -8,6 +8,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { createTranslator } from "@/i18n/t";
 import {
   buildFacets,
+  categoryLookup,
   filterProducts,
   sortProducts,
 } from "@/lib/catalog/queries";
@@ -21,7 +22,7 @@ import type { ListingProps } from "../types";
 
 const PAGE_SIZE = 12;
 
-export function StudioListing({
+export async function StudioListing({
   title,
   description,
   crumbs,
@@ -46,6 +47,7 @@ export function StudioListing({
       query: params.query,
     },
     locale,
+    await categoryLookup(),
   );
   const sorted = sortProducts(filtered, params.sort);
 

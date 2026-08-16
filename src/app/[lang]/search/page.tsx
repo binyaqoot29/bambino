@@ -9,11 +9,12 @@ import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { createTranslator } from "@/i18n/t";
 import {
+  categoryLookup,
   filterProducts,
   getAllProducts,
   sortProducts,
 } from "@/lib/catalog/queries";
-import { CATEGORIES } from "@/lib/catalog/taxonomy";
+import { loadCategories } from "@/lib/catalog/categories";
 import { routes } from "@/lib/routes";
 
 export async function generateMetadata({
@@ -44,9 +45,14 @@ export default async function SearchPage({
   const listing = parseListingParams(await searchParams);
   const query = listing.query ?? "";
 
+  const [categories, lookup] = await Promise.all([
+    loadCategories(),
+    categoryLookup(),
+  ]);
+
   const results = query
     ? sortProducts(
-        filterProducts(await getAllProducts(), { query }, locale),
+        filterProducts(await getAllProducts(), { query }, locale, lookup),
         listing.sort,
       )
     : [];
@@ -93,7 +99,7 @@ export default async function SearchPage({
           </ul>
 
           <ul className="mt-8 flex flex-wrap justify-center gap-2">
-            {CATEGORIES.slice(0, 8).map((category) => (
+            {categories.slice(0, 8).map((category) => (
               <li key={category.slug}>
                 <Link
                   href={routes.category(locale, category.slug)}

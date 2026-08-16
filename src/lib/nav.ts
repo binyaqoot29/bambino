@@ -1,5 +1,6 @@
 import type { Locale } from "@/i18n/config";
-import { CATEGORIES, DEPARTMENT_ORDER } from "@/lib/catalog/taxonomy";
+import { loadCategories } from "@/lib/catalog/categories";
+import { DEPARTMENT_ORDER } from "@/lib/catalog/taxonomy";
 import { AGE_GROUP_LABELS, DEPARTMENT_LABELS, type ArtKey } from "@/lib/catalog/types";
 import { countsByCategory } from "@/lib/catalog/queries";
 import { routes } from "@/lib/routes";
@@ -23,13 +24,16 @@ export type NavDepartment = {
 /** Everything the header needs, flattened and localised for the client. */
 export async function buildNav(locale: Locale): Promise<NavDepartment[]> {
   // One pass for every category count, rather than a query per category.
-  const counts = await countsByCategory();
+  const [counts, categories] = await Promise.all([
+    countsByCategory(),
+    loadCategories(),
+  ]);
 
   return DEPARTMENT_ORDER.map((department) => ({
     key: department,
     label: DEPARTMENT_LABELS[department][locale],
     href: routes.department(locale, department),
-    categories: CATEGORIES.filter((c) => c.department === department).map(
+    categories: categories.filter((c) => c.department === department).map(
       (c) => ({
         slug: c.slug,
         label: c.name[locale],

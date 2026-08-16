@@ -13,6 +13,8 @@ import { sql } from "drizzle-orm";
 
 import { getDb, schema } from "../src/db/client";
 import { PRODUCTS } from "../src/lib/catalog/products";
+import { SEED_CATEGORIES } from "../src/lib/catalog/taxonomy";
+import { DEFAULT_SETTINGS, SETTINGS_KEYS } from "../src/lib/settings";
 
 async function main() {
   const reset = process.argv.includes("--reset");
@@ -22,7 +24,40 @@ async function main() {
     // Variants cascade, but being explicit reads better than relying on it.
     await db.delete(schema.variants);
     await db.delete(schema.products);
+    await db.delete(schema.categories);
     console.log("cleared existing catalogue");
+  }
+
+  // Categories first — products reference them by slug.
+  const existingCategories = new Set(
+    (await db.select({ slug: schema.categories.slug }).from(schema.categories)).map(
+      (r) => r.slug,
+    ),
+  );
+  let newCategories = 0;
+  for (const [index, category] of SEED_CATEGORIES.entries()) {
+    if (existingCategories.has(category.slug)) continue;
+    await db.insert(schema.categories).values({
+      slug: category.slug,
+      name: category.name,
+      blurb: category.blurb ?? null,
+      department: category.department,
+      art: category.art,
+      position: index,
+    });
+    newCategories++;
+  }
+
+  // Defaults for anything the shop owner hasn't set yet.
+  const existingSettings = new Set(
+    (await db.select({ key: schema.settings.key }).from(schema.settings)).map(
+      (r) => r.key,
+    ),
+  );
+  if (!existingSettings.has(SETTINGS_KEYS.social)) {
+    await db
+      .insert(schema.settings)
+      .values({ key: SETTINGS_KEYS.social, value: DEFAULT_SETTINGS.social });
   }
 
   const existing = new Set(
@@ -78,7 +113,7 @@ async function main() {
   ).rows;
 
   console.log(
-    `seeded ${inserted} new product(s) — database now holds ${p} products, ${v} variants`,
+    `seeded ${newCategories} categor(ies) and ${inserted} product(s) — database now holds ${p} products, ${v} variants`,
   );
 }
 

@@ -2,11 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
+import { count, eq } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
-import { COLOURS, SIZE_LABELS, categoryBySlug } from "@/lib/catalog/taxonomy";
-import type { AgeGroup, ArtKey } from "@/lib/catalog/types";
+import { findCategory } from "@/lib/catalog/categories";
+import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
+import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
+import {
+  SETTINGS_KEYS,
+  normaliseSocial,
+  type SocialLinks,
+} from "@/lib/settings";
+import { ADMIN_LOCALE_COOKIE } from "./i18n";
 import {
   createSession,
   destroySession,
@@ -109,7 +117,10 @@ function parseForm(formData: FormData) {
   };
 }
 
-function validate(input: ReturnType<typeof parseForm>) {
+function validate(
+  input: ReturnType<typeof parseForm>,
+  categoryExists: boolean,
+) {
   const fieldErrors: Record<string, string> = {};
 
   if (!input.nameEn) fieldErrors.nameEn = "Required";
@@ -120,7 +131,7 @@ function validate(input: ReturnType<typeof parseForm>) {
   if (!input.descriptionEn) fieldErrors.descriptionEn = "Required";
   if (!input.descriptionAr) fieldErrors.descriptionAr = "Required — the Arabic site shows this";
 
-  if (!categoryBySlug(input.category)) fieldErrors.category = "Pick a category";
+  if (!categoryExists) fieldErrors.category = "Pick a category";
   if (!input.art) fieldErrors.art = "Pick an illustration";
 
   const price = parsePrice(input.price);
@@ -187,13 +198,13 @@ export async function saveProduct(
   await requireAdmin();
 
   const input = parseForm(formData);
-  const { fieldErrors, price } = validate(input);
+  const category = await findCategory(input.category);
+  const { fieldErrors, price } = validate(input, Boolean(category));
   if (Object.keys(fieldErrors).length) {
     return { error: "Please fix the highlighted fields", fieldErrors };
   }
 
   const db = await getDb();
-  const category = categoryBySlug(input.category)!;
   const handle = slugify(input.handle || input.nameEn);
 
   const clash = await db
@@ -216,7 +227,7 @@ export async function saveProduct(
     details: input.detailsEn.map((en, i) => ({ en, ar: input.detailsAr[i] })),
     care: input.careEn ? { en: input.careEn, ar: input.careAr } : null,
     category: input.category,
-    department: category.department,
+    department: category!.department,
     price: price!,
     compareAtPrice: input.compareAtPrice
       ? parsePrice(input.compareAtPrice)
@@ -276,4 +287,160 @@ export async function setStock(formData: FormData) {
     .where(eq(schema.variants.id, variantId));
 
   revalidatePath("/", "layout");
+}
+
+/* --------------------------------------------------------------------------
+ * Categories
+ * ----------------------------------------------------------------------- */
+
+export type CategoryFormState = {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+};
+
+export async function saveCategory(
+  originalSlug: string | null,
+  _prev: CategoryFormState,
+  formData: FormData,
+): Promise<CategoryFormState> {
+  await requireAdmin();
+
+  const text = (k: string) => String(formData.get(k) ?? "").trim();
+  const nameEn = text("nameEn");
+  const nameAr = text("nameAr");
+  const blurbEn = text("blurbEn");
+  const blurbAr = text("blurbAr");
+  const department = text("department") as Department;
+  const art = text("art") as ArtKey;
+  const slug = slugify(text("slug") || nameEn);
+  const position = Number(text("position")) || 0;
+
+  const fieldErrors: Record<string, string> = {};
+  if (!nameEn) fieldErrors.nameEn = "Required";
+  if (!nameAr) fieldErrors.nameAr = "Required — the Arabic site shows this";
+  if (!DEPARTMENT_ORDER.includes(department)) {
+    fieldErrors.department = "Pick a department";
+  }
+  if (!art) fieldErrors.art = "Pick an illustration";
+  if (!slug) fieldErrors.slug = "Required";
+  if (Boolean(blurbEn) !== Boolean(blurbAr)) {
+    fieldErrors.blurbAr = "Fill both languages, or neither";
+  }
+
+  if (Object.keys(fieldErrors).length) {
+    return { error: "Please fix the highlighted fields", fieldErrors };
+  }
+
+  const db = await getDb();
+
+  const clash = await db
+    .select({ slug: schema.categories.slug })
+    .from(schema.categories)
+    .where(eq(schema.categories.slug, slug))
+    .limit(1);
+  if (clash.length && slug !== originalSlug) {
+    return {
+      error: "That web address is already used by another category",
+      fieldErrors: { slug: "Already taken" },
+    };
+  }
+
+  const values = {
+    name: { en: nameEn, ar: nameAr },
+    blurb: blurbEn ? { en: blurbEn, ar: blurbAr } : null,
+    department,
+    art,
+    position,
+  };
+
+  if (originalSlug) {
+    await db
+      .update(schema.categories)
+      .set({ slug, ...values })
+      .where(eq(schema.categories.slug, originalSlug));
+
+    // Products reference a category by slug, so a rename has to carry them
+    // with it or they'd point at a category that no longer exists.
+    if (slug !== originalSlug) {
+      await db
+        .update(schema.products)
+        .set({ category: slug })
+        .where(eq(schema.products.category, originalSlug));
+    }
+    // A category can move department; its products must follow.
+    await db
+      .update(schema.products)
+      .set({ department })
+      .where(eq(schema.products.category, slug));
+  } else {
+    await db.insert(schema.categories).values({ slug, ...values });
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/admin/categories?saved=1");
+}
+
+export async function deleteCategory(formData: FormData) {
+  await requireAdmin();
+
+  const slug = String(formData.get("slug") ?? "");
+  if (!slug) return;
+
+  const db = await getDb();
+  const [used] = await db
+    .select({ n: count() })
+    .from(schema.products)
+    .where(eq(schema.products.category, slug));
+
+  // Refuse rather than cascade: deleting a category shouldn't quietly delete
+  // the shop owner's products with it.
+  if (used.n > 0) {
+    redirect(`/admin/categories?blocked=${encodeURIComponent(slug)}`);
+  }
+
+  await db.delete(schema.categories).where(eq(schema.categories.slug, slug));
+
+  revalidatePath("/", "layout");
+  redirect("/admin/categories?deleted=1");
+}
+
+/* --------------------------------------------------------------------------
+ * Settings
+ * ----------------------------------------------------------------------- */
+
+export async function saveSettings(formData: FormData) {
+  await requireAdmin();
+
+  const social: SocialLinks = {
+    instagram: normaliseSocial("instagram", String(formData.get("instagram") ?? "")),
+    tiktok: normaliseSocial("tiktok", String(formData.get("tiktok") ?? "")),
+    whatsapp: normaliseSocial("whatsapp", String(formData.get("whatsapp") ?? "")),
+  };
+
+  const db = await getDb();
+  await db
+    .insert(schema.settings)
+    .values({ key: SETTINGS_KEYS.social, value: social })
+    .onConflictDoUpdate({
+      target: schema.settings.key,
+      set: { value: social },
+    });
+
+  revalidatePath("/", "layout");
+  redirect("/admin/settings?saved=1");
+}
+
+/* --------------------------------------------------------------------------
+ * Admin language
+ * ----------------------------------------------------------------------- */
+
+export async function setAdminLocale(formData: FormData) {
+  const next = String(formData.get("locale") ?? "en") === "ar" ? "ar" : "en";
+  (await cookies()).set(ADMIN_LOCALE_COOKIE, next, {
+    httpOnly: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+  redirect(String(formData.get("returnTo") ?? "/admin"));
 }

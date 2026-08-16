@@ -61,7 +61,12 @@ export const DEPARTMENT_ORDER: Department[] = [
   "bath",
 ];
 
-export const CATEGORIES: Category[] = [
+/**
+ * Seed categories. The storefront and admin read categories from the
+ * database (see catalog/categories.ts) — this is what a fresh database is
+ * populated with, and nothing reads it at runtime.
+ */
+export const SEED_CATEGORIES: Category[] = [
   // --- Clothing ---------------------------------------------------------
   {
     slug: "bodysuits",
@@ -179,10 +184,3 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export function categoryBySlug(slug: string) {
-  return CATEGORIES.find((c) => c.slug === slug);
-}
-
-export function categoriesIn(department: Department) {
-  return CATEGORIES.filter((c) => c.department === department);
-}

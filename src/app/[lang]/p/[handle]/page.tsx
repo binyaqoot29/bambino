@@ -2,17 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ProductView } from "@/design";
-import { isLocale, locales, type Locale } from "@/i18n/config";
+import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { PRODUCTS } from "@/lib/catalog/products";
 import { getProductByHandle, getRelated } from "@/lib/catalog/queries";
 import { routes } from "@/lib/routes";
-
-export function generateStaticParams() {
-  return locales.flatMap((lang) =>
-    PRODUCTS.map((product) => ({ lang, handle: product.handle })),
-  );
-}
 
 export async function generateMetadata({
   params,

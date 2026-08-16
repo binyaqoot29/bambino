@@ -91,6 +91,37 @@ export const variants = pgTable(
   ],
 );
 
+/**
+ * Categories are rows so the shop owner can add and rename them.
+ *
+ * Their `department` and `art` still come from the fixed lists in taxonomy.ts:
+ * departments define the nav's top level and the /d/[department] URL space, and
+ * each `art` key is a hand-drawn SVG — an invented value for either would have
+ * nothing to render.
+ */
+export const categories = pgTable(
+  "categories",
+  {
+    slug: text("slug").primaryKey(),
+    name: jsonb("name").$type<I18n>().notNull(),
+    blurb: jsonb("blurb").$type<I18n | null>(),
+    department: text("department").$type<Department>().notNull(),
+    art: text("art").$type<ArtKey>().notNull(),
+    /** Controls order within a department, in the nav and on the homepage. */
+    position: integer("position").notNull().default(0),
+  },
+);
+
+/**
+ * Small key/value store for editable site-wide settings — social links today.
+ * A table rather than a column-per-setting so adding one is an insert, not a
+ * migration.
+ */
+export const settings = pgTable("settings", {
+  key: text("key").primaryKey(),
+  value: jsonb("value").$type<unknown>().notNull(),
+});
+
 export const productsRelations = relations(products, ({ many }) => ({
   variants: many(variants),
 }));
@@ -101,6 +132,10 @@ export const variantsRelations = relations(variants, ({ one }) => ({
     references: [products.id],
   }),
 }));
+
+export type CategoryRow = typeof categories.$inferSelect;
+export type NewCategoryRow = typeof categories.$inferInsert;
+export type SettingRow = typeof settings.$inferSelect;
 
 export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;

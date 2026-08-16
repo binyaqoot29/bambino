@@ -4,8 +4,9 @@ import { useActionState } from "react";
 
 import { BambinoMark } from "@/components/brand/BambinoMark";
 import { login } from "@/admin/actions";
+import type { AdminDictionary } from "@/admin/i18n";
 
-export function LoginForm() {
+export function LoginForm({ t }: { t: AdminDictionary }) {
   const [state, action, pending] = useActionState(login, { error: undefined } as {
     error?: string;
   });
@@ -14,10 +15,10 @@ export function LoginForm() {
     <div className="ring-ink-200 mx-auto max-w-sm rounded-xl bg-white p-8 ring-1">
       <BambinoMark className="text-brand-500 mx-auto h-12 w-auto" />
       <h1 className="text-ink-900 mt-5 text-center text-lg font-bold">
-        Sign in
+        {t.signIn}
       </h1>
       <p className="text-ink-500 mt-1 text-center text-xs">
-        Manage the Bambino catalogue
+        {t.signInBlurb}
       </p>
 
       <form action={action} className="mt-6">
@@ -25,7 +26,7 @@ export function LoginForm() {
           htmlFor="password"
           className="text-ink-700 block text-xs font-semibold"
         >
-          Password
+          {t.password}
         </label>
         <input
           id="password"
@@ -39,7 +40,7 @@ export function LoginForm() {
 
         {state?.error ? (
           <p role="alert" className="text-sale mt-2 text-xs font-medium">
-            {state.error}
+            {t.wrongPassword}
           </p>
         ) : null}
 
@@ -48,7 +49,7 @@ export function LoginForm() {
           disabled={pending}
           className="bg-brand-500 hover:bg-brand-600 mt-5 h-11 w-full rounded-lg text-sm font-semibold text-white disabled:opacity-50"
         >
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? t.signingIn : t.signIn}
         </button>
       </form>
     </div>

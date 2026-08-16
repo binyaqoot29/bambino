@@ -43,7 +43,7 @@ export default async function EditProductPage({
       <ProductForm
         action={action}
         product={product}
-        categories={categoryOptions}
+        categories={await categoryOptions()}
         arts={artOptions}
         colours={colourOptions}
         sizes={sizeOptions}

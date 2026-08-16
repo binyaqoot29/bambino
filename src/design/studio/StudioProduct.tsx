@@ -9,18 +9,18 @@ import { Rating } from "@/components/ui/Rating";
 import { TruckIcon, ReturnIcon, ShieldIcon } from "@/components/ui/Icons";
 import { createTranslator } from "@/i18n/t";
 import type { ProductViewProps } from "../types";
-import { categoryBySlug } from "@/lib/catalog/taxonomy";
+import { findCategory } from "@/lib/catalog/categories";
 import { DEPARTMENT_LABELS } from "@/lib/catalog/types";
 import { routes } from "@/lib/routes";
 
-export function StudioProduct({
+export async function StudioProduct({
   product,
   related,
   locale,
   dict,
 }: ProductViewProps) {
   const { t, plural } = createTranslator(locale);
-  const category = categoryBySlug(product.category);
+  const category = await findCategory(product.category);
 
   return (
     <>

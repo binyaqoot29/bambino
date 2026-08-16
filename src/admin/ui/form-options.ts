@@ -1,4 +1,5 @@
-import { COLOURS, CATEGORIES, SIZE_LABELS } from "@/lib/catalog/taxonomy";
+import { loadCategories } from "@/lib/catalog/categories";
+import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import { AGE_GROUP_LABELS, DEPARTMENT_LABELS } from "@/lib/catalog/types";
 
 /**
@@ -9,10 +10,12 @@ import { AGE_GROUP_LABELS, DEPARTMENT_LABELS } from "@/lib/catalog/types";
  * an invented illustration key would draw nothing.
  */
 
-export const categoryOptions = CATEGORIES.map((c) => ({
-  value: c.slug,
-  label: `${DEPARTMENT_LABELS[c.department].en} · ${c.name.en}`,
-}));
+export async function categoryOptions() {
+  return (await loadCategories()).map((c) => ({
+    value: c.slug,
+    label: `${DEPARTMENT_LABELS[c.department].en} · ${c.name.en}`,
+  }));
+}
 
 export const artOptions = [
   "bodysuit",
@@ -48,3 +51,10 @@ export const sizeOptions = Object.entries(SIZE_LABELS).map(([value, label]) => (
 export const ageOptions = Object.entries(AGE_GROUP_LABELS).map(
   ([value, label]) => ({ value, label: label.en }),
 );
+
+export function departmentOptions() {
+  return DEPARTMENT_ORDER.map((value) => ({
+    value,
+    label: DEPARTMENT_LABELS[value].en,
+  }));
+}

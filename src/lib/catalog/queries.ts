@@ -1,8 +1,8 @@
 import type { Locale } from "@/i18n/config";
 
+import { loadCategories } from "./categories";
 import { loadCatalogue, loadProductByHandle, loadProductsByIds } from "./repository";
-import { CATEGORIES, categoryBySlug } from "./taxonomy";
-import { type AgeGroup, type Product, type SortKey, inStock } from "./types";
+import { type AgeGroup, type Category, type Product, type SortKey, inStock } from "./types";
 
 /**
  * The read layer the pages talk to.
@@ -83,9 +83,9 @@ export async function countInCategory(slug: string) {
 
 /** Counts for every category in one pass — the nav needs all of them at once. */
 export async function countsByCategory(): Promise<Record<string, number>> {
-  const all = await loadCatalogue();
+  const [all, categories] = await Promise.all([loadCatalogue(), loadCategories()]);
   const counts: Record<string, number> = {};
-  for (const category of CATEGORIES) counts[category.slug] = 0;
+  for (const category of categories) counts[category.slug] = 0;
   for (const product of all) {
     counts[product.category] = (counts[product.category] ?? 0) + 1;
   }
@@ -108,10 +108,18 @@ export type ProductFilters = {
   query?: string;
 };
 
+export type CategoryLookup = (slug: string) => Category | undefined;
+
+/**
+ * Synchronous on purpose — it runs inside render for every product. Callers
+ * pass a lookup built from the already-loaded category list rather than this
+ * awaiting per product.
+ */
 export function filterProducts(
   products: Product[],
   filters: ProductFilters,
   locale: Locale,
+  categoryFor: CategoryLookup = () => undefined,
 ): Product[] {
   return products.filter((p) => {
     if (filters.category && p.category !== filters.category) return false;
@@ -138,7 +146,7 @@ export function filterProducts(
     if (filters.query) {
       const q = filters.query.trim().toLowerCase();
       if (q) {
-        const category = categoryBySlug(p.category);
+        const category = categoryFor(p.category);
         const haystack = [
           p.name[locale],
           p.name.en,
@@ -213,6 +221,13 @@ export function buildFacets(products: Product[]) {
 
 export type Facets = ReturnType<typeof buildFacets>;
 
-export function getCategories() {
-  return CATEGORIES;
+export async function getCategories() {
+  return loadCategories();
+}
+
+/** A sync lookup for render paths, built from one category query. */
+export async function categoryLookup(): Promise<CategoryLookup> {
+  const categories = await loadCategories();
+  const map = new Map(categories.map((c) => [c.slug, c]));
+  return (slug) => map.get(slug);
 }

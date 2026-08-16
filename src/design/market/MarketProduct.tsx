@@ -12,7 +12,7 @@ import {
   TruckIcon,
 } from "@/components/ui/Icons";
 import { createTranslator } from "@/i18n/t";
-import { categoryBySlug } from "@/lib/catalog/taxonomy";
+import { findCategory } from "@/lib/catalog/categories";
 import { DEPARTMENT_LABELS, inStock } from "@/lib/catalog/types";
 import {
   FREE_SHIPPING_THRESHOLD,
@@ -32,14 +32,14 @@ import { MarketProductCard } from "./MarketProductCard";
  * card rather than in a strip further down. The decision should be makeable
  * without scrolling.
  */
-export function MarketProduct({
+export async function MarketProduct({
   product,
   related,
   locale,
   dict,
 }: ProductViewProps) {
   const { t, plural } = createTranslator(locale);
-  const category = categoryBySlug(product.category);
+  const category = await findCategory(product.category);
   const available = inStock(product);
   const percent = product.compareAtPrice
     ? discountPercent(product.price, product.compareAtPrice)

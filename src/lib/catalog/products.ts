@@ -4,8 +4,8 @@ import {
   COLOURS,
   KID_SIZES,
   ONE_SIZE,
+  SEED_CATEGORIES,
   SHOE_SIZES,
-  categoryBySlug,
 } from "./taxonomy";
 
 /* --------------------------------------------------------------------------
@@ -1184,7 +1184,7 @@ function pair([en, ar]: Pair) {
 }
 
 function build(seed: Seed): Product {
-  const category = categoryBySlug(seed.cat);
+  const category = SEED_CATEGORIES.find((c) => c.slug === seed.cat);
   if (!category) throw new Error(`Unknown category "${seed.cat}"`);
 
   const variants: Variant[] = [];

@@ -11,11 +11,12 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
+import { loadSettings } from "@/lib/site-settings";
 import { Newsletter } from "@/components/layout/Newsletter";
 
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
 
-export function StudioFooter({
+export async function StudioFooter({
   locale,
   dict,
   nav,
@@ -25,6 +26,14 @@ export function StudioFooter({
   nav: NavDepartment[];
 }) {
   const links = dict.footer.links;
+  const { social } = await loadSettings();
+  const socials = [
+    { href: social.instagram, Icon: InstagramIcon, label: "Instagram" },
+    { href: social.tiktok, Icon: TiktokIcon, label: "TikTok" },
+    { href: social.whatsapp, Icon: WhatsappIcon, label: "WhatsApp" },
+    // An unset link is hidden rather than pointing at a profile that
+    // doesn't exist.
+  ].filter((s) => s.href);
 
   return (
     <footer className="bg-brand-900 relative mt-24 overflow-hidden text-white">
@@ -44,23 +53,23 @@ export function StudioFooter({
             <p className="text-mint-200/80 mt-5 max-w-xs text-sm leading-relaxed">
               {dict.footer.aboutBody}
             </p>
-            <ul className="mt-6 flex gap-2">
-              {[
-                { Icon: InstagramIcon, label: "Instagram" },
-                { Icon: TiktokIcon, label: "TikTok" },
-                { Icon: WhatsappIcon, label: "WhatsApp" },
-              ].map(({ Icon, label }) => (
-                <li key={label}>
-                  <span
-                    role="link"
-                    aria-label={label}
-                    className="ring-mint-300/25 text-mint-200 hover:bg-mint-300/10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full ring-1 transition-colors"
-                  >
-                    <Icon className="size-5" />
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {socials.length ? (
+              <ul className="mt-6 flex gap-2">
+                {socials.map(({ href, Icon, label }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      aria-label={label}
+                      className="ring-mint-300/25 text-mint-200 hover:bg-mint-300/10 inline-flex size-10 items-center justify-center rounded-full ring-1 transition-colors"
+                    >
+                      <Icon className="size-5" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
 
           <FooterColumn title={dict.footer.shopTitle}>
