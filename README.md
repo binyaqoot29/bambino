@@ -56,18 +56,22 @@ lighting bias — worth replacing if a proper colour spec ever surfaces.
 
 ### Icons
 
-The elephant is fine line-art, and it turns to mush below roughly 64px — tested,
-not assumed. So the icon set splits by size:
+The elephant, white on a brand tile, across the whole set:
 
-| File | Art | Where it shows |
+| File | Size | Where it shows |
 |---|---|---|
-| `src/app/icon.svg` | **B** monogram on a brand tile | Browser tabs, at 16–32px |
-| `src/app/favicon.ico` | Same, rasterised 16/32/48 | Legacy browsers |
-| `src/app/apple-icon.png` | **Elephant**, white on brand, 180px full-bleed | iOS home screen |
+| `src/app/icon.svg` | scalable | Browser tabs |
+| `src/app/favicon.ico` | 16/32/48 | Legacy browsers |
+| `src/app/apple-icon.png` | 180px, full-bleed | iOS home screen |
 
-The B is the real wordmark's letterform, not a substitute typeface, so the small
-icon is still genuinely the brand. The Apple icon is deliberately square and
-opaque — iOS applies its own rounding and dislikes transparency.
+The mark is fine line-art, so at tab sizes the tab icon carries a **1.4pt white
+stroke on top of the same white fill** — it fattens every line without altering
+the drawing. Weights were compared at 16/32/48 before picking it: thinner loses
+the shape, heavier closes up the ear. It reads well from 32px up and is a soft
+silhouette at 16px, which is the honest limit of line-art this fine.
+
+The Apple icon is deliberately square and opaque — iOS applies its own rounding
+and dislikes transparency.
 
 ## Product imagery
 
