@@ -18,6 +18,9 @@
 
 import { spawnSync } from "node:child_process";
 
+/** Records that the one-time seed has run. */
+const SEEDED_KEY = "_seeded";
+
 function run(script: string) {
   const result = spawnSync(
     process.execPath,
@@ -36,17 +39,35 @@ async function main() {
   run("scripts/migrate.ts");
 
   const { getDb, schema } = await import("../src/db/client");
-  const { count } = await import("drizzle-orm");
+  const { eq } = await import("drizzle-orm");
   const db = await getDb();
-  const [{ n }] = await db.select({ n: count() }).from(schema.products);
 
-  if (n > 0) {
-    console.log(`setup-db: catalogue already has ${n} products, not seeding`);
+  // An explicit marker, not "are there any products?".
+  //
+  // The product count was the first guard and it was wrong: adding the
+  // categories table later meant a database with products but no categories
+  // skipped seeding and shipped a storefront with no categories at all. A
+  // marker records that the initial seed has happened, whatever the schema
+  // grows into, and equally means a product the shop owner deletes is never
+  // resurrected by the next deploy.
+  const [marker] = await db
+    .select()
+    .from(schema.settings)
+    .where(eq(schema.settings.key, SEEDED_KEY))
+    .limit(1);
+
+  if (marker) {
+    console.log("setup-db: already seeded, leaving data alone");
     return;
   }
 
-  console.log("setup-db: empty catalogue, seeding");
+  console.log("setup-db: first run, seeding");
   run("scripts/seed.ts");
+
+  await db
+    .insert(schema.settings)
+    .values({ key: SEEDED_KEY, value: { at: new Date().toISOString() } })
+    .onConflictDoNothing();
 }
 
 main().then(
