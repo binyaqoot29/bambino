@@ -1,54 +1,59 @@
 import type { Locale } from "@/i18n/config";
 
-import { PRODUCTS } from "./products";
+import { loadCatalogue, loadProductByHandle, loadProductsByIds } from "./repository";
 import { CATEGORIES, categoryBySlug } from "./taxonomy";
-import {
-  type AgeGroup,
-  type Product,
-  type SortKey,
-  inStock,
-} from "./types";
+import { type AgeGroup, type Product, type SortKey, inStock } from "./types";
 
 /**
- * The read layer the pages talk to. Everything is synchronous today because the
- * catalogue is in-process; the signatures are already Promise-friendly, so
- * dropping in a real backend means changing these bodies and nothing else.
+ * The read layer the pages talk to.
+ *
+ * Everything that touches the catalogue is async and hits Postgres. The
+ * filtering, sorting and faceting below stay in memory deliberately: the
+ * catalogue is small, and keeping this logic in TypeScript means the same code
+ * serves the storefront's URL-driven facets and the admin's list view without
+ * two dialects of the same rules.
  */
 
-export function getAllProducts(): Product[] {
-  return PRODUCTS;
+export async function getAllProducts(): Promise<Product[]> {
+  return loadCatalogue();
 }
 
-export function getProductByHandle(handle: string): Product | undefined {
-  return PRODUCTS.find((p) => p.handle === handle);
+export async function getProductByHandle(
+  handle: string,
+): Promise<Product | undefined> {
+  return loadProductByHandle(handle);
 }
 
-export function getProductsByIds(ids: string[]): Product[] {
-  const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
-  return ids.map((id) => byId.get(id)).filter((p): p is Product => Boolean(p));
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  return loadProductsByIds(ids);
 }
 
-export function getFeatured(limit = 8) {
-  return PRODUCTS.filter((p) => p.featured).slice(0, limit);
+export async function getFeatured(limit = 8) {
+  return (await loadCatalogue()).filter((p) => p.featured).slice(0, limit);
 }
 
-export function getBestsellers(limit = 8) {
-  return PRODUCTS.filter((p) => p.bestseller).slice(0, limit);
+export async function getBestsellers(limit = 8) {
+  return (await loadCatalogue()).filter((p) => p.bestseller).slice(0, limit);
 }
 
-export function getNewIn(limit = 8) {
-  return [...PRODUCTS].sort((a, b) => a.daysOld - b.daysOld).slice(0, limit);
+export async function getNewIn(limit = 8) {
+  return [...(await loadCatalogue())]
+    .sort((a, b) => a.daysOld - b.daysOld)
+    .slice(0, limit);
 }
 
-export function getOnSale(limit = 8) {
-  return PRODUCTS.filter((p) => p.compareAtPrice).slice(0, limit);
+export async function getOnSale(limit = 8) {
+  return (await loadCatalogue())
+    .filter((p) => p.compareAtPrice)
+    .slice(0, limit);
 }
 
-export function getRelated(product: Product, limit = 4) {
-  const sameCategory = PRODUCTS.filter(
+export async function getRelated(product: Product, limit = 4) {
+  const all = await loadCatalogue();
+  const sameCategory = all.filter(
     (p) => p.category === product.category && p.id !== product.id,
   );
-  const sameDepartment = PRODUCTS.filter(
+  const sameDepartment = all.filter(
     (p) =>
       p.department === product.department &&
       p.category !== product.category &&
@@ -57,9 +62,34 @@ export function getRelated(product: Product, limit = 4) {
   return [...sameCategory, ...sameDepartment].slice(0, limit);
 }
 
-export function getProductsByAge(age: AgeGroup, limit?: number) {
-  const matches = PRODUCTS.filter((p) => p.ageGroups.includes(age));
+export async function getProductsByAge(age: AgeGroup, limit?: number) {
+  const matches = (await loadCatalogue()).filter((p) =>
+    p.ageGroups.includes(age),
+  );
   return limit ? matches.slice(0, limit) : matches;
+}
+
+export async function getProductsInCategory(slug: string) {
+  return (await loadCatalogue()).filter((p) => p.category === slug);
+}
+
+export async function getProductsInDepartment(department: string) {
+  return (await loadCatalogue()).filter((p) => p.department === department);
+}
+
+export async function countInCategory(slug: string) {
+  return (await loadCatalogue()).filter((p) => p.category === slug).length;
+}
+
+/** Counts for every category in one pass — the nav needs all of them at once. */
+export async function countsByCategory(): Promise<Record<string, number>> {
+  const all = await loadCatalogue();
+  const counts: Record<string, number> = {};
+  for (const category of CATEGORIES) counts[category.slug] = 0;
+  for (const product of all) {
+    counts[product.category] = (counts[product.category] ?? 0) + 1;
+  }
+  return counts;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -185,8 +215,4 @@ export type Facets = ReturnType<typeof buildFacets>;
 
 export function getCategories() {
   return CATEGORIES;
-}
-
-export function countInCategory(slug: string) {
-  return PRODUCTS.filter((p) => p.category === slug).length;
 }

@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n/config";
-import { PRODUCTS } from "./products";
+import { loadCatalogue } from "./repository";
 import { SIZE_LABELS } from "./taxonomy";
 import type { ArtKey } from "./types";
 
@@ -23,10 +23,10 @@ export type ProductIndex = {
   sizeLabels: Record<string, string>;
 };
 
-export function buildProductIndex(locale: Locale): ProductIndex {
+export async function buildProductIndex(locale: Locale): Promise<ProductIndex> {
   const products: Record<string, MiniProduct> = {};
 
-  for (const p of PRODUCTS) {
+  for (const p of await loadCatalogue()) {
     products[p.id] = {
       id: p.id,
       handle: p.handle,

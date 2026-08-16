@@ -24,16 +24,18 @@ const AGE_KEYS = Object.keys(AGE_GROUP_LABELS) as AgeGroup[];
 
 type Dict = ReturnType<typeof getDictionary>;
 
-export function StudioHome({
+export async function StudioHome({
   locale,
   dict,
 }: {
   locale: Locale;
   dict: Dict;
 }) {
-  const newIn = getNewIn(4);
-  const bestsellers = getBestsellers(4);
-  const onSale = getOnSale(4);
+  const [newIn, bestsellers, onSale] = await Promise.all([
+    getNewIn(4),
+    getBestsellers(4),
+    getOnSale(4),
+  ]);
   const featuredCategories = CATEGORIES.slice(0, 8);
 
   return (

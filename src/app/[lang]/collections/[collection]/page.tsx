@@ -59,7 +59,7 @@ export default async function CollectionPage({
   const dict = getDictionary(locale);
   const listingParams = parseListingParams(await searchParams);
 
-  const all = getAllProducts();
+  const all = await getAllProducts();
   const products =
     collection === "new-in"
       ? [...all].sort((a, b) => a.daysOld - b.daysOld)

@@ -7,7 +7,7 @@ import { Listing } from "@/design";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { getAllProducts } from "@/lib/catalog/queries";
+import { getProductsInDepartment } from "@/lib/catalog/queries";
 import { CATEGORIES, DEPARTMENT_ORDER } from "@/lib/catalog/taxonomy";
 import { DEPARTMENT_LABELS, type Department } from "@/lib/catalog/types";
 import { routes } from "@/lib/routes";
@@ -55,7 +55,7 @@ export default async function DepartmentPage({
   const dict = getDictionary(locale);
   const listingParams = parseListingParams(await searchParams);
 
-  const products = getAllProducts().filter((p) => p.department === department);
+  const products = await getProductsInDepartment(department);
   const categories = CATEGORIES.filter((c) => c.department === department);
 
   return (

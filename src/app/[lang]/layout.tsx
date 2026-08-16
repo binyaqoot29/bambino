@@ -70,7 +70,7 @@ export default async function LocaleLayout({
   const locale: Locale = lang;
   const dict = getDictionary(locale);
   const design = await getDesign();
-  const nav = buildNav(locale);
+  const nav = await buildNav(locale);
   const ages = buildAgeLinks(locale);
 
   return (
@@ -89,7 +89,7 @@ export default async function LocaleLayout({
           {dict.common.skipToContent}
         </a>
 
-        <CatalogProvider index={buildProductIndex(locale)}>
+        <CatalogProvider index={await buildProductIndex(locale)}>
           <BagProvider>
             <SiteHeader locale={locale} dict={dict} nav={nav} ages={ages} />
 

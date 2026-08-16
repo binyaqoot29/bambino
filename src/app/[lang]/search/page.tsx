@@ -46,7 +46,7 @@ export default async function SearchPage({
 
   const results = query
     ? sortProducts(
-        filterProducts(getAllProducts(), { query }, locale),
+        filterProducts(await getAllProducts(), { query }, locale),
         listing.sort,
       )
     : [];

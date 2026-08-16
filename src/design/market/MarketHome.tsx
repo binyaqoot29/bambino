@@ -12,7 +12,7 @@ import {
   getAllProducts,
 } from "@/lib/catalog/queries";
 import { CATEGORIES } from "@/lib/catalog/taxonomy";
-import { AGE_GROUP_LABELS, type AgeGroup } from "@/lib/catalog/types";
+import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/money";
 import { routes } from "@/lib/routes";
 import { MarketProductCard } from "./MarketProductCard";
@@ -27,22 +27,23 @@ const AGE_KEYS = Object.keys(AGE_GROUP_LABELS) as AgeGroup[];
  * rails that lead with price. The intent is a shopper who lands and clicks,
  * not a visitor who reads.
  */
-export function MarketHome({
+export async function MarketHome({
   locale,
   dict,
 }: {
   locale: Locale;
   dict: Dictionary;
 }) {
-  const onSale = getOnSale(6);
-  const newIn = getNewIn(6);
-  const bestsellers = getBestsellers(5);
+  const [onSale, newIn, bestsellers, all] = await Promise.all([
+    getOnSale(6),
+    getNewIn(6),
+    getBestsellers(5),
+    getAllProducts(),
+  ]);
   // Entry price for the promo tile — of the department it links to, not the
   // whole catalogue, or the number is a lie.
   const travelFrom = Math.min(
-    ...getAllProducts()
-      .filter((p) => p.department === "travel")
-      .map((p) => p.price),
+    ...all.filter((p) => p.department === "travel").map((p) => p.price),
   );
 
   return (
@@ -241,7 +242,7 @@ function Rail({
   title: string;
   href: string;
   viewAll: string;
-  products: ReturnType<typeof getOnSale>;
+  products: Product[];
   locale: Locale;
   dict: Dictionary;
   accent?: boolean;
@@ -298,7 +299,7 @@ function BestsellerBlock({
 }: {
   locale: Locale;
   dict: Dictionary;
-  products: ReturnType<typeof getBestsellers>;
+  products: Product[];
 }) {
   if (products.length === 0) return null;
 

@@ -21,7 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang, handle } = await params;
   const locale: Locale = isLocale(lang) ? lang : "en";
-  const product = getProductByHandle(handle);
+  const product = await getProductByHandle(handle);
   if (!product) return {};
 
   return {
@@ -43,7 +43,7 @@ export default async function ProductPage({
   const { lang, handle } = await params;
   if (!isLocale(lang)) notFound();
 
-  const product = getProductByHandle(handle);
+  const product = await getProductByHandle(handle);
   if (!product) notFound();
 
   const locale: Locale = lang;
@@ -51,7 +51,7 @@ export default async function ProductPage({
   return (
     <ProductView
       product={product}
-      related={getRelated(product, 4)}
+      related={await getRelated(product, 4)}
       locale={locale}
       dict={getDictionary(locale)}
     />

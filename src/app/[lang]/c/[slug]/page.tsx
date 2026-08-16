@@ -5,7 +5,7 @@ import { Listing } from "@/design";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
-import { getAllProducts } from "@/lib/catalog/queries";
+import { getProductsInCategory } from "@/lib/catalog/queries";
 import { CATEGORIES, categoryBySlug } from "@/lib/catalog/taxonomy";
 import { DEPARTMENT_LABELS } from "@/lib/catalog/types";
 import { routes } from "@/lib/routes";
@@ -53,7 +53,7 @@ export default async function CategoryPage({
   const dict = getDictionary(locale);
   const listingParams = parseListingParams(await searchParams);
 
-  const products = getAllProducts().filter((p) => p.category === slug);
+  const products = await getProductsInCategory(slug);
 
   return (
     <Listing
