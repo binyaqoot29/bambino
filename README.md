@@ -54,6 +54,21 @@ a webfont loads or drift if the font stack changes.
 comes from photographs of the printed collateral, so those hexes carry some
 lighting bias — worth replacing if a proper colour spec ever surfaces.
 
+### Icons
+
+The elephant is fine line-art, and it turns to mush below roughly 64px — tested,
+not assumed. So the icon set splits by size:
+
+| File | Art | Where it shows |
+|---|---|---|
+| `src/app/icon.svg` | **B** monogram on a brand tile | Browser tabs, at 16–32px |
+| `src/app/favicon.ico` | Same, rasterised 16/32/48 | Legacy browsers |
+| `src/app/apple-icon.png` | **Elephant**, white on brand, 180px full-bleed | iOS home screen |
+
+The B is the real wordmark's letterform, not a substitute typeface, so the small
+icon is still genuinely the brand. The Apple icon is deliberately square and
+opaque — iOS applies its own rounding and dislikes transparency.
+
 ## Product imagery
 
 There is no product photography yet. Every product renders a line-art
