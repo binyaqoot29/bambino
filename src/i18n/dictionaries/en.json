@@ -21,7 +21,9 @@
     "sale": "Sale",
     "off": "off",
     "loading": "Loading",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "from": "From",
+    "save": "Save"
   },
   "announce": {
     "shipping": "Free delivery across Kuwait on orders over 20.000 KD",
@@ -63,16 +65,40 @@
     "storyBody": "Bambino is a place where comfort meets style. Every piece is designed with love, softness, and attention to detail — so little ones can explore the world with confidence.",
     "storyCta": "Our story",
     "pillars": {
-      "quality": { "title": "Quality", "body": "Fabrics tested for softness, seams built to survive the wash." },
-      "dress": { "title": "Dress", "body": "Pieces that look considered and still let them climb." },
-      "grow": { "title": "Grow", "body": "Generous sizing and adjustable fits that stretch the season." },
-      "happy": { "title": "Happy", "body": "Colour, character and a little bit of mischief in everything." }
+      "quality": {
+        "title": "Quality",
+        "body": "Fabrics tested for softness, seams built to survive the wash."
+      },
+      "dress": {
+        "title": "Dress",
+        "body": "Pieces that look considered and still let them climb."
+      },
+      "grow": {
+        "title": "Grow",
+        "body": "Generous sizing and adjustable fits that stretch the season."
+      },
+      "happy": {
+        "title": "Happy",
+        "body": "Colour, character and a little bit of mischief in everything."
+      }
     },
     "usp": {
-      "delivery": { "title": "Next-day Kuwait delivery", "body": "Order before 4pm, six days a week." },
-      "returns": { "title": "14-day returns", "body": "Free collection from your door." },
-      "payment": { "title": "Pay your way", "body": "KNET, cards, Apple Pay or cash on delivery." },
-      "safety": { "title": "Safety checked", "body": "Every pram and car seat meets EU standards." }
+      "delivery": {
+        "title": "Next-day Kuwait delivery",
+        "body": "Order before 4pm, six days a week."
+      },
+      "returns": {
+        "title": "14-day returns",
+        "body": "Free collection from your door."
+      },
+      "payment": {
+        "title": "Pay your way",
+        "body": "KNET, cards, Apple Pay or cash on delivery."
+      },
+      "safety": {
+        "title": "Safety checked",
+        "body": "Every pram and car seat meets EU standards."
+      }
     },
     "newsletterTitle": "Join the Bambino family",
     "newsletterBody": "New arrivals, sizing tips and members-only offers. One email a week, never more.",

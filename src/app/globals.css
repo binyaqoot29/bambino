@@ -60,11 +60,45 @@
     system-ui, sans-serif;
 
   /* --- Shape ------------------------------------------------------------ */
-  --radius-card: 1.25rem;
+  /* Used via `rounded-card` / `rounded-pill` so a design direction can retune
+     the whole UI's corners by overriding these two values. */
+  --radius-card: 1.5rem;
   --radius-pill: 999px;
 
   /* --- Motion ----------------------------------------------------------- */
   --ease-soft: cubic-bezier(0.32, 0.72, 0.3, 1);
+}
+
+/* ==========================================================================
+   Design direction: "market"
+   Dense and commercial. Same brand, different posture — surfaces go white,
+   orchid stops being decoration and becomes the action colour, corners tighten
+   from pill-soft to 8px, and the neutrals cool off so price and offer badges
+   carry more weight. Layout differences live in src/design/market/*.
+   ========================================================================== */
+
+[data-design="market"] {
+  /* Surfaces lose the pink cast — merchandising should supply the colour. */
+  --color-canvas: #f6f7f8;
+  --color-canvas-mint: #f2f6f8;
+
+  /* Cooler, higher-contrast neutrals for dense type. */
+  --color-ink-50: #f8f9fa;
+  --color-ink-100: #eef0f2;
+  --color-ink-200: #e0e3e7;
+  --color-ink-300: #c6ccd2;
+  --color-ink-400: #929aa3;
+  --color-ink-500: #6b737c;
+  --color-ink-600: #4d545c;
+  --color-ink-700: #383e45;
+  --color-ink-800: #24292e;
+  --color-ink-900: #14181c;
+
+  /* Louder sale red — this design leads with price. */
+  --color-sale: #d8232f;
+
+  --radius-card: 0.5rem;
+  --radius-pill: 0.5rem;
 }
 
 /* ==========================================================================

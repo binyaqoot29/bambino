@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { ProductListing } from "@/components/plp/ProductListing";
+import { Listing } from "@/design";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -68,7 +68,7 @@ export default async function CollectionPage({
         : all.filter((p) => p.compareAtPrice);
 
   return (
-    <ProductListing
+    <Listing
       title={COLLECTION_LABELS[collection][locale]}
       description={COLLECTION_BLURBS[collection][locale]}
       crumbs={[

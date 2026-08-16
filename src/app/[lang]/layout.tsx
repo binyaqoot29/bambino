@@ -5,9 +5,9 @@ import { notFound } from "next/navigation";
 import { BagProvider } from "@/components/cart/store";
 import { AddedToBagDrawer } from "@/components/cart/AddedToBagDrawer";
 import { CatalogProvider } from "@/components/catalog/CatalogProvider";
-import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
+import { SiteFooter, SiteHeader } from "@/design";
+import { DesignSwitcher } from "@/design/DesignSwitcher";
+import { getDesign } from "@/design/server";
 import { isLocale, locales, localeMeta, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { buildProductIndex } from "@/lib/catalog/index-client";
@@ -69,6 +69,7 @@ export default async function LocaleLayout({
 
   const locale: Locale = lang;
   const dict = getDictionary(locale);
+  const design = await getDesign();
   const nav = buildNav(locale);
   const ages = buildAgeLinks(locale);
 
@@ -76,6 +77,7 @@ export default async function LocaleLayout({
     <html
       lang={localeMeta[locale].htmlLang}
       dir={localeMeta[locale].dir}
+      data-design={design}
       className={`${poppins.variable} ${tajawal.variable} h-full`}
       suppressHydrationWarning
     >
@@ -89,39 +91,15 @@ export default async function LocaleLayout({
 
         <CatalogProvider index={buildProductIndex(locale)}>
           <BagProvider>
-            <AnnouncementBar
-              messages={[
-                dict.announce.shipping,
-                dict.announce.returns,
-                dict.announce.cod,
-              ]}
-            />
-            <Header
-              locale={locale}
-              nav={nav}
-              ages={ages}
-              strings={{
-                newIn: dict.nav.newIn,
-                sale: dict.nav.sale,
-                searchPlaceholder: dict.nav.searchPlaceholder,
-                search: dict.common.search,
-                account: dict.nav.account,
-                wishlist: dict.nav.wishlist,
-                cart: dict.nav.cart,
-                changeLanguage: dict.nav.changeLanguage,
-                openMenu: dict.nav.openMenu,
-                closeMenu: dict.nav.closeMenu,
-                shopByAge: dict.nav.shopByAge,
-                close: dict.common.close,
-              }}
-            />
+            <SiteHeader locale={locale} dict={dict} nav={nav} ages={ages} />
 
             <main id="main" className="flex-1">
               {children}
             </main>
 
-            <Footer locale={locale} dict={dict} nav={nav} />
+            <SiteFooter locale={locale} dict={dict} nav={nav} />
             <AddedToBagDrawer locale={locale} dict={dict} />
+            <DesignSwitcher current={design} />
           </BagProvider>
         </CatalogProvider>
       </body>

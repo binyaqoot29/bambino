@@ -15,12 +15,13 @@ import {
   SearchIcon,
   UserIcon,
 } from "@/components/ui/Icons";
-import { LocaleSwitcher } from "./LocaleSwitcher";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { LocaleSwitcher } from "@/components/layout/LocaleSwitcher";
 import type { Locale } from "@/i18n/config";
 import type { AgeLink, NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
 
-type HeaderStrings = {
+export type HeaderStrings = {
   newIn: string;
   sale: string;
   searchPlaceholder: string;
@@ -35,16 +36,18 @@ type HeaderStrings = {
   close: string;
 };
 
-export function Header({
+export function StudioHeader({
   locale,
   nav,
   ages,
   strings,
+  announcements,
 }: {
   locale: Locale;
   nav: NavDepartment[];
   ages: AgeLink[];
   strings: HeaderStrings;
+  announcements: string[];
 }) {
   const router = useRouter();
   const { count, wishlist, ready } = useBag();
@@ -111,7 +114,9 @@ export function Header({
   const openPanel = nav.find((d) => d.key === openDepartment);
 
   return (
-    <header className="border-ink-200/70 bg-paper/95 sticky top-0 z-50 border-b backdrop-blur-sm">
+    <>
+      <AnnouncementBar messages={announcements} />
+      <header className="border-ink-200/70 bg-paper/95 sticky top-0 z-50 border-b backdrop-blur-sm">
       <div className="container-bambino">
         <div className="flex h-16 items-center gap-3 lg:h-[4.5rem] lg:gap-6">
           <button
@@ -321,7 +326,8 @@ export function Header({
           onClose={closeAll}
         />
       ) : null}
-    </header>
+      </header>
+    </>
   );
 }
 

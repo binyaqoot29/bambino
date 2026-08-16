@@ -12,17 +12,16 @@ import {
   sortProducts,
 } from "@/lib/catalog/queries";
 import { SIZE_LABELS, COLOURS } from "@/lib/catalog/taxonomy";
-import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
-import { ActiveFilters } from "./ActiveFilters";
-import { FilterRail, FilterSheet, type FacetData } from "./Filters";
-import { SortSelect } from "./SortSelect";
-import { buildQuery, type ListingParams } from "./search-params";
+import { AGE_GROUP_LABELS, type AgeGroup } from "@/lib/catalog/types";
+import { ActiveFilters } from "@/components/plp/ActiveFilters";
+import { FilterRail, FilterSheet, type FacetData } from "@/components/plp/Filters";
+import { SortSelect } from "@/components/plp/SortSelect";
+import { buildQuery, type ListingParams } from "@/components/plp/search-params";
+import type { ListingProps } from "../types";
 
 const PAGE_SIZE = 12;
 
-export type Crumb = { label: string; href?: string };
-
-export function ProductListing({
+export function StudioListing({
   title,
   description,
   crumbs,
@@ -31,17 +30,7 @@ export function ProductListing({
   basePath,
   locale,
   dict,
-}: {
-  title: string;
-  description?: string;
-  crumbs?: Crumb[];
-  /** The candidate set before facets — facet counts are derived from it. */
-  products: Product[];
-  params: ListingParams;
-  basePath: string;
-  locale: Locale;
-  dict: Dictionary;
-}) {
+}: ListingProps) {
   const { plural } = createTranslator(locale);
 
   const filtered = filterProducts(

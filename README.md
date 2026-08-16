@@ -82,6 +82,40 @@ per-product background tint. It's a deliberate stand-in — it keeps a grid
 looking designed rather than broken. Swapping in `<Image>` touches three call
 sites: the product card, the PDP gallery, and the cart line.
 
+## Two designs
+
+This build carries **two design directions** so the client can compare them on
+the same running site. A floating switcher (bottom right) flips between:
+
+- **Studio** — the original. Soft, brand-led, generous spacing, pill shapes.
+- **Market** — dense and commercial. White-led with orchid as the action colour,
+  8px corners, promo-driven layouts, price-first product cards.
+
+They differ in structure, not just skin: separate headers, footers, homepages,
+listing pages and product pages. What they share is everything below the
+surface — catalogue, cart, filters, i18n, and the primitives in
+`src/components/ui`.
+
+```
+src/design/
+  config.ts          designs, cookie name, labels
+  server.ts          getDesign() — reads the cookie
+  index.tsx          dispatchers: <Home>, <Listing>, <ProductView>, <SiteHeader>, <SiteFooter>
+  types.ts           the prop contract both directions implement
+  studio/  market/   the two implementations
+```
+
+Route files under `src/app` render the dispatchers and never import a specific
+direction, so adding or removing one touches nothing there. Colour, type, radii
+and neutrals come from the `[data-design="market"]` block in `globals.css` —
+`data-design` is set on `<html>` from the cookie.
+
+**This is review scaffolding.** Reading a cookie in the layout opts every page
+out of static prerendering, which is why the build reports routes as dynamic.
+Once a direction is chosen: delete the other folder, drop `DesignSwitcher` and
+`getDesign`, inline the winner into the routes, and the pages go back to being
+fully static.
+
 ## Localisation
 
 - Every page lives under `/{locale}`. [`src/proxy.ts`](src/proxy.ts) redirects

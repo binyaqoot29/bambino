@@ -11,11 +11,11 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
-import { Newsletter } from "./Newsletter";
+import { Newsletter } from "@/components/layout/Newsletter";
 
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
 
-export function Footer({
+export function StudioFooter({
   locale,
   dict,
   nav,

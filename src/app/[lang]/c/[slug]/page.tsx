@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { ProductListing } from "@/components/plp/ProductListing";
+import { Listing } from "@/design";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -56,7 +56,7 @@ export default async function CategoryPage({
   const products = getAllProducts().filter((p) => p.category === slug);
 
   return (
-    <ProductListing
+    <Listing
       title={category.name[locale]}
       description={category.blurb?.[locale]}
       crumbs={[
