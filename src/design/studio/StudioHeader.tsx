@@ -316,7 +316,14 @@ export function StudioHeader({
         </div>
       ) : null}
 
-      {/* mobile drawer */}
+      </header>
+
+      {/*
+        The drawer must live OUTSIDE <header>. The header sets backdrop-blur,
+        and backdrop-filter makes an element a containing block for fixed
+        descendants — so `fixed inset-0` in here would size itself to the
+        header (64px tall) instead of the viewport.
+      */}
       {mobileOpen ? (
         <MobileNav
           locale={locale}
@@ -326,7 +333,6 @@ export function StudioHeader({
           onClose={closeAll}
         />
       ) : null}
-      </header>
     </>
   );
 }
