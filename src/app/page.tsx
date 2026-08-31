@@ -5,6 +5,21 @@ import { isLocale, locales, type Locale } from "@/i18n/config";
 import { loadSettings } from "@/lib/site-settings";
 
 /**
+ * Per request, for the same reason as the storefront — and explicitly, not by
+ * implication.
+ *
+ * This page sits outside `[lang]`, so it doesn't inherit that layout's setting.
+ * Reading `headers()` would normally opt a page out of prerendering, but only
+ * once it's actually read: the settings query runs first here, so a prerender
+ * reached the database before anything marked the page dynamic. That built
+ * fine where `DATABASE_URL` exists and died where it doesn't, and it also meant
+ * the landing language was baked in at build time rather than read live.
+ *
+ * Depending on statement order for dynamism is a trap. This says it outright.
+ */
+export const dynamic = "force-dynamic";
+
+/**
  * Decides which language a visitor arriving at `/` gets.
  *
  * This lives in a page rather than in `src/proxy.ts` because the choice depends
