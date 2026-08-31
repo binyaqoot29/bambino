@@ -120,6 +120,89 @@
 }
 
 /* ==========================================================================
+   Admin — tables that become cards on a phone
+   ========================================================================== */
+
+/**
+ * A five-column admin table cannot shrink to 375px. Left alone it overflows a
+ * rounded card whose `overflow-hidden` clips it, so Edit and Delete sit past
+ * the right edge with nothing to scroll — the shop owner simply can't reach
+ * them. That's worse than a scrollbar.
+ *
+ * Below 40rem each row becomes a card and each cell a labelled line. Deliberately
+ * one set of markup rather than a table plus a separate mobile card list: the
+ * inventory screen's cells contain the stock inputs, and rendering both layouts
+ * would put two fields with the same name in one form, where whichever the shop
+ * owner didn't edit could be the one that saves.
+ *
+ * Cells carry their heading in `data-label`. A cell with no label — the row's
+ * identity, and the actions — spans the card instead of sitting in a pair.
+ */
+@media (width < 40rem) {
+  .stack-table,
+  .stack-table tbody,
+  .stack-table tr,
+  .stack-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .stack-table thead {
+    display: none;
+  }
+
+  .stack-table tr {
+    padding: 0.875rem 1rem;
+  }
+
+  /**
+   * Label pinned to the start, value flowing to the end.
+   *
+   * Positioned rather than a flex pair because a cell can hold several elements
+   * — a stock count and its variant total, a price and the price it replaced —
+   * and as flex items those would each be spaced apart instead of reading as
+   * one value.
+   */
+  .stack-table td {
+    position: relative;
+    padding: 0.1875rem 0;
+    padding-inline-start: 42%;
+    text-align: end;
+  }
+
+  .stack-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.1875rem;
+    width: 38%;
+    color: var(--color-ink-400);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-align: start;
+    text-transform: uppercase;
+  }
+
+  /* The identity line and the action row: no label, full width. */
+  .stack-table td[data-label=""] {
+    padding-inline-start: 0;
+    text-align: start;
+  }
+
+  .stack-table td[data-label=""]::before {
+    display: none;
+  }
+
+  /* Actions become a full-width row of targets rather than a cramped corner. */
+  .stack-table td[data-actions] {
+    margin-top: 0.5rem;
+    padding-top: 0.625rem;
+    border-top: 1px solid var(--color-ink-100);
+  }
+}
+
+/* ==========================================================================
    Brand utilities
    ========================================================================== */
 

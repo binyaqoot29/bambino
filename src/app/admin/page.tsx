@@ -16,7 +16,9 @@ export default async function AdminProductsPage({
   if (!(await isAuthenticated())) redirect("/admin/login");
 
   const params = await searchParams;
-  const query = String(params.q ?? "").trim().toLowerCase();
+  const query = String(params.q ?? "")
+    .trim()
+    .toLowerCase();
   const saved = params.saved ? String(params.saved) : null;
   const deleted = Boolean(params.deleted);
 
@@ -36,9 +38,7 @@ export default async function AdminProductsPage({
     : all;
 
   const totalStock = (id: string) =>
-    all
-      .find((p) => p.id === id)!
-      .variants.reduce((n, v) => n + v.stock, 0);
+    all.find((p) => p.id === id)!.variants.reduce((n, v) => n + v.stock, 0);
 
   return (
     <div>
@@ -61,18 +61,21 @@ export default async function AdminProductsPage({
             {query ? ` · ${products.length} ${t.products.matching}` : ""}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <form method="get" className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <form
+            method="get"
+            className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none"
+          >
             <input
               name="q"
               defaultValue={query}
               placeholder={t.products.search}
-              className="ring-ink-300 focus:ring-brand-500 h-9 w-52 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+              className="ring-ink-300 focus:ring-brand-500 h-9 w-full min-w-0 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:w-52"
             />
           </form>
           <Link
             href="/admin/products/new"
-            className="bg-brand-500 hover:bg-brand-600 inline-flex h-9 items-center rounded-lg px-4 text-sm font-semibold text-white"
+            className="bg-brand-500 hover:bg-brand-600 inline-flex h-9 shrink-0 items-center rounded-lg px-4 text-sm font-semibold whitespace-nowrap text-white"
           >
             {t.products.add}
           </Link>
@@ -80,13 +83,21 @@ export default async function AdminProductsPage({
       </div>
 
       <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-        <table className="w-full text-sm">
+        <table className="stack-table w-full text-sm">
           <thead className="border-ink-200 bg-ink-50 border-b">
             <tr className="text-ink-500 text-start text-[11px] tracking-wide uppercase">
-              <th className="px-4 py-2.5 text-start font-semibold">{t.products.product}</th>
-              <th className="px-4 py-2.5 text-start font-semibold">{t.products.category}</th>
-              <th className="px-4 py-2.5 text-start font-semibold">{t.products.price}</th>
-              <th className="px-4 py-2.5 text-start font-semibold">{t.products.stock}</th>
+              <th className="px-4 py-2.5 text-start font-semibold">
+                {t.products.product}
+              </th>
+              <th className="px-4 py-2.5 text-start font-semibold">
+                {t.products.category}
+              </th>
+              <th className="px-4 py-2.5 text-start font-semibold">
+                {t.products.price}
+              </th>
+              <th className="px-4 py-2.5 text-start font-semibold">
+                {t.products.stock}
+              </th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
@@ -96,7 +107,7 @@ export default async function AdminProductsPage({
               const stock = totalStock(product.id);
               return (
                 <tr key={product.id} className="hover:bg-ink-50/60">
-                  <td className="px-4 py-3">
+                  <td data-label="" className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <ProductArt
                         art={product.art}
@@ -113,10 +124,16 @@ export default async function AdminProductsPage({
                       </div>
                     </div>
                   </td>
-                  <td className="text-ink-600 px-4 py-3 text-xs">
+                  <td
+                    data-label={t.products.category}
+                    className="text-ink-600 px-4 py-3 text-xs"
+                  >
                     {category?.name[locale] ?? product.category}
                   </td>
-                  <td className="px-4 py-3 text-xs tabular-nums">
+                  <td
+                    data-label={t.products.price}
+                    className="px-4 py-3 text-xs tabular-nums"
+                  >
                     <span className="text-ink-900 font-medium">
                       {formatPrice(product.price, locale)}
                     </span>
@@ -126,7 +143,10 @@ export default async function AdminProductsPage({
                       </span>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 text-xs tabular-nums">
+                  <td
+                    data-label={t.products.stock}
+                    className="px-4 py-3 text-xs tabular-nums"
+                  >
                     <span
                       className={
                         inStock(product)
@@ -141,7 +161,11 @@ export default async function AdminProductsPage({
                       / {product.variants.length} {t.products.variants}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-end whitespace-nowrap">
+                  <td
+                    data-label=""
+                    data-actions=""
+                    className="px-4 py-3 text-end whitespace-nowrap max-sm:text-start"
+                  >
                     <Link
                       href={`/admin/products/${product.id}`}
                       className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
@@ -166,9 +190,7 @@ export default async function AdminProductsPage({
 
         {products.length === 0 ? (
           <p className="text-ink-500 px-4 py-12 text-center text-sm">
-            {query
-              ? `${t.products.noMatch} “${query}”`
-              : t.products.none}
+            {query ? `${t.products.noMatch} “${query}”` : t.products.none}
           </p>
         ) : null}
       </div>

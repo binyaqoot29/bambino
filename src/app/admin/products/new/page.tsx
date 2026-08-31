@@ -20,7 +20,10 @@ export default async function NewProductPage() {
 
   return (
     <div>
-      <Link href="/admin" className="text-ink-500 hover:text-brand-600 text-xs font-medium">
+      <Link
+        href="/admin"
+        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+      >
         ← Products
       </Link>
       <h1 className="text-ink-900 mt-2 mb-5 text-xl font-bold">Add product</h1>

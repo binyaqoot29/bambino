@@ -26,7 +26,10 @@ export default async function EditProductPage({
 
   return (
     <div>
-      <Link href="/admin" className="text-ink-500 hover:text-brand-600 text-xs font-medium">
+      <Link
+        href="/admin"
+        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+      >
         ← Products
       </Link>
       <div className="mt-2 mb-5 flex flex-wrap items-center justify-between gap-3">

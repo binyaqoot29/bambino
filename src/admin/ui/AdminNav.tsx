@@ -92,7 +92,7 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
 
   return (
     <nav aria-label={labels.menu} className="lg:w-52 lg:shrink-0">
-      <div className="no-scrollbar -mx-4 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
+      <div className="no-scrollbar -mx-4 overflow-x-auto px-4 pe-8 lg:mx-0 lg:overflow-visible lg:p-0">
         <ul className="flex items-center gap-1 lg:block lg:space-y-5">
           {groups.map((group) => (
             <li key={group.heading} className="contents lg:block">

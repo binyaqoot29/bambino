@@ -73,17 +73,20 @@ export default async function AdminCustomersPage({
       ) : (
         <>
           <div className="mb-4 flex flex-wrap items-center gap-2">
-            <form method="get" className="flex items-center gap-2">
+            <form
+              method="get"
+              className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none"
+            >
               <input
                 name="q"
                 defaultValue={query}
                 placeholder={t.customers.search}
                 dir="ltr"
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full max-w-xs rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-brand-500 h-10 min-w-0 flex-1 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:max-w-xs sm:flex-none"
               />
               <button
                 type="submit"
-                className="ring-ink-300 hover:bg-ink-100 h-10 rounded-lg bg-white px-4 text-sm font-semibold ring-1"
+                className="ring-ink-300 hover:bg-ink-100 h-10 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1"
               >
                 {t.form.search}
               </button>
@@ -95,7 +98,7 @@ export default async function AdminCustomersPage({
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/admin/customers/export"
-              className="ms-auto ring-ink-300 hover:bg-ink-100 inline-flex h-10 items-center rounded-lg bg-white px-4 text-sm font-semibold ring-1"
+              className="ring-ink-300 hover:bg-ink-100 inline-flex h-10 shrink-0 items-center rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1 sm:ms-auto"
               title={t.customers.exportHint}
             >
               {t.customers.export}
@@ -103,7 +106,7 @@ export default async function AdminCustomersPage({
           </div>
 
           <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-            <table className="w-full text-sm">
+            <table className="stack-table w-full text-sm">
               <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
                 <tr>
                   <th className="px-4 py-2.5 text-start font-bold">
@@ -127,18 +130,25 @@ export default async function AdminCustomersPage({
                   return (
                     <tr key={row.id} className="hover:bg-ink-50/60">
                       <td
+                        data-label=""
                         className="text-ink-900 px-4 py-2 font-medium"
                         dir="ltr"
                       >
                         {row.email}
                       </td>
-                      <td className="text-ink-600 px-4 py-2 uppercase">
+                      <td
+                        data-label={t.customers.language}
+                        className="text-ink-600 px-4 py-2 uppercase"
+                      >
                         {row.locale}
                       </td>
-                      <td className="text-ink-600 px-4 py-2">
+                      <td
+                        data-label={t.customers.joined}
+                        className="text-ink-600 px-4 py-2"
+                      >
                         {dateFormat.format(row.createdAt)}
                       </td>
-                      <td className="px-4 py-2">
+                      <td data-label={t.customers.status} className="px-4 py-2">
                         <span
                           className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${
                             active
@@ -151,8 +161,8 @@ export default async function AdminCustomersPage({
                             : t.customers.unsubscribed}
                         </span>
                       </td>
-                      <td className="px-4 py-2">
-                        <div className="flex items-center justify-end gap-1">
+                      <td data-label="" data-actions="" className="px-4 py-2">
+                        <div className="flex items-center gap-1 sm:justify-end">
                           <form action={setSubscribed}>
                             <input type="hidden" name="id" value={row.id} />
                             <input

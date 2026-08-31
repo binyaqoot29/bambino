@@ -98,7 +98,7 @@ export default async function AdminInventoryPage({
       </div>
       <p className="text-ink-500 mb-5 text-sm">{t.inventory.blurb}</p>
 
-      <form method="get" className="mb-4 flex flex-wrap items-center gap-2">
+      <form method="get" className="mb-4 flex items-center gap-2">
         {filter !== "all" ? (
           <input type="hidden" name="filter" value={filter} />
         ) : null}
@@ -106,23 +106,23 @@ export default async function AdminInventoryPage({
           name="q"
           defaultValue={query}
           placeholder={t.inventory.search}
-          className="ring-ink-300 focus:ring-brand-500 h-10 w-full max-w-xs rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+          className="ring-ink-300 focus:ring-brand-500 h-10 min-w-0 flex-1 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:max-w-xs sm:flex-none"
         />
         <button
           type="submit"
-          className="ring-ink-300 hover:bg-ink-100 h-10 rounded-lg bg-white px-4 text-sm font-semibold ring-1"
+          className="ring-ink-300 hover:bg-ink-100 h-10 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1"
         >
           {t.form.search}
         </button>
       </form>
 
-      <div className="border-ink-200 mb-4 flex gap-1 border-b">
+      <div className="border-ink-200 no-scrollbar -mx-4 mb-4 flex gap-1 overflow-x-auto border-b px-4 sm:mx-0 sm:px-0">
         {tabs.map((tab) => (
           <Link
             key={tab.key}
             href={tabHref(tab.key)}
             aria-current={filter === tab.key ? "page" : undefined}
-            className={`-mb-px inline-flex h-9 items-center gap-1.5 border-b-2 px-3 text-[13px] font-semibold ${
+            className={`-mb-px inline-flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-semibold whitespace-nowrap ${
               filter === tab.key
                 ? "border-brand-500 text-brand-700"
                 : "text-ink-500 hover:text-ink-800 border-transparent"
@@ -152,7 +152,7 @@ export default async function AdminInventoryPage({
           <input type="hidden" name="filter" value={filter} />
 
           <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-            <table className="w-full text-sm">
+            <table className="stack-table w-full text-sm">
               <thead className="bg-ink-50 text-ink-500 text-start text-[11px] font-bold tracking-wide uppercase">
                 <tr>
                   <th className="px-4 py-2.5 text-start font-bold">
@@ -169,7 +169,7 @@ export default async function AdminInventoryPage({
               <tbody className="divide-ink-100 divide-y">
                 {matches.map(({ product, variant, label }) => (
                   <tr key={variant.id} className="hover:bg-ink-50/60">
-                    <td className="px-4 py-2">
+                    <td data-label="" className="px-4 py-2">
                       <Link
                         href={`/admin/products/${product.id}`}
                         className="text-ink-900 hover:text-brand-600 font-medium"
@@ -177,11 +177,14 @@ export default async function AdminInventoryPage({
                         {text(product.name, locale)}
                       </Link>
                     </td>
-                    <td className="text-ink-600 px-4 py-2" dir="ltr">
-                      {label}
+                    <td
+                      data-label={t.inventory.variant}
+                      className="text-ink-600 px-4 py-2"
+                    >
+                      <span dir="ltr">{label}</span>
                     </td>
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-2">
+                    <td data-label={t.inventory.stock} className="px-4 py-2">
+                      <div className="flex items-center gap-2 max-sm:justify-end">
                         {/* The rendered value travels with the new one so the
                             action can skip rows nobody touched. */}
                         <input

@@ -181,6 +181,13 @@ The panel is available in **English and Arabic**, toggled in its header and
 remembered in its own cookie — separate from the storefront's, so previewing the
 Arabic shop doesn't flip the admin too.
 
+It works on a phone. The list screens are wide tables that can't shrink to
+375px, so below 40rem each row becomes a card and each cell a labelled line
+(`.stack-table` in `globals.css`). That reflow uses the same markup rather than
+a separate mobile list, which matters on the inventory screen: its cells hold
+the stock inputs, and rendering two layouts would put two fields with the same
+name in one form.
+
 ### What it manages
 
 | Section | What's editable |

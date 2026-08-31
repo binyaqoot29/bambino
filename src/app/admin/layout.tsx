@@ -63,11 +63,11 @@ export default async function AdminLayout({
               <BambinoMark className="text-brand-500 h-7 w-auto" />
               <Wordmark className="text-brand-500 h-3.5 w-auto" />
             </Link>
-            <span className="bg-ink-100 text-ink-600 rounded px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+            <span className="bg-ink-100 text-ink-600 hidden rounded px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase sm:inline">
               {t.brand}
             </span>
 
-            <div className="ms-auto flex items-center gap-3">
+            <div className="ms-auto flex items-center gap-2 sm:gap-3">
               {/* Language toggle is available even signed out, so the sign-in
                   page can be read in Arabic. */}
               <form action={setAdminLocale}>
@@ -78,7 +78,7 @@ export default async function AdminLayout({
                 />
                 <button
                   type="submit"
-                  className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-medium ring-1"
+                  className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap ring-1"
                 >
                   {locale === "ar" ? "English" : "العربية"}
                 </button>
@@ -89,14 +89,15 @@ export default async function AdminLayout({
                   <Link
                     href="/en"
                     target="_blank"
-                    className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+                    title={t.viewShop}
+                    className="text-ink-500 hover:text-brand-600 text-xs font-medium whitespace-nowrap"
                   >
-                    {t.viewShop} ↗
+                    <span className="max-sm:sr-only">{t.viewShop} </span>↗
                   </Link>
                   <form action={logout}>
                     <button
                       type="submit"
-                      className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-3 py-1.5 text-xs font-medium ring-1"
+                      className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap ring-1"
                     >
                       {t.signOut}
                     </button>

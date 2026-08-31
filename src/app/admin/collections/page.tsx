@@ -74,7 +74,7 @@ export default async function AdminCollectionsPage({
       </p>
 
       <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-        <table className="w-full text-sm">
+        <table className="stack-table w-full text-sm">
           <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
             <tr>
               <th className="px-4 py-2.5 text-start font-bold">
@@ -92,7 +92,7 @@ export default async function AdminCollectionsPage({
           <tbody className="divide-ink-100 divide-y">
             {collections.map((collection, index) => (
               <tr key={collection.slug} className="hover:bg-ink-50/60">
-                <td className="px-4 py-2.5">
+                <td data-label="" className="px-4 py-2.5">
                   <Link
                     href={`/admin/collections/${collection.slug}`}
                     className="text-ink-900 hover:text-brand-600 font-medium"
@@ -108,7 +108,10 @@ export default async function AdminCollectionsPage({
                     </span>
                   ) : null}
                 </td>
-                <td className="text-ink-600 px-4 py-2.5 text-xs">
+                <td
+                  data-label={t.collections.type}
+                  className="text-ink-600 px-4 py-2.5 text-xs"
+                >
                   {collection.rule ? (
                     <>
                       <span className="text-ink-800 font-semibold">
@@ -124,11 +127,14 @@ export default async function AdminCollectionsPage({
                     </span>
                   )}
                 </td>
-                <td className="text-ink-600 px-4 py-2.5 tabular-nums">
+                <td
+                  data-label={t.collections.products}
+                  className="text-ink-600 px-4 py-2.5 tabular-nums"
+                >
                   {counts[index]}
                 </td>
-                <td className="px-4 py-2.5">
-                  <div className="flex items-center justify-end gap-1">
+                <td data-label="" data-actions="" className="px-4 py-2.5">
+                  <div className="flex items-center gap-1 sm:justify-end">
                     <Link
                       href={`/admin/collections/${collection.slug}`}
                       className="text-ink-600 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-semibold"

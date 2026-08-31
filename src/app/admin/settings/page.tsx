@@ -18,9 +18,24 @@ export default async function AdminSettingsPage({
   const t = adminDictionary(locale);
 
   const fields = [
-    { name: "instagram", label: t.settings.instagram, hint: "@bambino.kw", value: settings.social.instagram },
-    { name: "tiktok", label: t.settings.tiktok, hint: "@bambino.kw", value: settings.social.tiktok },
-    { name: "whatsapp", label: t.settings.whatsapp, hint: t.settings.whatsappHint, value: settings.social.whatsapp },
+    {
+      name: "instagram",
+      label: t.settings.instagram,
+      hint: "@bambino.kw",
+      value: settings.social.instagram,
+    },
+    {
+      name: "tiktok",
+      label: t.settings.tiktok,
+      hint: "@bambino.kw",
+      value: settings.social.tiktok,
+    },
+    {
+      name: "whatsapp",
+      label: t.settings.whatsapp,
+      hint: t.settings.whatsappHint,
+      value: settings.social.whatsapp,
+    },
   ];
 
   return (
@@ -31,11 +46,15 @@ export default async function AdminSettingsPage({
         </p>
       ) : null}
 
-      <h1 className="text-ink-900 mb-5 text-xl font-bold">{t.settings.title}</h1>
+      <h1 className="text-ink-900 mb-5 text-xl font-bold">
+        {t.settings.title}
+      </h1>
 
       <form action={saveSettings}>
         <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">{t.settings.social}</h2>
+          <h2 className="text-ink-900 text-sm font-bold">
+            {t.settings.social}
+          </h2>
           <p className="text-ink-500 mt-1 text-xs leading-relaxed">
             {t.settings.socialBlurb}
           </p>
@@ -58,7 +77,9 @@ export default async function AdminSettingsPage({
                   className="ring-ink-300 focus:ring-brand-500 mt-1.5 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
                 />
                 <p className="text-ink-400 mt-1 text-[11px]" dir="ltr">
-                  {field.value ? `${t.settings.preview}: ${field.value}` : t.settings.notSet}
+                  {field.value
+                    ? `${t.settings.preview}: ${field.value}`
+                    : t.settings.notSet}
                 </p>
               </div>
             ))}
