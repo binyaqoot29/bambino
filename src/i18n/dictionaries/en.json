@@ -26,8 +26,8 @@
     "save": "Save"
   },
   "announce": {
-    "shipping": "Free delivery across Kuwait on orders over 20.000 KD",
-    "returns": "14-day easy returns",
+    "shipping": "Free delivery across Kuwait on orders over {amount}",
+    "returns": "{days}-day easy returns",
     "cod": "Cash on delivery available"
   },
   "nav": {
@@ -85,7 +85,7 @@
     "usp": {
       "delivery": {
         "title": "Next-day Kuwait delivery",
-        "body": "Order before 4pm, six days a week."
+        "body": "{window}."
       },
       "returns": {
         "title": "14-day returns",
@@ -104,7 +104,9 @@
     "newsletterBody": "New arrivals, sizing tips and members-only offers. One email a week, never more.",
     "newsletterPlaceholder": "Your email address",
     "newsletterCta": "Sign up",
-    "newsletterNote": "Unsubscribe anytime. We never share your details."
+    "newsletterNote": "Unsubscribe anytime. We never share your details.",
+    "newsletterThanks": "Thanks for joining!",
+    "newsletterInvalid": "That email address doesn't look right."
   },
   "plp": {
     "filters": "Filters",
@@ -113,6 +115,7 @@
     "sortBy": "Sort by",
     "sort": {
       "featured": "Featured",
+      "curated": "As arranged",
       "newest": "Newest",
       "priceAsc": "Price: low to high",
       "priceDesc": "Price: high to low",
@@ -151,7 +154,7 @@
     "description": "Description",
     "details": "Details & materials",
     "delivery": "Delivery & returns",
-    "deliveryBody": "Next-day delivery across Kuwait on orders placed before 4pm. Free over 20.000 KD, otherwise 1.500 KD. Returns are free within 14 days.",
+    "deliveryBody": "{window}. Free over {free}, otherwise {rate}. Returns are free within {days} days.",
     "care": "Care",
     "sku": "SKU",
     "relatedTitle": "You may also like",

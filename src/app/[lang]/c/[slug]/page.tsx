@@ -8,6 +8,7 @@ import { getDictionary } from "@/i18n/get-dictionary";
 import { getProductsInCategory } from "@/lib/catalog/queries";
 import { findCategory } from "@/lib/catalog/categories";
 import { DEPARTMENT_LABELS } from "@/lib/catalog/types";
+import { languageAlternates } from "@/lib/alternates";
 import { routes } from "@/lib/routes";
 
 export async function generateMetadata({
@@ -25,10 +26,7 @@ export async function generateMetadata({
     description: category.blurb?.[locale],
     alternates: {
       canonical: routes.category(locale, slug),
-      languages: {
-        en: routes.category("en", slug),
-        ar: routes.category("ar", slug),
-      },
+      languages: await languageAlternates((l) => routes.category(l, slug)),
     },
   };
 }

@@ -11,6 +11,7 @@ import { getProductsInDepartment } from "@/lib/catalog/queries";
 import { categoriesInDepartment } from "@/lib/catalog/categories";
 import { DEPARTMENT_ORDER } from "@/lib/catalog/taxonomy";
 import { DEPARTMENT_LABELS, type Department } from "@/lib/catalog/types";
+import { languageAlternates } from "@/lib/alternates";
 import { routes } from "@/lib/routes";
 
 function isDepartment(value: string): value is Department {
@@ -36,10 +37,9 @@ export async function generateMetadata({
     title: DEPARTMENT_LABELS[department][locale],
     alternates: {
       canonical: routes.department(locale, department),
-      languages: {
-        en: routes.department("en", department),
-        ar: routes.department("ar", department),
-      },
+      languages: await languageAlternates((l) =>
+        routes.department(l, department),
+      ),
     },
   };
 }

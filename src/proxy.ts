@@ -8,6 +8,12 @@ const LOCALE_COOKIE = "bambino_locale";
  * Every page lives under /{locale}. Requests without one are redirected to the
  * visitor's best match: an explicit choice they made earlier (cookie), then
  * Accept-Language, then English.
+ *
+ * `/` is deliberately not handled here — it's the entry point almost everyone
+ * arrives at, and the language shown there depends on settings in the database.
+ * Next's guidance is that the proxy isn't for data fetching, so that decision
+ * lives in `src/app/page.tsx`. What's left here are locale-less deeper links,
+ * which are rare and fall back to English when nothing matches.
  */
 function pickLocale(request: NextRequest) {
   const saved = request.cookies.get(LOCALE_COOKIE)?.value;
@@ -49,5 +55,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   // Skip Next internals, the API surface, the admin (English-only, outside the
   // localised storefront) and anything with a file extension.
-  matcher: ["/((?!_next|api|admin|.*\\..*).*)"],
+  // `.+` rather than `.*` so the bare root falls through to app/page.tsx.
+  matcher: ["/((?!_next|api|admin|.*\\..*).+)"],
 };

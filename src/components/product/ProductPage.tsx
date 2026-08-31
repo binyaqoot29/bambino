@@ -16,11 +16,9 @@ import { findCategory } from "@/lib/catalog/categories";
 import { DEPARTMENT_LABELS, inStock, type Product } from "@/lib/catalog/types";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
-import {
-  FREE_SHIPPING_THRESHOLD,
-  discountPercent,
-  formatPrice,
-} from "@/lib/money";
+import { discountPercent, formatPrice } from "@/lib/money";
+import { deliveryCopy } from "@/lib/delivery-copy";
+import { loadShipping } from "@/lib/site-settings";
 import { routes } from "@/lib/routes";
 import { ProductCard } from "@/components/product/ProductCard";
 
@@ -51,7 +49,9 @@ export async function ProductPage({
   const nf = new Intl.NumberFormat(
     locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW",
   );
-  const qualifiesFree = product.price >= FREE_SHIPPING_THRESHOLD;
+  const shipping = await loadShipping();
+  const delivery = deliveryCopy(shipping, dict, locale);
+  const qualifiesFree = product.price >= shipping.freeThreshold;
 
   return (
     <div className="bg-canvas">
@@ -63,7 +63,9 @@ export async function ProductPage({
                 {dict.nav.home}
               </Link>
             </li>
-            <li aria-hidden="true" className="opacity-40">›</li>
+            <li aria-hidden="true" className="opacity-40">
+              ›
+            </li>
             <li>
               <Link
                 href={routes.department(locale, product.department)}
@@ -74,7 +76,9 @@ export async function ProductPage({
             </li>
             {category ? (
               <>
-                <li aria-hidden="true" className="opacity-40">›</li>
+                <li aria-hidden="true" className="opacity-40">
+                  ›
+                </li>
                 <li>
                   <Link
                     href={routes.category(locale, category.slug)}
@@ -148,7 +152,7 @@ export async function ProductPage({
                 </Accordion>
               ) : null}
               <Accordion title={dict.product.delivery}>
-                <p>{dict.product.deliveryBody}</p>
+                <p>{delivery.productBody}</p>
               </Accordion>
             </div>
           </div>
@@ -223,7 +227,7 @@ export async function ProductPage({
                     ? dict.cart.freeShippingReached
                     : t(dict.cart.freeShippingProgress, {
                         amount: formatPrice(
-                          FREE_SHIPPING_THRESHOLD - product.price,
+                          shipping.freeThreshold - product.price,
                           locale,
                         ),
                       })}
@@ -268,11 +272,7 @@ export async function ProductPage({
               <ul className="no-scrollbar flex gap-3 overflow-x-auto p-4 lg:grid lg:grid-cols-5 lg:overflow-visible">
                 {related.map((item) => (
                   <li key={item.id} className="w-40 shrink-0 lg:w-auto">
-                    <ProductCard
-                      product={item}
-                      locale={locale}
-                      dict={dict}
-                    />
+                    <ProductCard product={item} locale={locale} dict={dict} />
                   </li>
                 ))}
               </ul>

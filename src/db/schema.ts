@@ -3,6 +3,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   real,
   text,
   timestamp,
@@ -11,6 +12,7 @@ import {
 import { relations } from "drizzle-orm";
 
 import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
+import type { CollectionRule } from "@/lib/catalog/collection-rules";
 
 /**
  * Catalogue schema.
@@ -122,6 +124,84 @@ export const settings = pgTable("settings", {
   value: jsonb("value").$type<unknown>().notNull(),
 });
 
+/**
+ * Collections — the merchandising shelves (`/collections/[slug]`).
+ *
+ * Two kinds, following the distinction every commerce admin ends up needing:
+ *
+ * - **`auto`** membership comes from a rule evaluated at read time, so it stays
+ *   correct as the catalogue changes. "Sale" is every reduced product; nobody
+ *   should have to re-curate it after editing a price.
+ * - **`manual`** membership is an explicit, ordered list — a curated edit like
+ *   "Eid picks" that no rule could infer.
+ *
+ * The three original collections seed as `auto`, which is what they already
+ * were when they were hardcoded in routes.ts. What's new is that their names,
+ * blurbs, order and visibility are now editable, and the shop owner can add
+ * curated ones alongside them.
+ */
+export const collections = pgTable("collections", {
+  slug: text("slug").primaryKey(),
+  name: jsonb("name").$type<I18n>().notNull(),
+  blurb: jsonb("blurb").$type<I18n | null>(),
+
+  /** `null` for manual collections; a rule key for automatic ones. */
+  rule: text("rule").$type<CollectionRule | null>(),
+
+  /** Order in the nav and on the homepage. */
+  position: integer("position").notNull().default(0),
+  /** Hidden collections keep their products but drop out of the storefront. */
+  visible: boolean("visible").notNull().default(true),
+});
+
+/**
+ * Membership for manual collections. Automatic ones never have rows here —
+ * their membership is computed, so storing it would immediately go stale.
+ */
+export const collectionProducts = pgTable(
+  "collection_products",
+  {
+    collectionSlug: text("collection_slug")
+      .notNull()
+      .references(() => collections.slug, { onDelete: "cascade" }),
+    productId: text("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    /** Curated order within the collection. */
+    position: integer("position").notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ columns: [table.collectionSlug, table.productId] }),
+  ],
+);
+
+/**
+ * Newsletter subscribers.
+ *
+ * This is the shop's only real audience data until checkout exists — the
+ * footer signup used to discard the address it collected.
+ *
+ * Unsubscribing sets a timestamp rather than deleting the row: an address that
+ * opted out must stay known, or the next import silently re-subscribes it.
+ * Deleting from the admin is still available for an erasure request.
+ */
+export const subscribers = pgTable(
+  "subscribers",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    /** Which storefront language they signed up in — worth knowing before a send. */
+    locale: text("locale").$type<"en" | "ar">().notNull().default("en"),
+    unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  // Case-insensitive: addresses are compared lowercased before insert, so the
+  // same person signing up twice updates rather than duplicates.
+  (table) => [uniqueIndex("subscribers_email_idx").on(table.email)],
+);
+
 export const productsRelations = relations(products, ({ many }) => ({
   variants: many(variants),
 }));
@@ -133,6 +213,24 @@ export const variantsRelations = relations(variants, ({ one }) => ({
   }),
 }));
 
+export const collectionsRelations = relations(collections, ({ many }) => ({
+  items: many(collectionProducts),
+}));
+
+export const collectionProductsRelations = relations(
+  collectionProducts,
+  ({ one }) => ({
+    collection: one(collections, {
+      fields: [collectionProducts.collectionSlug],
+      references: [collections.slug],
+    }),
+    product: one(products, {
+      fields: [collectionProducts.productId],
+      references: [products.id],
+    }),
+  }),
+);
+
 export type CategoryRow = typeof categories.$inferSelect;
 export type NewCategoryRow = typeof categories.$inferInsert;
 export type SettingRow = typeof settings.$inferSelect;
@@ -141,3 +239,10 @@ export type ProductRow = typeof products.$inferSelect;
 export type NewProductRow = typeof products.$inferInsert;
 export type VariantRow = typeof variants.$inferSelect;
 export type NewVariantRow = typeof variants.$inferInsert;
+
+export type CollectionRow = typeof collections.$inferSelect;
+export type NewCollectionRow = typeof collections.$inferInsert;
+export type CollectionProductRow = typeof collectionProducts.$inferSelect;
+
+export type SubscriberRow = typeof subscribers.$inferSelect;
+export type NewSubscriberRow = typeof subscribers.$inferInsert;

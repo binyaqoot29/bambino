@@ -22,8 +22,6 @@ import {
 import type { Locale } from "@/i18n/config";
 
 export type HeaderStrings = {
-  newIn: string;
-  sale: string;
   searchPlaceholder: string;
   search: string;
   account: string;
@@ -34,6 +32,13 @@ export type HeaderStrings = {
   closeMenu: string;
   shopByAge: string;
   close: string;
+};
+
+/** A collection as the header needs it — the rule only decides styling. */
+export type CollectionLink = {
+  slug: string;
+  label: string;
+  rule: string | null;
 };
 import type { AgeLink, NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
@@ -47,12 +52,17 @@ export function Header({
   locale,
   nav,
   ages,
+  collections,
+  showLanguageSwitch,
   strings,
   announcements,
 }: {
   locale: Locale;
   nav: NavDepartment[];
   ages: AgeLink[];
+  collections: CollectionLink[];
+  /** False when the shop is serving one language — the toggle has nowhere to go. */
+  showLanguageSwitch: boolean;
   strings: HeaderStrings;
   announcements: string[];
 }) {
@@ -92,7 +102,9 @@ export function Header({
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const query = String(new FormData(event.currentTarget).get("q") ?? "").trim();
+    const query = String(
+      new FormData(event.currentTarget).get("q") ?? "",
+    ).trim();
     if (query) router.push(routes.search(locale, query));
   }
 
@@ -160,11 +172,13 @@ export function Header({
             </form>
 
             <div className="ms-auto flex items-center gap-1 md:ms-0">
-              <LocaleSwitcher
-                locale={locale}
-                label={strings.changeLanguage}
-                className="hidden rounded-lg sm:inline-flex"
-              />
+              {showLanguageSwitch ? (
+                <LocaleSwitcher
+                  locale={locale}
+                  label={strings.changeLanguage}
+                  className="hidden rounded-lg sm:inline-flex"
+                />
+              ) : null}
               <Link
                 href={routes.wishlist(locale)}
                 aria-label={strings.wishlist}
@@ -201,7 +215,11 @@ export function Header({
           </div>
 
           {/* mobile search */}
-          <form onSubmit={submitSearch} role="search" className="pb-3 md:hidden">
+          <form
+            onSubmit={submitSearch}
+            role="search"
+            className="pb-3 md:hidden"
+          >
             <div className="relative">
               <SearchIcon className="text-ink-400 pointer-events-none absolute start-3.5 top-1/2 size-4.5 -translate-y-1/2" />
               <input
@@ -238,22 +256,33 @@ export function Header({
                 <ChevronDownIcon className="size-3.5 opacity-50" />
               </Link>
             ))}
-            <span className="bg-ink-200 mx-2 h-4 w-px" />
-            <Link
-              href={routes.collection(locale, "new-in")}
-              className="text-ink-700 hover:text-brand-600 inline-flex h-11 items-center px-3 text-[13px] font-semibold"
-            >
-              {strings.newIn}
-            </Link>
-            <Link
-              href={routes.collection(locale, "sale")}
-              className="text-sale inline-flex h-11 items-center gap-1.5 px-3 text-[13px] font-bold"
-            >
-              {strings.sale}
-              <span className="bg-sale rounded px-1.5 py-0.5 text-[10px] font-bold text-white">
-                %
-              </span>
-            </Link>
+            {collections.length ? (
+              <span className="bg-ink-200 mx-2 h-4 w-px" />
+            ) : null}
+            {collections.map((collection) =>
+              // A reduced-price shelf earns the red treatment; everything else
+              // sits at the same weight as the departments beside it.
+              collection.rule === "sale" ? (
+                <Link
+                  key={collection.slug}
+                  href={routes.collection(locale, collection.slug)}
+                  className="text-sale inline-flex h-11 items-center gap-1.5 px-3 text-[13px] font-bold"
+                >
+                  {collection.label}
+                  <span className="bg-sale rounded px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    %
+                  </span>
+                </Link>
+              ) : (
+                <Link
+                  key={collection.slug}
+                  href={routes.collection(locale, collection.slug)}
+                  className="text-ink-700 hover:text-brand-600 inline-flex h-11 items-center px-3 text-[13px] font-semibold"
+                >
+                  {collection.label}
+                </Link>
+              ),
+            )}
           </div>
         </nav>
 
@@ -315,6 +344,8 @@ export function Header({
           locale={locale}
           nav={nav}
           ages={ages}
+          collections={collections}
+          showLanguageSwitch={showLanguageSwitch}
           strings={strings}
           onClose={() => setMobileOpen(false)}
         />
@@ -338,12 +369,16 @@ function MobileMenu({
   locale,
   nav,
   ages,
+  collections,
+  showLanguageSwitch,
   strings,
   onClose,
 }: {
   locale: Locale;
   nav: NavDepartment[];
   ages: AgeLink[];
+  collections: CollectionLink[];
+  showLanguageSwitch: boolean;
   strings: HeaderStrings;
   onClose: () => void;
 }) {
@@ -416,14 +451,21 @@ function MobileMenu({
             );
           })}
 
-          <div className="border-ink-100 border-b px-4 py-3">
-            <Link
-              href={routes.collection(locale, "sale")}
-              className="text-sale block text-sm font-bold"
-            >
-              {strings.sale}
-            </Link>
-          </div>
+          {collections.length ? (
+            <div className="border-ink-100 space-y-2.5 border-b px-4 py-3">
+              {collections.map((collection) => (
+                <Link
+                  key={collection.slug}
+                  href={routes.collection(locale, collection.slug)}
+                  className={`block text-sm font-bold ${
+                    collection.rule === "sale" ? "text-sale" : "text-ink-800"
+                  }`}
+                >
+                  {collection.label}
+                </Link>
+              ))}
+            </div>
+          ) : null}
 
           <div className="px-4 py-4">
             <p className="text-ink-400 text-[10px] font-bold tracking-[0.14em] uppercase">
@@ -445,7 +487,9 @@ function MobileMenu({
         </nav>
 
         <div className="border-ink-200 border-t p-3">
-          <LocaleSwitcher locale={locale} label={strings.changeLanguage} />
+          {showLanguageSwitch ? (
+            <LocaleSwitcher locale={locale} label={strings.changeLanguage} />
+          ) : null}
         </div>
       </div>
     </div>

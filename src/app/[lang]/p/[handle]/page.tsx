@@ -5,6 +5,7 @@ import { ProductPage } from "@/components/product/ProductPage";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getProductByHandle, getRelated } from "@/lib/catalog/queries";
+import { languageAlternates } from "@/lib/alternates";
 import { routes } from "@/lib/routes";
 
 export async function generateMetadata({
@@ -22,10 +23,7 @@ export async function generateMetadata({
     description: product.summary[locale],
     alternates: {
       canonical: routes.product(locale, handle),
-      languages: {
-        en: routes.product("en", handle),
-        ar: routes.product("ar", handle),
-      },
+      languages: await languageAlternates((l) => routes.product(l, handle)),
     },
   };
 }

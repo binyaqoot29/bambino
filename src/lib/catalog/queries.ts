@@ -1,8 +1,18 @@
 import type { Locale } from "@/i18n/config";
 
 import { loadCategories } from "./categories";
-import { loadCatalogue, loadProductByHandle, loadProductsByIds } from "./repository";
-import { type AgeGroup, type Category, type Product, type SortKey, inStock } from "./types";
+import {
+  loadCatalogue,
+  loadProductByHandle,
+  loadProductsByIds,
+} from "./repository";
+import {
+  type AgeGroup,
+  type Category,
+  type Product,
+  type SortKey,
+  inStock,
+} from "./types";
 
 /**
  * The read layer the pages talk to.
@@ -83,7 +93,10 @@ export async function countInCategory(slug: string) {
 
 /** Counts for every category in one pass — the nav needs all of them at once. */
 export async function countsByCategory(): Promise<Record<string, number>> {
-  const [all, categories] = await Promise.all([loadCatalogue(), loadCategories()]);
+  const [all, categories] = await Promise.all([
+    loadCatalogue(),
+    loadCategories(),
+  ]);
   const counts: Record<string, number> = {};
   for (const category of categories) counts[category.slug] = 0;
   for (const product of all) {
@@ -129,10 +142,12 @@ export function filterProducts(
       if (!filters.ages.some((a) => p.ageGroups.includes(a))) return false;
     }
     if (filters.colours?.length) {
-      if (!p.colours.some((c) => filters.colours!.includes(c.key))) return false;
+      if (!p.colours.some((c) => filters.colours!.includes(c.key)))
+        return false;
     }
     if (filters.sizes?.length) {
-      if (!p.variants.some((v) => filters.sizes!.includes(v.size))) return false;
+      if (!p.variants.some((v) => filters.sizes!.includes(v.size)))
+        return false;
     }
     if (filters.minPrice !== undefined && p.price < filters.minPrice) {
       return false;
@@ -168,6 +183,10 @@ export function filterProducts(
 export function sortProducts(products: Product[], sort: SortKey): Product[] {
   const list = [...products];
   switch (sort) {
+    // The caller arranged these deliberately; re-sorting would discard the
+    // whole point of curating a collection.
+    case "curated":
+      return list;
     case "priceAsc":
       return list.sort((a, b) => a.price - b.price);
     case "priceDesc":
@@ -198,7 +217,8 @@ export function buildFacets(products: Product[]) {
 
   for (const p of products) {
     for (const a of p.ageGroups) ages.set(a, (ages.get(a) ?? 0) + 1);
-    for (const c of p.colours) colours.set(c.key, (colours.get(c.key) ?? 0) + 1);
+    for (const c of p.colours)
+      colours.set(c.key, (colours.get(c.key) ?? 0) + 1);
     for (const s of new Set(p.variants.map((v) => v.size))) {
       sizes.set(s, (sizes.get(s) ?? 0) + 1);
     }

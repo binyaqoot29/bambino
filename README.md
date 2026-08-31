@@ -116,6 +116,8 @@ to `dd73ef5` if the decision is ever revisited.
 - Prices are stored as integer **fils** (1 KWD = 1000 fils) and formatted as
   `12.500 KD` / `12.500 د.ك`. Latin digits are used in both languages, matching
   Kuwaiti retail convention. See [`src/lib/money.ts`](src/lib/money.ts).
+- Whether Arabic is served at all is a setting — see **Languages** under
+  [Admin panel](#admin-panel).
 
 ## Database
 
@@ -151,12 +153,20 @@ longer what the storefront reads.
 2. Deploy. That's it.
 
 Migrations run during the build (`scripts/setup-db.ts`), which applies anything
-pending and then seeds **only once ever**, recorded by a `_seeded` marker row.
-The marker is what makes it safe on every deploy: a fresh database gets the
-starter catalogue, and a product the shop owner deletes is never resurrected.
-An earlier version guarded on "are there any products?" and shipped a
-storefront with products but no categories when the categories table was added
-later — the marker doesn't care what the schema grows into.
+pending and then runs the seed.
+
+Seeding is a **ledger of named steps**, not one all-or-nothing operation. Each
+step records itself, and a step added later runs on the next deploy — only that
+step. This is deliberate: the guard was twice a single flag standing in for "is
+every piece of reference data present?", and twice it went stale the moment the
+schema grew. Guarding on "are there any products?" shipped a storefront with
+products but no categories; replacing it with a `_seeded` marker then shipped
+one with no collections. A per-step ledger has no version of that failure.
+
+Every step except `products` skips rows that already exist, so re-running one is
+a no-op that backfills whatever is missing. Products are seeded once and never
+re-inserted — they're the shop owner's data, and one they delete must not come
+back.
 
 This runs in the build because Vercel marks Neon's variables Sensitive —
 `vercel env pull` returns the literal `[SENSITIVE]`, so the connection string
@@ -167,12 +177,6 @@ can't be used from a laptop.
 At **`/admin`** — outside `/[lang]`, because it's a single-language internal
 tool rather than part of the bilingual storefront.
 
-List, search, create, edit and delete products, including bilingual copy,
-price, category, illustration, age groups, and variants generated from every
-colour × size combination. Editing a product's colours or sizes preserves the
-stock of combinations that already existed, so it doesn't silently zero
-inventory.
-
 The panel is available in **English and Arabic**, toggled in its header and
 remembered in its own cookie — separate from the storefront's, so previewing the
 Arabic shop doesn't flip the admin too.
@@ -182,10 +186,43 @@ Arabic shop doesn't flip the admin too.
 | Section | What's editable |
 |---|---|
 | Products | Bilingual copy, price, category, illustration, ages, variants and stock |
+| Inventory | Stock for every variant, filtered to low or out of stock |
+| Collections | The shelves at `/collections/…` — bilingual name and blurb, membership, order, visibility |
 | Categories | Bilingual name and blurb, department, illustration, URL, order |
-| Settings | Social links shown in the shop footer |
+| Customers | Newsletter subscribers, with CSV export |
+| Shipping and delivery | Free-delivery threshold, delivery charge, cash on delivery, delivery and returns windows |
+| Languages | Which languages the shop serves, the default, and a translation-coverage report |
+| Social links | The icons in the shop footer |
 
-Categories live in the database so they can be added and renamed. Their
+**Products.** Bilingual copy, price, category, illustration, age groups, and
+variants generated from every colour × size combination. Editing a product's
+colours or sizes preserves the stock of combinations that already existed, so it
+doesn't silently zero inventory.
+
+**Inventory** is the same stock seen the other way round: one row per variant
+across the whole catalogue rather than per product, because that's the unit
+someone counting a shelf is holding. Rows are filtered to low (≤5) or out of
+stock, and a page of edits saves in one submit — only the rows whose value
+actually changed are written.
+
+**Collections** come in two kinds, the distinction every commerce admin ends up
+needing:
+
+- **Automatic** membership comes from a rule evaluated on read, so it stays
+  correct as the catalogue changes — *Sale* is every reduced product, and nobody
+  has to re-curate it after editing a price. The rules live in
+  `collection-rules.ts`; they're fixed because the code evaluates them.
+- **Curated** membership is an explicit, ordered list, for an edit like "Eid
+  picks" that no rule could infer. The arranged order is what shoppers see:
+  those listings default to a `curated` sort rather than the usual
+  featured-first, or arranging them would achieve nothing.
+
+The three original collections (`new-in`, `bestsellers`, `sale`) were constants
+in `routes.ts`; they seed as automatic collections, which is what they already
+were. What's new is that they can be renamed, reordered, hidden, and joined by
+curated ones — and the header's collection links come from that list.
+
+**Categories** live in the database so they can be added and renamed. Their
 **department** and **illustration** still come from fixed lists in
 `taxonomy.ts` — departments define the top-level nav and the `/d/[department]`
 URLs, and each illustration is a hand-drawn SVG, so an invented value for either
@@ -199,9 +236,32 @@ Two integrity rules the actions enforce:
   cascading, because deleting a category should never quietly delete the shop
   owner's products.
 
-Social links accept whatever gets pasted — a full URL, an `@handle`, or a phone
-number — and normalise to something openable. A blank field hides that icon
-rather than linking to a profile that doesn't exist.
+**Customers** are newsletter subscribers. There is no purchase history because
+there is no checkout — see [What is not built](#what-is-not-built). The footer
+signup form used to discard the address it collected; it now stores it, and this
+is where those go. Unsubscribing sets a timestamp rather than deleting the row,
+so an address that opted out stays known and a later import can't quietly
+re-add it. Signing up twice re-subscribes instead of erroring, and "already
+subscribed" is reported to the visitor as success — distinguishing it would let
+anyone test whether a given address is on the list.
+
+**Shipping and delivery** drives behaviour, not just copy. The free-delivery
+threshold is what the cart's progress bar counts towards and what the product
+page promises; it used to be a constant in three files. Amounts are typed in
+dinars and stored as fils, and an unreadable amount is a validation error rather
+than silently becoming zero — which would make delivery free for everyone.
+
+**Languages** switches Arabic on or off, sets which language a visitor lands in
+when their browser doesn't ask, and reports **translation coverage**: anything
+with English filled in and Arabic blank. Missing Arabic doesn't break the Arabic
+site — it falls back to English — so nothing errors and nobody notices, which is
+exactly why it's worth listing. Switching Arabic off hides the language toggle,
+redirects `/ar` to English, and drops the `hreflang` alternate so search engines
+aren't pointed at a redirect.
+
+**Social links** accept whatever gets pasted — a full URL, an `@handle`, or a
+phone number — and normalise to something openable. A blank field hides that
+icon rather than linking to a profile that doesn't exist.
 
 Access is a single shared password:
 
@@ -263,6 +323,11 @@ The trade is a query per page view instead of static HTML. At this catalogue's
 size that's the right way round; if traffic ever changes that, this line and the
 `revalidatePath` calls in the admin actions are the two places to revisit.
 
+`/` is handled by [`src/app/page.tsx`](src/app/page.tsx) rather than by the
+proxy, because which language a visitor lands in depends on settings in the
+database and Next's guidance is explicit that the proxy isn't for data fetching.
+The proxy still handles locale-less deeper links, which fall back to English.
+
 ## What is not built
 
 This is a complete storefront, not a complete shop. Deliberately out of scope so
@@ -271,7 +336,9 @@ far:
 - **Checkout.** The button is present and inert; there is no payment
   integration (KNET, cards, Apple Pay, COD are shown as badges only).
 - **Customer accounts.** No shopper auth, orders, or addresses — the account
-  icon is a stub. (The *admin* has its own password; see above.)
+  icon is a stub. (The *admin* has its own password; see above.) The admin's
+  **Customers** section is newsletter subscribers for this reason: without a
+  checkout there is no such thing as a purchaser.
 - **Orders.** The bag lives in `localStorage` and stock is never decremented,
   because nothing places an order yet.
 - **Image upload.** Products pick from the built-in illustration set; there's no

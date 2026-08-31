@@ -6,24 +6,29 @@ import { BambinoMark } from "@/components/brand/BambinoMark";
 import { useCatalog } from "@/components/catalog/CatalogProvider";
 import { ProductArt } from "@/components/product/ProductArt";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { CloseIcon, MinusIcon, PlusIcon, TruckIcon } from "@/components/ui/Icons";
+import {
+  CloseIcon,
+  MinusIcon,
+  PlusIcon,
+  TruckIcon,
+} from "@/components/ui/Icons";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import type { ShippingRates } from "@/lib/money";
 import { createTranslator } from "@/i18n/t";
-import {
-  FREE_SHIPPING_THRESHOLD,
-  formatPrice,
-  shippingFor,
-} from "@/lib/money";
+import { formatPrice, shippingFor } from "@/lib/money";
 import { routes } from "@/lib/routes";
 import { useBag } from "./store";
 
 export function CartView({
   locale,
   dict,
+  rates,
 }: {
   locale: Locale;
   dict: Dictionary;
+  /** Editable in the admin, so the page that renders this passes them down. */
+  rates: ShippingRates;
 }) {
   const { lines, setQuantity, removeItem, ready, count } = useBag();
   const { products, sizeLabels } = useCatalog();
@@ -54,10 +59,10 @@ export function CartView({
     const product = products[line.productId];
     return total + (product ? product.price * line.quantity : 0);
   }, 0);
-  const shipping = shippingFor(subtotal);
+  const shipping = shippingFor(subtotal, rates);
   const total = subtotal + shipping;
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const remaining = Math.max(0, rates.freeThreshold - subtotal);
+  const progress = Math.min(100, (subtotal / rates.freeThreshold) * 100);
 
   return (
     <div className="container-bambino py-8 lg:py-12">
@@ -128,9 +133,7 @@ export function CartView({
                     <div className="ring-ink-200 inline-flex h-10 items-center rounded-full ring-1">
                       <button
                         type="button"
-                        onClick={() =>
-                          setQuantity(line.key, line.quantity - 1)
-                        }
+                        onClick={() => setQuantity(line.key, line.quantity - 1)}
                         aria-label={dict.a11y.decreaseQty}
                         className="text-ink-600 hover:text-brand-600 inline-flex size-9 items-center justify-center rounded-full"
                       >
@@ -141,9 +144,7 @@ export function CartView({
                       </span>
                       <button
                         type="button"
-                        onClick={() =>
-                          setQuantity(line.key, line.quantity + 1)
-                        }
+                        onClick={() => setQuantity(line.key, line.quantity + 1)}
                         aria-label={dict.a11y.increaseQty}
                         className="text-ink-600 hover:text-brand-600 inline-flex size-9 items-center justify-center rounded-full"
                       >

@@ -58,11 +58,16 @@ export function discountPercent(price: Fils, compareAt: Fils): number {
   return Math.round(((compareAt - price) / compareAt) * 100);
 }
 
-/** Free shipping threshold used across the cart and the announcement bar. */
-export const FREE_SHIPPING_THRESHOLD: Fils = 20_000; // 20.000 KD
-export const FLAT_SHIPPING_RATE: Fils = 1_500; // 1.500 KD
+/**
+ * Delivery charge for a subtotal.
+ *
+ * The rates are passed in rather than being constants here: they're editable in
+ * the admin, and this used to be the third place a threshold was written down.
+ * Taking them as an argument means there's no way to read a stale one.
+ */
+export type ShippingRates = { freeThreshold: Fils; flatRate: Fils };
 
-export function shippingFor(subtotal: Fils): Fils {
+export function shippingFor(subtotal: Fils, rates: ShippingRates): Fils {
   if (subtotal <= 0) return 0;
-  return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_RATE;
+  return subtotal >= rates.freeThreshold ? 0 : rates.flatRate;
 }

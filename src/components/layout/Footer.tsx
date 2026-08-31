@@ -16,6 +16,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import type { NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
+import { deliveryCopy } from "@/lib/delivery-copy";
 import { loadSettings } from "@/lib/site-settings";
 
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
@@ -35,14 +36,20 @@ export async function Footer({
   nav: NavDepartment[];
 }) {
   const links = dict.footer.links;
-  const { social } = await loadSettings();
+  const { social, shipping } = await loadSettings();
+  const delivery = deliveryCopy(shipping, dict, locale);
   const socials = [
     { href: social.instagram, Icon: InstagramIcon, label: "Instagram" },
     { href: social.tiktok, Icon: TiktokIcon, label: "TikTok" },
     { href: social.whatsapp, Icon: WhatsappIcon, label: "WhatsApp" },
   ].filter((s) => s.href);
   const guarantees = [
-    { Icon: TruckIcon, item: dict.home.usp.delivery },
+    {
+      Icon: TruckIcon,
+      // The delivery promise is editable, so it's composed rather than read
+      // straight from the dictionary like the other three.
+      item: { ...dict.home.usp.delivery, body: delivery.uspBody },
+    },
     { Icon: ReturnIcon, item: dict.home.usp.returns },
     { Icon: CardIcon, item: dict.home.usp.payment },
     { Icon: ShieldIcon, item: dict.home.usp.safety },
@@ -141,10 +148,16 @@ export async function Footer({
               ))}
             </div>
             <div className="text-ink-500 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
-              <Link href={routes.about(locale)} className="hover:text-brand-600">
+              <Link
+                href={routes.about(locale)}
+                className="hover:text-brand-600"
+              >
                 {links.privacy}
               </Link>
-              <Link href={routes.about(locale)} className="hover:text-brand-600">
+              <Link
+                href={routes.about(locale)}
+                className="hover:text-brand-600"
+              >
                 {links.terms}
               </Link>
               <span>{dict.footer.rights}</span>

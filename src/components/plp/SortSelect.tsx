@@ -18,6 +18,12 @@ export function SortSelect({
 }) {
   const router = useRouter();
 
+  // "Curated" is only meaningful on a manually arranged collection — that's the
+  // only listing where it's the default.
+  const options = SORT_KEYS.filter(
+    (key) => key !== "curated" || params.defaultSort === "curated",
+  );
+
   return (
     <div className="relative">
       <label htmlFor="sort" className="sr-only">
@@ -36,7 +42,7 @@ export function SortSelect({
         }
         className="text-ink-700 ring-ink-200 hover:ring-ink-300 focus:ring-brand-400 h-10 cursor-pointer appearance-none rounded-full bg-white ps-4 pe-10 text-sm font-medium ring-1 focus:outline-none"
       >
-        {SORT_KEYS.map((key) => (
+        {options.map((key) => (
           <option key={key} value={key}>
             {dict.plp.sort[key]}
           </option>

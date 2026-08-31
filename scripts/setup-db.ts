@@ -6,20 +6,21 @@
  * which is inside the build. This runs on every deploy:
  *
  *   1. apply any pending migrations (idempotent — tracked in _migrations)
- *   2. seed the catalogue, but only if it's empty
+ *   2. run any seed steps that haven't run yet
  *
- * The emptiness check is what makes this safe to run repeatedly: a fresh
- * database gets the starter catalogue, and one the shop owner has since edited
- * is never overwritten.
+ * Step two used to be guarded here, by a single marker meaning "seeding has
+ * happened". That was wrong twice: reference data added after the marker was
+ * set — categories, then collections — never reached an existing database, and
+ * production shipped with empty tables both times.
+ *
+ * The guard now lives in the seed script, per step, which is the only place
+ * that knows what each step would actually do. This just runs it.
  *
  * With no DATABASE_URL (a local build) it exits quietly — local uses PGlite and
  * npm run db:migrate.
  */
 
 import { spawnSync } from "node:child_process";
-
-/** Records that the one-time seed has run. */
-const SEEDED_KEY = "_seeded";
 
 function run(script: string) {
   const result = spawnSync(
@@ -37,37 +38,7 @@ async function main() {
   }
 
   run("scripts/migrate.ts");
-
-  const { getDb, schema } = await import("../src/db/client");
-  const { eq } = await import("drizzle-orm");
-  const db = await getDb();
-
-  // An explicit marker, not "are there any products?".
-  //
-  // The product count was the first guard and it was wrong: adding the
-  // categories table later meant a database with products but no categories
-  // skipped seeding and shipped a storefront with no categories at all. A
-  // marker records that the initial seed has happened, whatever the schema
-  // grows into, and equally means a product the shop owner deletes is never
-  // resurrected by the next deploy.
-  const [marker] = await db
-    .select()
-    .from(schema.settings)
-    .where(eq(schema.settings.key, SEEDED_KEY))
-    .limit(1);
-
-  if (marker) {
-    console.log("setup-db: already seeded, leaving data alone");
-    return;
-  }
-
-  console.log("setup-db: first run, seeding");
   run("scripts/seed.ts");
-
-  await db
-    .insert(schema.settings)
-    .values({ key: SEEDED_KEY, value: { at: new Date().toISOString() } })
-    .onConflictDoNothing();
 }
 
 main().then(

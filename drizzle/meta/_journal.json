@@ -15,6 +15,13 @@
       "when": 1786896916161,
       "tag": "0001_fluffy_iron_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788161636303,
+      "tag": "0002_heavy_justice",
+      "breakpoints": true
     }
   ]
 }

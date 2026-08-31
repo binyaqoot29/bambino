@@ -1,13 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 
 import { BambinoMark } from "@/components/brand/BambinoMark";
 import { Button } from "@/components/ui/Button";
 import { CheckIcon } from "@/components/ui/Icons";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
+import {
+  subscribeToNewsletter,
+  type NewsletterState,
+} from "@/lib/actions/newsletter";
 
+/**
+ * Footer signup.
+ *
+ * This used to flip to a thank-you and throw the address away. It now posts to
+ * a Server Action that stores it, and the addresses show up in the admin.
+ *
+ * "Already subscribed" is shown as success on purpose: distinguishing it would
+ * let anyone test whether a given address is on the list.
+ */
 export function Newsletter({
   locale,
   dict,
@@ -15,7 +28,13 @@ export function Newsletter({
   locale: Locale;
   dict: Dictionary;
 }) {
-  const [done, setDone] = useState(false);
+  const [state, action, pending] = useActionState<NewsletterState, FormData>(
+    subscribeToNewsletter,
+    {},
+  );
+
+  const done = state.status === "added" || state.status === "already";
+  const invalid = state.status === "invalid";
 
   return (
     <section
@@ -46,16 +65,11 @@ export function Newsletter({
             <span className="bg-mint-300/20 inline-flex size-8 items-center justify-center rounded-full">
               <CheckIcon className="size-4.5" />
             </span>
-            {locale === "ar" ? "شكراً لانضمامك!" : "Thanks for joining!"}
+            {dict.home.newsletterThanks}
           </p>
         ) : (
-          <form
-            className="w-full lg:w-auto"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setDone(true);
-            }}
-          >
+          <form action={action} className="w-full lg:w-auto">
+            <input type="hidden" name="locale" value={locale} />
             <div className="flex flex-col gap-3 sm:flex-row lg:w-[26rem]">
               <label htmlFor="newsletter-email" className="sr-only">
                 {dict.home.newsletterPlaceholder}
@@ -65,15 +79,30 @@ export function Newsletter({
                 type="email"
                 name="email"
                 required
+                dir="ltr"
+                aria-invalid={invalid || undefined}
+                aria-describedby={invalid ? "newsletter-error" : undefined}
                 placeholder={dict.home.newsletterPlaceholder}
-                className="ring-mint-300/25 placeholder:text-mint-200/50 focus:ring-mint-300 h-12 min-w-0 flex-1 rounded-full bg-white/5 px-5 text-sm text-white ring-1 focus:outline-none"
+                className={`placeholder:text-mint-200/50 focus:ring-mint-300 h-12 min-w-0 flex-1 rounded-full bg-white/5 px-5 text-sm text-white ring-1 focus:outline-none ${
+                  invalid ? "ring-sale ring-2" : "ring-mint-300/25"
+                }`}
               />
-              <Button type="submit" variant="quiet" size="md">
+              <Button
+                type="submit"
+                variant="quiet"
+                size="md"
+                disabled={pending}
+              >
                 {dict.home.newsletterCta}
               </Button>
             </div>
-            <p className="text-mint-200/50 mt-3 text-xs">
-              {dict.home.newsletterNote}
+            <p
+              id={invalid ? "newsletter-error" : undefined}
+              className={`mt-3 text-xs ${
+                invalid ? "text-sale" : "text-mint-200/50"
+              }`}
+            >
+              {invalid ? dict.home.newsletterInvalid : dict.home.newsletterNote}
             </p>
           </form>
         )}

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Tajawal } from "next/font/google";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { BagProvider } from "@/components/cart/store";
 import { AddedToBagDrawer } from "@/components/cart/AddedToBagDrawer";
@@ -11,6 +11,11 @@ import { isLocale, locales, localeMeta, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { buildProductIndex } from "@/lib/catalog/index-client";
 import { buildAgeLinks, buildNav } from "@/lib/nav";
+import { visibleCollections } from "@/lib/catalog/collections";
+import { text } from "@/lib/catalog/types";
+import { languageAlternates } from "@/lib/alternates";
+import { announcements } from "@/lib/delivery-copy";
+import { loadSettings } from "@/lib/site-settings";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -63,7 +68,7 @@ export async function generateMetadata({
     description: dict.brand.intro,
     alternates: {
       canonical: `/${locale}`,
-      languages: { en: "/en", ar: "/ar" },
+      languages: await languageAlternates((l) => `/${l}`),
     },
     openGraph: {
       title: `${dict.brand.name} — ${dict.brand.tagline}`,
@@ -85,6 +90,18 @@ export default async function LocaleLayout({
   const dict = getDictionary(locale);
   const nav = await buildNav(locale);
   const ages = buildAgeLinks(locale);
+  const [settings, collections] = await Promise.all([
+    loadSettings(),
+    visibleCollections(),
+  ]);
+  const shipping = settings.shipping;
+
+  // Arabic can be switched off in the admin. Redirecting rather than 404ing
+  // keeps every existing /ar link working — it lands on the English page for
+  // the same thing instead of a dead end.
+  if (locale === "ar" && !settings.languages.arabicEnabled) {
+    redirect("/en");
+  }
 
   return (
     <html
@@ -107,14 +124,14 @@ export default async function LocaleLayout({
               locale={locale}
               nav={nav}
               ages={ages}
-              announcements={[
-                dict.announce.shipping,
-                dict.announce.returns,
-                dict.announce.cod,
-              ]}
+              showLanguageSwitch={settings.languages.arabicEnabled}
+              collections={collections.map((collection) => ({
+                slug: collection.slug,
+                label: text(collection.name, locale),
+                rule: collection.rule,
+              }))}
+              announcements={announcements(shipping, dict, locale)}
               strings={{
-                newIn: dict.nav.newIn,
-                sale: dict.nav.sale,
                 searchPlaceholder: dict.nav.searchPlaceholder,
                 search: dict.common.search,
                 account: dict.nav.account,
@@ -133,7 +150,14 @@ export default async function LocaleLayout({
             </main>
 
             <Footer locale={locale} dict={dict} nav={nav} />
-            <AddedToBagDrawer locale={locale} dict={dict} />
+            <AddedToBagDrawer
+              locale={locale}
+              dict={dict}
+              rates={{
+                freeThreshold: shipping.freeThreshold,
+                flatRate: shipping.flatRate,
+              }}
+            />
           </BagProvider>
         </CatalogProvider>
       </body>

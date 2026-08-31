@@ -25,21 +25,10 @@ export type ArtKey =
   | "bath"
   | "bag";
 
-export type AgeGroup =
-  | "newborn"
-  | "0-6m"
-  | "6-12m"
-  | "1-2y"
-  | "2-4y"
-  | "4-6y";
+export type AgeGroup = "newborn" | "0-6m" | "6-12m" | "1-2y" | "2-4y" | "4-6y";
 
 export type Department =
-  | "clothing"
-  | "travel"
-  | "nursery"
-  | "feeding"
-  | "play"
-  | "bath";
+  "clothing" | "travel" | "nursery" | "feeding" | "play" | "bath";
 
 export type Category = {
   slug: string;
@@ -112,8 +101,15 @@ export const DEPARTMENT_LABELS: Record<Department, I18nText> = {
   bath: { en: "Bath & changing", ar: "الاستحمام والتغيير" },
 };
 
+/**
+ * `curated` is the arranged order of a manual collection — it means "leave the
+ * list alone". It's the default on those pages and a real option in the
+ * dropdown there, but it's meaningless anywhere else, so listings that have no
+ * curated order don't offer it.
+ */
 export const SORT_KEYS = [
   "featured",
+  "curated",
   "newest",
   "priceAsc",
   "priceDesc",

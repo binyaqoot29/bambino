@@ -13,6 +13,12 @@ export type ListingParams = {
   inStockOnly: boolean;
   onSaleOnly: boolean;
   sort: SortKey;
+  /**
+   * What `sort` falls back to for this listing. Carried in the params so
+   * `buildQuery` knows which value is the implicit one and can leave it out of
+   * the URL, and so the sort dropdown knows whether to offer "curated".
+   */
+  defaultSort: SortKey;
   page: number;
   query?: string;
 };
@@ -43,7 +49,10 @@ function num(value: string | string[] | undefined): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function parseListingParams(raw: RawSearchParams): ListingParams {
+export function parseListingParams(
+  raw: RawSearchParams,
+  defaultSort: SortKey = "featured",
+): ListingParams {
   const sortRaw = Array.isArray(raw.sort) ? raw.sort[0] : raw.sort;
   const queryRaw = Array.isArray(raw.q) ? raw.q[0] : raw.q;
 
@@ -57,7 +66,8 @@ export function parseListingParams(raw: RawSearchParams): ListingParams {
     maxPrice: num(raw.max),
     inStockOnly: raw.stock === "1",
     onSaleOnly: raw.sale === "1",
-    sort: sortRaw && isSortKey(sortRaw) ? sortRaw : "featured",
+    sort: sortRaw && isSortKey(sortRaw) ? sortRaw : defaultSort,
+    defaultSort,
     page: Math.max(1, num(raw.page) ?? 1),
     query: queryRaw?.trim() || undefined,
   };
@@ -79,7 +89,7 @@ export function buildQuery(
   if (next.maxPrice !== undefined) search.set("max", String(next.maxPrice));
   if (next.inStockOnly) search.set("stock", "1");
   if (next.onSaleOnly) search.set("sale", "1");
-  if (next.sort !== "featured") search.set("sort", next.sort);
+  if (next.sort !== next.defaultSort) search.set("sort", next.sort);
   if (patch.page === undefined) {
     // Any facet change puts us back on page 1.
     if (next.page > 1 && Object.keys(patch).length === 0) {

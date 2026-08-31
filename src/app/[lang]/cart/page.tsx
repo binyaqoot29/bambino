@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CartView } from "@/components/cart/CartView";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { loadShipping } from "@/lib/site-settings";
 
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -23,5 +24,16 @@ export default async function CartPage({ params }: PageProps<"/[lang]/cart">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
 
-  return <CartView locale={lang} dict={getDictionary(lang)} />;
+  const shipping = await loadShipping();
+
+  return (
+    <CartView
+      locale={lang}
+      dict={getDictionary(lang)}
+      rates={{
+        freeThreshold: shipping.freeThreshold,
+        flatRate: shipping.flatRate,
+      }}
+    />
+  );
 }

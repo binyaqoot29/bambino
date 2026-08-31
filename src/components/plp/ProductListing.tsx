@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 import { ActiveFilters } from "@/components/plp/ActiveFilters";
-import { FilterRail, FilterSheet, type FacetData } from "@/components/plp/Filters";
+import {
+  FilterRail,
+  FilterSheet,
+  type FacetData,
+} from "@/components/plp/Filters";
 import { SortSelect } from "@/components/plp/SortSelect";
 import { buildQuery, type ListingParams } from "@/components/plp/search-params";
 import { ArrowIcon } from "@/components/ui/Icons";
@@ -13,7 +17,11 @@ import {
   sortProducts,
 } from "@/lib/catalog/queries";
 import { COLOURS, SIZE_LABELS } from "@/lib/catalog/taxonomy";
-import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
+import {
+  AGE_GROUP_LABELS,
+  type AgeGroup,
+  type Product,
+} from "@/lib/catalog/types";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -119,7 +127,10 @@ export async function ProductListing({
           <nav aria-label="Breadcrumb" className="mb-3">
             <ol className="text-ink-400 flex flex-wrap items-center gap-1.5 text-[11px]">
               {crumbs.map((crumb, i) => (
-                <li key={`${crumb.label}-${i}`} className="flex items-center gap-1.5">
+                <li
+                  key={`${crumb.label}-${i}`}
+                  className="flex items-center gap-1.5"
+                >
                   {crumb.href ? (
                     <Link href={crumb.href} className="hover:text-brand-600">
                       {crumb.label}
@@ -140,7 +151,9 @@ export async function ProductListing({
 
         {/* Title and count share a line — products start higher. */}
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-ink-900 text-xl font-bold sm:text-2xl">{title}</h1>
+          <h1 className="text-ink-900 text-xl font-bold sm:text-2xl">
+            {title}
+          </h1>
           <span className="text-ink-500 text-sm tabular-nums">
             {resultLabel}
           </span>

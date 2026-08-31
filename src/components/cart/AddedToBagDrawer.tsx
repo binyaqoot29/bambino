@@ -11,7 +11,7 @@ import { Price } from "@/components/ui/Price";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { createTranslator } from "@/i18n/t";
-import { formatPrice, shippingFor } from "@/lib/money";
+import { formatPrice, shippingFor, type ShippingRates } from "@/lib/money";
 import { routes } from "@/lib/routes";
 import { useBag } from "./store";
 
@@ -19,9 +19,11 @@ import { useBag } from "./store";
 export function AddedToBagDrawer({
   locale,
   dict,
+  rates,
 }: {
   locale: Locale;
   dict: Dictionary;
+  rates: ShippingRates;
 }) {
   const { lastAdded, dismissLastAdded, lines, count } = useBag();
   const { products } = useCatalog();
@@ -50,7 +52,7 @@ export function AddedToBagDrawer({
     const p = products[line.productId];
     return total + (p ? p.price * line.quantity : 0);
   }, 0);
-  const shipping = shippingFor(subtotal);
+  const shipping = shippingFor(subtotal, rates);
 
   return (
     <div

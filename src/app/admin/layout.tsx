@@ -105,13 +105,18 @@ export default async function AdminLayout({
               ) : null}
             </div>
           </div>
-
-          {signedIn ? <AdminNav labels={t.nav} /> : null}
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
-          {children}
-        </main>
+        {signedIn ? (
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:py-8">
+            <AdminNav labels={t.nav} />
+            <main className="min-w-0 flex-1">{children}</main>
+          </div>
+        ) : (
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+            {children}
+          </main>
+        )}
       </body>
     </html>
   );
