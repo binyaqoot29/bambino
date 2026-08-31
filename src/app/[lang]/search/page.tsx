@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BambinoMark } from "@/components/brand/BambinoMark";
-import { ProductGrid } from "@/components/product/ProductGrid";
+import { ProductCard } from "@/components/product/ProductCard";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -70,9 +70,13 @@ export default async function SearchPage({
       ) : null}
 
       {query && results.length > 0 ? (
-        <div className="mt-8">
-          <ProductGrid products={results} locale={locale} dict={dict} />
-        </div>
+        <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          {results.map((product) => (
+            <li key={product.id}>
+              <ProductCard product={product} locale={locale} dict={dict} />
+            </li>
+          ))}
+        </ul>
       ) : (
         <div className="bg-canvas-mint mt-8 flex flex-col items-center rounded-[2rem] px-6 py-16 text-center">
           <BambinoMark className="text-mint-400 h-16 w-auto" />

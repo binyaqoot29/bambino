@@ -13,26 +13,30 @@ import {
 } from "@/components/ui/Icons";
 import { createTranslator } from "@/i18n/t";
 import { findCategory } from "@/lib/catalog/categories";
-import { DEPARTMENT_LABELS, inStock } from "@/lib/catalog/types";
+import { DEPARTMENT_LABELS, inStock, type Product } from "@/lib/catalog/types";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/get-dictionary";
 import {
   FREE_SHIPPING_THRESHOLD,
   discountPercent,
   formatPrice,
 } from "@/lib/money";
 import { routes } from "@/lib/routes";
-import type { ProductViewProps } from "../types";
-import { MarketProductCard } from "./MarketProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
+
+export type ProductViewProps = {
+  product: Product;
+  related: Product[];
+  locale: Locale;
+  dict: Dictionary;
+};
 
 /**
- * Market product page.
- *
- * Studio puts the object first — big gallery, price as a quiet line, details in
- * accordions below. Here the buy box is a bordered card pinned beside the
- * gallery, price and saving lead it, and the delivery promise sits inside the
- * card rather than in a strip further down. The decision should be makeable
- * without scrolling.
+ * The buy box is a bordered card pinned beside the gallery; price and saving
+ * lead it, and the delivery promise sits inside the card rather than in a strip
+ * further down. The decision should be makeable without scrolling.
  */
-export async function MarketProduct({
+export async function ProductPage({
   product,
   related,
   locale,
@@ -264,7 +268,7 @@ export async function MarketProduct({
               <ul className="no-scrollbar flex gap-3 overflow-x-auto p-4 lg:grid lg:grid-cols-5 lg:overflow-visible">
                 {related.map((item) => (
                   <li key={item.id} className="w-40 shrink-0 lg:w-auto">
-                    <MarketProductCard
+                    <ProductCard
                       product={item}
                       locale={locale}
                       dict={dict}

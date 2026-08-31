@@ -19,20 +19,31 @@ import {
   TruckIcon,
   UserIcon,
 } from "@/components/ui/Icons";
-import type { HeaderStrings } from "@/design/studio/StudioHeader";
 import type { Locale } from "@/i18n/config";
+
+export type HeaderStrings = {
+  newIn: string;
+  sale: string;
+  searchPlaceholder: string;
+  search: string;
+  account: string;
+  wishlist: string;
+  cart: string;
+  changeLanguage: string;
+  openMenu: string;
+  closeMenu: string;
+  shopByAge: string;
+  close: string;
+};
 import type { AgeLink, NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
 
 /**
- * Market header.
- *
- * Where Studio leads with the logo and lets the nav breathe, this leads with
- * search — the single widest input on the page — and packs the utility rail
- * tight beside it. Below the bar sits a scrolling category strip, so a
- * department is always one click away without opening anything.
+ * Leads with search — the widest input on the page — and packs the utility rail
+ * tight beside it. Below the bar sits the department row, so any department is
+ * one click away without opening anything.
  */
-export function MarketHeader({
+export function Header({
   locale,
   nav,
   ages,

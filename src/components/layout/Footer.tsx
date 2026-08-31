@@ -21,10 +21,11 @@ import { loadSettings } from "@/lib/site-settings";
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
 
 /**
- * Market footer — a service band of guarantees first, then dense link columns
- * on white. Studio's footer is a plum showpiece; this one is a utility.
+ * A service band of guarantees first, then dense link columns on white. Built
+ * as a utility rather than a showpiece — the guarantees are the part shoppers
+ * actually scan for.
  */
-export async function MarketFooter({
+export async function Footer({
   locale,
   dict,
   nav,

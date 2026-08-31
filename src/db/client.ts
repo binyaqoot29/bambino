@@ -37,9 +37,13 @@ async function create(): Promise<Database> {
     return drizzleNeon(neon(url), { schema }) as unknown as Database;
   }
 
-  if (process.env.NODE_ENV === "production") {
+  // Guard on "is this a real deployment", not on NODE_ENV. A local
+  // `npm run build` runs with NODE_ENV=production and should still use PGlite;
+  // what must never happen is a deployed instance silently falling back to an
+  // empty, ephemeral WASM database.
+  if (process.env.VERCEL || process.env.CI) {
     throw new Error(
-      "DATABASE_URL is not set. Production needs a Postgres connection string — see README, 'Database'.",
+      "DATABASE_URL is not set. A deployed instance needs a Postgres connection string — see README, 'Database'.",
     );
   }
 

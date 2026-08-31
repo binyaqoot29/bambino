@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Listing } from "@/design";
+import { ProductListing } from "@/components/plp/ProductListing";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -50,7 +50,7 @@ export default async function CategoryPage({
   const products = await getProductsInCategory(slug);
 
   return (
-    <Listing
+    <ProductListing
       title={category.name[locale]}
       description={category.blurb?.[locale]}
       crumbs={[

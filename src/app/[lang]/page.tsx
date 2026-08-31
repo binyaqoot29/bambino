@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { Home } from "@/design";
+import { Home } from "@/components/home/Home";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 

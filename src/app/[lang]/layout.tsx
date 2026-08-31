@@ -5,9 +5,8 @@ import { notFound } from "next/navigation";
 import { BagProvider } from "@/components/cart/store";
 import { AddedToBagDrawer } from "@/components/cart/AddedToBagDrawer";
 import { CatalogProvider } from "@/components/catalog/CatalogProvider";
-import { SiteFooter, SiteHeader } from "@/design";
-import { DesignSwitcher } from "@/design/DesignSwitcher";
-import { getDesign } from "@/design/server";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
 import { isLocale, locales, localeMeta, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { buildProductIndex } from "@/lib/catalog/index-client";
@@ -31,6 +30,21 @@ const tajawal = Tajawal({
 export function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
 }
+
+/**
+ * The storefront renders per request.
+ *
+ * The catalogue is data the shop owner edits, and an edit should be visible
+ * immediately — not after a revalidation round trip. Prerendering would also
+ * make every build depend on the database being reachable, so a transient
+ * database blip would fail a deploy rather than just a page.
+ *
+ * The trade is a query per page view instead of static HTML. At this
+ * catalogue's size that's the right way round; if traffic ever makes it the
+ * wrong way round, this line and `revalidatePath` in the admin actions are the
+ * two places to revisit.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -69,7 +83,6 @@ export default async function LocaleLayout({
 
   const locale: Locale = lang;
   const dict = getDictionary(locale);
-  const design = await getDesign();
   const nav = await buildNav(locale);
   const ages = buildAgeLinks(locale);
 
@@ -77,7 +90,6 @@ export default async function LocaleLayout({
     <html
       lang={localeMeta[locale].htmlLang}
       dir={localeMeta[locale].dir}
-      data-design={design}
       className={`${poppins.variable} ${tajawal.variable} h-full`}
       suppressHydrationWarning
     >
@@ -91,15 +103,37 @@ export default async function LocaleLayout({
 
         <CatalogProvider index={await buildProductIndex(locale)}>
           <BagProvider>
-            <SiteHeader locale={locale} dict={dict} nav={nav} ages={ages} />
+            <Header
+              locale={locale}
+              nav={nav}
+              ages={ages}
+              announcements={[
+                dict.announce.shipping,
+                dict.announce.returns,
+                dict.announce.cod,
+              ]}
+              strings={{
+                newIn: dict.nav.newIn,
+                sale: dict.nav.sale,
+                searchPlaceholder: dict.nav.searchPlaceholder,
+                search: dict.common.search,
+                account: dict.nav.account,
+                wishlist: dict.nav.wishlist,
+                cart: dict.nav.cart,
+                changeLanguage: dict.nav.changeLanguage,
+                openMenu: dict.nav.openMenu,
+                closeMenu: dict.nav.closeMenu,
+                shopByAge: dict.nav.shopByAge,
+                close: dict.common.close,
+              }}
+            />
 
             <main id="main" className="flex-1">
               {children}
             </main>
 
-            <SiteFooter locale={locale} dict={dict} nav={nav} />
+            <Footer locale={locale} dict={dict} nav={nav} />
             <AddedToBagDrawer locale={locale} dict={dict} />
-            <DesignSwitcher current={design} />
           </BagProvider>
         </CatalogProvider>
       </body>

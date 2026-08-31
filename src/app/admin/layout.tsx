@@ -31,8 +31,8 @@ export const metadata: Metadata = {
 
 /**
  * The admin sits outside /[lang]: it's an internal tool with its own language
- * preference, so it shouldn't inherit the storefront's locale routing, chrome
- * or design switcher.
+ * preference, so it shouldn't inherit the storefront's locale routing or
+ * chrome.
  */
 export default async function AdminLayout({
   children,

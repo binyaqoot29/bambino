@@ -32,57 +32,7 @@
   --color-mint-800: #3c5661;
   --color-mint-900: #334752;
 
-  /* --- Neutrals: warm, slightly plum-tinted ---------------------------- */
-  --color-ink-50: #faf8f9;
-  --color-ink-100: #f3eff1;
-  --color-ink-200: #e7e0e4;
-  --color-ink-300: #d2c7cd;
-  --color-ink-400: #a5959e;
-  --color-ink-500: #7c6b74;
-  --color-ink-600: #5d4e56;
-  --color-ink-700: #473b42;
-  --color-ink-800: #33292f;
-  --color-ink-900: #241c21;
-
-  /* --- Surfaces --------------------------------------------------------- */
-  --color-paper: #ffffff;
-  --color-canvas: #fbf9fa;
-  --color-canvas-mint: #f4fafb;
-
-  /* --- Semantic --------------------------------------------------------- */
-  --color-sale: #c8395f;
-  --color-success: #3f8f6d;
-
-  /* --- Type ------------------------------------------------------------- */
-  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", sans-serif;
-  --font-arabic: var(--font-tajawal), var(--font-poppins), ui-sans-serif,
-    system-ui, sans-serif;
-
-  /* --- Shape ------------------------------------------------------------ */
-  /* Used via `rounded-card` / `rounded-pill` so a design direction can retune
-     the whole UI's corners by overriding these two values. */
-  --radius-card: 1.5rem;
-  --radius-pill: 999px;
-
-  /* --- Motion ----------------------------------------------------------- */
-  --ease-soft: cubic-bezier(0.32, 0.72, 0.3, 1);
-}
-
-/* ==========================================================================
-   Design direction: "market"
-   Dense and commercial. Same brand, different posture — surfaces go white,
-   orchid stops being decoration and becomes the action colour, corners tighten
-   from pill-soft to 8px, and the neutrals cool off so price and offer badges
-   carry more weight. Layout differences live in src/design/market/*.
-   ========================================================================== */
-
-[data-design="market"] {
-  /* Surfaces lose the pink cast — merchandising should supply the colour. */
-  --color-canvas: #f6f7f8;
-  --color-canvas-mint: #f2f6f8;
-
-  /* Cooler, higher-contrast neutrals for dense type. */
+  /* --- Neutrals: cool and high-contrast, for dense commercial type ----- */
   --color-ink-50: #f8f9fa;
   --color-ink-100: #eef0f2;
   --color-ink-200: #e0e3e7;
@@ -94,11 +44,29 @@
   --color-ink-800: #24292e;
   --color-ink-900: #14181c;
 
-  /* Louder sale red — this design leads with price. */
-  --color-sale: #d8232f;
+  /* --- Surfaces --------------------------------------------------------- */
+  --color-paper: #ffffff;
+  --color-canvas: #f6f7f8;
+  --color-canvas-mint: #f2f6f8;
 
+  /* --- Semantic --------------------------------------------------------- */
+  --color-sale: #d8232f; /* leads the price-first cards and badges */
+  --color-success: #3f8f6d;
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-arabic: var(--font-tajawal), var(--font-poppins), ui-sans-serif,
+    system-ui, sans-serif;
+
+  /* --- Shape ------------------------------------------------------------ */
+  /* Used via `rounded-card` / `rounded-pill`, so the UI's corner language is
+     one edit rather than a sweep through every component. */
   --radius-card: 0.5rem;
   --radius-pill: 0.5rem;
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease-soft: cubic-bezier(0.32, 0.72, 0.3, 1);
 }
 
 /* ==========================================================================

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { ProductView } from "@/design";
+import { ProductPage } from "@/components/product/ProductPage";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
 import { getProductByHandle, getRelated } from "@/lib/catalog/queries";
@@ -30,7 +30,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({
+export default async function ProductRoute({
   params,
 }: PageProps<"/[lang]/p/[handle]">) {
   const { lang, handle } = await params;
@@ -42,7 +42,7 @@ export default async function ProductPage({
   const locale: Locale = lang;
 
   return (
-    <ProductView
+    <ProductPage
       product={product}
       related={await getRelated(product, 4)}
       locale={locale}

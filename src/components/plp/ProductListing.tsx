@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ActiveFilters } from "@/components/plp/ActiveFilters";
 import { FilterRail, FilterSheet, type FacetData } from "@/components/plp/Filters";
 import { SortSelect } from "@/components/plp/SortSelect";
-import { buildQuery } from "@/components/plp/search-params";
+import { buildQuery, type ListingParams } from "@/components/plp/search-params";
 import { ArrowIcon } from "@/components/ui/Icons";
 import { createTranslator } from "@/i18n/t";
 import {
@@ -13,22 +13,34 @@ import {
   sortProducts,
 } from "@/lib/catalog/queries";
 import { COLOURS, SIZE_LABELS } from "@/lib/catalog/taxonomy";
-import { AGE_GROUP_LABELS, type AgeGroup } from "@/lib/catalog/types";
-import type { ListingProps } from "../types";
-import { MarketProductCard } from "./MarketProductCard";
+import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
+import type { Locale } from "@/i18n/config";
+import type { Dictionary } from "@/i18n/get-dictionary";
+import { ProductCard } from "@/components/product/ProductCard";
 
-/** Denser than Studio's 12 — this design is about seeing more at once. */
+/** Dense on purpose — this storefront is about seeing more at once. */
 const PAGE_SIZE = 20;
 
+export type Crumb = { label: string; href?: string };
+
+export type ListingProps = {
+  title: string;
+  description?: string;
+  crumbs?: Crumb[];
+  /** The candidate set before facets — facet counts are derived from it. */
+  products: Product[];
+  params: ListingParams;
+  basePath: string;
+  locale: Locale;
+  dict: Dictionary;
+};
+
 /**
- * Market listing.
- *
- * Same facets as Studio, different posture: a permanent filter rail rather than
- * a slide-over, a five-across grid instead of four, a compact toolbar with the
- * result count stated plainly, and the header collapsed to a single line so
- * products start higher up the page.
+ * A permanent filter rail, a five-across grid, a compact toolbar stating the
+ * result count plainly, and the header collapsed to one line so products start
+ * high up the page.
  */
-export async function MarketListing({
+export async function ProductListing({
   title,
   description,
   crumbs,
@@ -188,7 +200,7 @@ export async function MarketListing({
                 <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {visible.map((product) => (
                     <li key={product.id}>
-                      <MarketProductCard
+                      <ProductCard
                         product={product}
                         locale={locale}
                         dict={dict}

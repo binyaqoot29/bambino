@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProductArt } from "@/components/product/ProductArt";
-import { Listing } from "@/design";
+import { ProductListing } from "@/components/plp/ProductListing";
 import { parseListingParams } from "@/components/plp/search-params";
 import { isLocale, locales, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
@@ -86,7 +86,7 @@ export default async function DepartmentPage({
         </div>
       </div>
 
-      <Listing
+      <ProductListing
         title={DEPARTMENT_LABELS[department][locale]}
         crumbs={[
           { label: dict.nav.home, href: routes.home(locale) },

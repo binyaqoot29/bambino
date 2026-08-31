@@ -16,19 +16,16 @@ import type { Category } from "@/lib/catalog/types";
 import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/money";
 import { routes } from "@/lib/routes";
-import { MarketProductCard } from "./MarketProductCard";
+import { ProductCard } from "@/components/product/ProductCard";
 
 const AGE_KEYS = Object.keys(AGE_GROUP_LABELS) as AgeGroup[];
 
 /**
- * Market homepage.
- *
- * Studio opens with a single quiet hero and eases into the catalogue. This one
- * puts merchandise above the fold: a promo grid, then a category strip, then
- * rails that lead with price. The intent is a shopper who lands and clicks,
- * not a visitor who reads.
+ * Puts merchandise above the fold: a promo grid, then a category strip, then
+ * rails that lead with price. Built for a shopper who lands and clicks, not a
+ * visitor who reads.
  */
-export async function MarketHome({
+export async function Home({
   locale,
   dict,
 }: {
@@ -104,7 +101,7 @@ function PromoGrid({
             aria-hidden="true"
             className="text-mint-300/15 pointer-events-none absolute inset-0"
           >
-            <DoodleField id="market-promo" />
+            <DoodleField id="promo-doodles" />
           </div>
           <div className="relative flex flex-col justify-center">
             <span className="bg-mint-300 text-brand-900 inline-flex w-fit rounded px-2 py-1 text-[11px] font-bold tracking-wide uppercase">
@@ -283,7 +280,7 @@ function Rail({
               key={product.id}
               className="w-40 shrink-0 sm:w-44 lg:w-auto"
             >
-              <MarketProductCard
+              <ProductCard
                 product={product}
                 locale={locale}
                 dict={dict}
@@ -329,7 +326,7 @@ function BestsellerBlock({
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {products.map((product) => (
             <li key={product.id}>
-              <MarketProductCard
+              <ProductCard
                 product={product}
                 locale={locale}
                 dict={dict}

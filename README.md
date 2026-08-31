@@ -23,6 +23,7 @@ depending on your `Accept-Language`.
 | UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript |
 | i18n | Native `app/[lang]` + `src/proxy.ts`, no dependency |
+| Data | Postgres via Drizzle — Neon deployed, PGlite locally |
 | State | `useSyncExternalStore` over `localStorage` |
 
 ## Brand
@@ -82,39 +83,26 @@ per-product background tint. It's a deliberate stand-in — it keeps a grid
 looking designed rather than broken. Swapping in `<Image>` touches three call
 sites: the product card, the PDP gallery, and the cart line.
 
-## Two designs
+## Design
 
-This build carries **two design directions** so the client can compare them on
-the same running site. A floating switcher (bottom right) flips between:
+Dense and commercial, built to match [mamasandpapas.com.kw](https://en.mamasandpapas.com.kw/):
+white-led surfaces with orchid as the action colour, 8px corners, cool
+high-contrast neutrals so price and offer badges carry weight.
 
-- **Studio** — the original. Soft, brand-led, generous spacing, pill shapes.
-- **Market** — dense and commercial. White-led with orchid as the action colour,
-  8px corners, promo-driven layouts, price-first product cards.
+- **Header** leads with search — the widest input on the page — over a
+  department row with a thumbnail mega menu.
+- **Homepage** opens on merchandise: promo grid, category circles, age chips,
+  then rails that lead with price.
+- **Listing** is five across with a permanent filter rail, 20 per page.
+- **Product page** pins a buy box beside the gallery: price, saving, delivery
+  status and add-to-bag all visible without scrolling.
+- **Cards** are price-led — the price is the biggest element, the saving is in
+  dinars as well as percent.
 
-They differ in structure, not just skin: separate headers, footers, homepages,
-listing pages and product pages. What they share is everything below the
-surface — catalogue, cart, filters, i18n, and the primitives in
-`src/components/ui`.
-
-```
-src/design/
-  config.ts          designs, cookie name, labels
-  server.ts          getDesign() — reads the cookie
-  index.tsx          dispatchers: <Home>, <Listing>, <ProductView>, <SiteHeader>, <SiteFooter>
-  types.ts           the prop contract both directions implement
-  studio/  market/   the two implementations
-```
-
-Route files under `src/app` render the dispatchers and never import a specific
-direction, so adding or removing one touches nothing there. Colour, type, radii
-and neutrals come from the `[data-design="market"]` block in `globals.css` —
-`data-design` is set on `<html>` from the cookie.
-
-**This is review scaffolding.** Reading a cookie in the layout opts every page
-out of static prerendering, which is why the build reports routes as dynamic.
-Once a direction is chosen: delete the other folder, drop `DesignSwitcher` and
-`getDesign`, inline the winner into the routes, and the pages go back to being
-fully static.
+This was picked from two directions built side by side for the client. The
+alternative ("Studio" — soft, brand-led, spacious) and the switcher that
+compared them were removed once the choice was made; both are in git history up
+to `dd73ef5` if the decision is ever revisited.
 
 ## Localisation
 
@@ -146,11 +134,12 @@ npm run db:reset     # wipe the local DB and rebuild it
 npm run db:generate  # regenerate SQL after editing schema.ts
 ```
 
-Two things about the local PGlite database. It's **single-writer**, so a script
-run while `next dev` is holding it will fail — stop the dev server first. And
-killing the dev server mid-write can leave the data directory unopenable
-(`RuntimeError: Aborted()`); it's disposable, so `npm run db:reset` fixes it in
-seconds.
+The local PGlite database is **single-writer**. A script run while `next dev`
+holds it will fail — stop the dev server first — and anything that opens it from
+several processes at once (a killed dev server, a build that fans out across
+workers) can leave the data directory unopenable with `RuntimeError: Aborted()`.
+It's disposable: `npm run db:reset` rebuilds it from the seed in seconds. None
+of this applies to Neon.
 
 `src/lib/catalog/products.ts` stays in the repo as the seed fixture. It is no
 longer what the storefront reads.
@@ -162,9 +151,12 @@ longer what the storefront reads.
 2. Deploy. That's it.
 
 Migrations run during the build (`scripts/setup-db.ts`), which applies anything
-pending and seeds the catalogue **only when it's empty**. That guard is what
-makes it safe on every deploy: a fresh database gets the starter catalogue, and
-one the shop owner has since edited is never overwritten.
+pending and then seeds **only once ever**, recorded by a `_seeded` marker row.
+The marker is what makes it safe on every deploy: a fresh database gets the
+starter catalogue, and a product the shop owner deletes is never resurrected.
+An earlier version guarded on "are there any products?" and shipped a
+storefront with products but no categories when the categories table was added
+later — the marker doesn't care what the schema grows into.
 
 This runs in the build because Vercel marks Neon's variables Sensitive —
 `vercel env pull` returns the literal `[SENSITIVE]`, so the connection string
@@ -253,10 +245,23 @@ Storefront, a database) means changing those function bodies and nothing else.
 /[lang]/about                    brand story
 ```
 
-Listing pages share one [`ProductListing`](src/components/plp/ProductListing.tsx)
-component. Filter state lives entirely in the URL
+Category, department and collection pages all render
+[`ProductListing`](src/components/plp/ProductListing.tsx). Filter state lives
+entirely in the URL
 (`?age=&colour=&size=&min=&max=&stock=1&sale=1&sort=&page=`) so results are
 linkable and shareable.
+
+## Rendering
+
+The storefront renders **per request** (`export const dynamic = "force-dynamic"`
+in the locale layout). The catalogue is data the shop owner edits, and an edit
+should be visible immediately rather than after a revalidation round trip.
+Prerendering would also make every deploy depend on the database being
+reachable at build time.
+
+The trade is a query per page view instead of static HTML. At this catalogue's
+size that's the right way round; if traffic ever changes that, this line and the
+`revalidatePath` calls in the admin actions are the two places to revisit.
 
 ## What is not built
 
