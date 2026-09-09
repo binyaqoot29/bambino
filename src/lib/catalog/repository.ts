@@ -39,18 +39,22 @@ function toDomain({ product, variants }: Rows): Product {
     art: product.art,
     images: product.images ?? [],
     colours: colourKeys
-      .map((key) => COLOURS[key])
+      // The shared palette first, then anything this product defined for
+      // itself. A custom key is prefixed "c-", so the two never collide.
+      .map(
+        (key) =>
+          COLOURS[key] ??
+          (product.customColours ?? []).find((c) => c.key === key),
+      )
       // A colour could be removed from taxonomy while variants still cite it;
       // drop rather than render an undefined swatch.
       .filter(Boolean),
-    variants: variants.map(
-      (v): Variant => ({
-        id: v.id,
-        size: v.size,
-        colour: v.colour,
-        stock: v.stock,
-      }),
-    ),
+    variants: variants.map((v): Variant => ({
+      id: v.id,
+      size: v.size,
+      colour: v.colour,
+      stock: v.stock,
+    })),
     ageGroups: product.ageGroups ?? [],
     rating: product.rating,
     reviewCount: product.reviewCount,
@@ -78,7 +82,9 @@ function toDomain({ product, variants }: Rows): Product {
  * it grows past a few thousand, the filtering in queries.ts is what should move
  * into SQL — not this function.
  */
-export const loadCatalogue = cache(() => snapshot("catalogue", loadCatalogueFromDb));
+export const loadCatalogue = cache(() =>
+  snapshot("catalogue", loadCatalogueFromDb),
+);
 
 async function loadCatalogueFromDb(): Promise<Product[]> {
   const db = await getDb();
@@ -100,25 +106,25 @@ async function loadCatalogueFromDb(): Promise<Product[]> {
   );
 }
 
-export const loadProductByHandle = cache(async (
-  handle: string,
-): Promise<Product | undefined> => {
-  const db = await getDb();
+export const loadProductByHandle = cache(
+  async (handle: string): Promise<Product | undefined> => {
+    const db = await getDb();
 
-  const [product] = await db
-    .select()
-    .from(schema.products)
-    .where(eq(schema.products.handle, handle))
-    .limit(1);
-  if (!product) return undefined;
+    const [product] = await db
+      .select()
+      .from(schema.products)
+      .where(eq(schema.products.handle, handle))
+      .limit(1);
+    if (!product) return undefined;
 
-  const variants = await db
-    .select()
-    .from(schema.variants)
-    .where(eq(schema.variants.productId, product.id));
+    const variants = await db
+      .select()
+      .from(schema.variants)
+      .where(eq(schema.variants.productId, product.id));
 
-  return toDomain({ product, variants });
-});
+    return toDomain({ product, variants });
+  },
+);
 
 export async function loadProductById(
   id: string,

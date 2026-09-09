@@ -8,7 +8,7 @@ import {
   ageOptions,
   artOptions,
   categoryOptions,
-  colourOptions,
+  colourFamilies,
   sizeOptions,
 } from "@/admin/ui/form-options";
 
@@ -34,7 +34,7 @@ export default async function NewProductPage() {
         action={action}
         categories={await categoryOptions()}
         arts={artOptions}
-        colours={colourOptions}
+        colourFamilies={colourFamilies}
         sizes={sizeOptions}
         ages={ageOptions}
       />

@@ -305,6 +305,21 @@ export async function planProductImport(
   }
 
   const categories = new Map((await loadCategories()).map((c) => [c.slug, c]));
+  // Colours a product defined for itself stay valid on re-import.
+  const db = await getDb();
+  const own = new Map(
+    (
+      await db
+        .select({
+          handle: schema.products.handle,
+          customColours: schema.products.customColours,
+        })
+        .from(schema.products)
+    ).map((p) => [
+      p.handle,
+      new Set((p.customColours ?? []).map((c) => c.key)),
+    ]),
+  );
   const problems: ImportProblem[] = [];
   const products: ParsedProduct[] = [];
   const seen = new Set<string>();
@@ -345,7 +360,9 @@ export async function planProductImport(
     }
 
     const colours = splitList(row.colours);
-    const badColours = colours.filter((c) => !COLOURS[c]);
+    const badColours = colours.filter(
+      (c) => !COLOURS[c] && !own.get(handle)?.has(c),
+    );
     if (badColours.length)
       fail(
         `unknown colours: ${badColours.join(", ")} (use: ${Object.keys(COLOURS).join(", ")})`,

@@ -93,12 +93,18 @@ export async function ProductListing({
         label: AGE_GROUP_LABELS[value as AgeGroup][locale],
         count,
       })),
-    colours: [...raw.colours.entries()].map(([value, count]) => ({
-      value,
-      label: COLOURS[value]?.name[locale] ?? value,
-      hex: COLOURS[value]?.hex,
-      count,
-    })),
+    colours: [...raw.colours.entries()].map(([value, count]) => {
+      // A product's own colour has no palette entry; the product knows it.
+      const info =
+        COLOURS[value] ??
+        products.flatMap((p) => p.colours).find((c) => c.key === value);
+      return {
+        value,
+        label: info?.name[locale] ?? value,
+        hex: info?.hex,
+        count,
+      };
+    }),
     sizes: [...raw.sizes.entries()]
       .filter(([value]) => value !== "one-size")
       .sort(

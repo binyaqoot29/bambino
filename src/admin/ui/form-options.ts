@@ -1,5 +1,10 @@
 import { loadCategories } from "@/lib/catalog/categories";
-import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
+import {
+  COLOUR_FAMILIES,
+  COLOURS,
+  DEPARTMENT_ORDER,
+  SIZE_LABELS,
+} from "@/lib/catalog/taxonomy";
 import { AGE_GROUP_LABELS, DEPARTMENT_LABELS } from "@/lib/catalog/types";
 
 /**
@@ -43,10 +48,23 @@ export const colourOptions = Object.values(COLOURS).map((c) => ({
   hex: c.hex,
 }));
 
-export const sizeOptions = Object.entries(SIZE_LABELS).map(([value, label]) => ({
-  value,
-  label: label.en,
+/** The palette grouped by family, as the picker shows it. */
+export const colourFamilies = COLOUR_FAMILIES.map((family) => ({
+  key: family.key,
+  label: family.name.en,
+  colours: family.colours.map((key) => ({
+    value: key,
+    label: COLOURS[key].name.en,
+    hex: COLOURS[key].hex,
+  })),
 }));
+
+export const sizeOptions = Object.entries(SIZE_LABELS).map(
+  ([value, label]) => ({
+    value,
+    label: label.en,
+  }),
+);
 
 export const ageOptions = Object.entries(AGE_GROUP_LABELS).map(
   ([value, label]) => ({ value, label: label.en }),

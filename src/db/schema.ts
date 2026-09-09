@@ -11,7 +11,12 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
+import type {
+  ColourOption,
+  AgeGroup,
+  ArtKey,
+  Department,
+} from "@/lib/catalog/types";
 import type { CollectionRule } from "@/lib/catalog/collection-rules";
 import type {
   DeliveryAddress,
@@ -68,6 +73,15 @@ export const products = pgTable(
      * and neither should render a broken frame.
      */
     images: jsonb("images").$type<string[]>().notNull().default([]),
+    /**
+     * Colours this product defines for itself, beyond the shared palette in
+     * taxonomy.ts. Same shape as a palette entry; keys are prefixed "c-" so
+     * they can never collide with a palette key.
+     */
+    customColours: jsonb("custom_colours")
+      .$type<ColourOption[]>()
+      .notNull()
+      .default([]),
     ageGroups: jsonb("age_groups").$type<AgeGroup[]>().notNull().default([]),
 
     rating: real("rating").notNull().default(0),
@@ -116,18 +130,15 @@ export const variants = pgTable(
  * each `art` key is a hand-drawn SVG — an invented value for either would have
  * nothing to render.
  */
-export const categories = pgTable(
-  "categories",
-  {
-    slug: text("slug").primaryKey(),
-    name: jsonb("name").$type<I18n>().notNull(),
-    blurb: jsonb("blurb").$type<I18n | null>(),
-    department: text("department").$type<Department>().notNull(),
-    art: text("art").$type<ArtKey>().notNull(),
-    /** Controls order within a department, in the nav and on the homepage. */
-    position: integer("position").notNull().default(0),
-  },
-);
+export const categories = pgTable("categories", {
+  slug: text("slug").primaryKey(),
+  name: jsonb("name").$type<I18n>().notNull(),
+  blurb: jsonb("blurb").$type<I18n | null>(),
+  department: text("department").$type<Department>().notNull(),
+  art: text("art").$type<ArtKey>().notNull(),
+  /** Controls order within a department, in the nav and on the homepage. */
+  position: integer("position").notNull().default(0),
+});
 
 /**
  * Small key/value store for editable site-wide settings — social links today.
@@ -185,9 +196,7 @@ export const collectionProducts = pgTable(
     /** Curated order within the collection. */
     position: integer("position").notNull().default(0),
   },
-  (table) => [
-    primaryKey({ columns: [table.collectionSlug, table.productId] }),
-  ],
+  (table) => [primaryKey({ columns: [table.collectionSlug, table.productId] })],
 );
 
 /**

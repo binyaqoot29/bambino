@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { ColourPicker } from "@/admin/ui/ColourPicker";
 import { ImageUploader } from "@/admin/ui/ImageUploader";
 
 import type { ProductFormState } from "@/admin/actions";
@@ -23,7 +24,7 @@ export function ProductForm({
   product,
   categories,
   arts,
-  colours,
+  colourFamilies,
   sizes,
   ages,
 }: {
@@ -34,7 +35,11 @@ export function ProductForm({
   product?: Product;
   categories: Option[];
   arts: Option[];
-  colours: (Option & { hex: string })[];
+  colourFamilies: {
+    key: string;
+    label: string;
+    colours: (Option & { hex: string })[];
+  }[];
   sizes: Option[];
   ages: Option[];
 }) {
@@ -69,6 +74,22 @@ export function ProductForm({
   );
   const selectedAges = keptList("ageGroups", product?.ageGroups ?? []);
   const images = [...keptList("image", product?.images ?? [])];
+  // The product's own colours: echoed back after a rejected save, otherwise
+  // the "c-" entries the saved product resolved.
+  const initialCustom: { en: string; ar: string; hex: string }[] = (() => {
+    const echoed = kept("customColours");
+    if (echoed) {
+      try {
+        const parsed = JSON.parse(echoed);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        /* fall through to the saved product */
+      }
+    }
+    return (product?.colours ?? [])
+      .filter((c) => c.key.startsWith("c-"))
+      .map((c) => ({ en: c.name.en, ar: c.name.ar, hex: c.hex }));
+  })();
   const money = (fils?: number) =>
     fils === undefined ? "" : (fils / 1000).toFixed(3);
 
@@ -259,27 +280,11 @@ export function ProductForm({
           note="A variant is created for every colour × size combination. Editing these keeps the stock of combinations that already existed."
         >
           <Field label="Colours" error={err.colours}>
-            <div className="flex flex-wrap gap-2">
-              {colours.map((c) => (
-                <label
-                  key={c.value}
-                  className="ring-ink-300 has-checked:ring-ink-900 has-checked:bg-ink-900 has-checked:text-white flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs ring-1 has-checked:ring-2"
-                >
-                  <input
-                    type="checkbox"
-                    name="colours"
-                    value={c.value}
-                    defaultChecked={selectedColours.has(c.value)}
-                    className="sr-only"
-                  />
-                  <span
-                    className="ring-ink-200 size-4 rounded-full ring-1"
-                    style={{ backgroundColor: c.hex }}
-                  />
-                  {c.label}
-                </label>
-              ))}
-            </div>
+            <ColourPicker
+              families={colourFamilies}
+              selected={[...selectedColours]}
+              initialCustom={initialCustom}
+            />
           </Field>
 
           <Field label="Sizes" error={err.sizes}>

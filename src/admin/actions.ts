@@ -10,7 +10,12 @@ import { count, eq } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { findCategory } from "@/lib/catalog/categories";
 import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
-import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
+import type {
+  AgeGroup,
+  ArtKey,
+  ColourOption,
+  Department,
+} from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
 import { restoreOrderStock } from "@/lib/orders/place";
 import {
@@ -152,6 +157,43 @@ function slugify(input: string) {
     .slice(0, 80);
 }
 
+/**
+ * The product's own colours, posted by the picker as JSON. Each becomes a
+ * palette-shaped entry with a "c-" key derived from its English name, so a
+ * custom "Dusty teal" is `c-dusty-teal` everywhere a colour key is used.
+ */
+function parseCustomColours(raw: string): ColourOption[] {
+  if (!raw) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const out: ColourOption[] = [];
+  for (const item of parsed.slice(0, 24)) {
+    if (!item || typeof item !== "object") continue;
+    const { en, ar, hex } = item as Record<string, unknown>;
+    const nameEn = String(en ?? "")
+      .trim()
+      .slice(0, 40);
+    const nameAr = String(ar ?? "")
+      .trim()
+      .slice(0, 40);
+    const colour = String(hex ?? "").trim();
+    if (!nameEn || !/^#[0-9a-fA-F]{6}$/.test(colour)) continue;
+    const key = `c-${slugify(nameEn)}`;
+    if (key === "c-" || out.some((c) => c.key === key)) continue;
+    out.push({
+      key,
+      name: { en: nameEn, ar: nameAr || nameEn },
+      hex: colour.toUpperCase(),
+    });
+  }
+  return out;
+}
+
 function parseForm(formData: FormData) {
   const text = (key: string) => String(formData.get(key) ?? "").trim();
 
@@ -182,6 +224,9 @@ function parseForm(formData: FormData) {
     compareAtPrice: text("compareAtPrice"),
     ageGroups: formData.getAll("ageGroups").map(String) as AgeGroup[],
     colours: formData.getAll("colours").map(String),
+    customColours: parseCustomColours(
+      String(formData.get("customColours") ?? ""),
+    ),
     sizes: formData.getAll("sizes").map(String),
     stock: text("stock"),
     featured: formData.get("featured") === "on",
@@ -355,6 +400,7 @@ export async function saveProduct(
       .filter(isOwnImage)
       .slice(0, 12),
     ageGroups: input.ageGroups.filter((a) => AGE_VALUES.includes(a)),
+    customColours: input.customColours,
     rating: Number(input.rating) || 0,
     reviewCount: Number(input.reviewCount) || 0,
     featured: input.featured,
@@ -363,7 +409,8 @@ export async function saveProduct(
   };
 
   const stock = Math.max(0, Number(input.stock) || 0);
-  const colours = input.colours.filter((c) => COLOURS[c]);
+  const own = new Set(input.customColours.map((c) => c.key));
+  const colours = input.colours.filter((c) => COLOURS[c] || own.has(c));
   const sizes = input.sizes.filter((s) => s in SIZE_LABELS);
 
   let id = productId;

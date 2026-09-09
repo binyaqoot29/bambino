@@ -8,7 +8,7 @@ import {
   ageOptions,
   artOptions,
   categoryOptions,
-  colourOptions,
+  colourFamilies,
   sizeOptions,
 } from "@/admin/ui/form-options";
 import { loadProductById } from "@/lib/catalog/repository";
@@ -50,7 +50,7 @@ export default async function EditProductPage({
         product={product}
         categories={await categoryOptions()}
         arts={artOptions}
-        colours={colourOptions}
+        colourFamilies={colourFamilies}
         sizes={sizeOptions}
         ages={ageOptions}
       />
