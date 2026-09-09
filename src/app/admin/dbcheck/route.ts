@@ -24,6 +24,16 @@ export async function GET(request: Request) {
   if (!expected || request.headers.get("x-admin-password") !== expected) {
     return Response.json({ error: "unauthorised" }, { status: 401 });
   }
+  try {
+    return await run();
+  } catch (e) {
+    const msg = String(e instanceof Error ? e.stack ?? e.message : e);
+    console.error("dbcheck failed", msg);
+    return Response.json({ error: "threw", message: msg.slice(0, 2000) }, { status: 500 });
+  }
+}
+
+async function run() {
   const url = process.env.DATABASE_URL;
   if (!url) return Response.json({ error: "DATABASE_URL unset" }, { status: 500 });
   const u = new URL(url);
