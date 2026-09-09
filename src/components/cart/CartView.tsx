@@ -220,9 +220,14 @@ export function CartView({
               </div>
             </div>
 
-            <Button block size="lg" className="mt-5">
+            <ButtonLink
+              href={routes.checkout(locale)}
+              block
+              size="lg"
+              className="mt-5"
+            >
               {dict.cart.checkout}
-            </Button>
+            </ButtonLink>
 
             <div className="mt-4">
               <label

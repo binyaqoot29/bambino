@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export type NavLabels = {
+  sales: string;
+  orders: string;
   catalogue: string;
   products: string;
   inventory: string;
@@ -33,6 +35,12 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
   const pathname = usePathname();
 
   const groups = [
+    {
+      heading: labels.sales,
+      items: [
+        { href: "/admin/orders", label: labels.orders, match: /^\/admin\/orders/ },
+      ],
+    },
     {
       heading: labels.catalogue,
       items: [

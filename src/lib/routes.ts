@@ -8,6 +8,9 @@ export const routes = {
     `/${l}/collections/${collection}`,
   product: (l: Locale, handle: string) => `/${l}/p/${handle}`,
   cart: (l: Locale) => `/${l}/cart`,
+  checkout: (l: Locale) => `/${l}/checkout`,
+  orderConfirmation: (l: Locale, reference: string) =>
+    `/${l}/order/${reference}`,
   wishlist: (l: Locale) => `/${l}/wishlist`,
   search: (l: Locale, query?: string) =>
     query ? `/${l}/search?q=${encodeURIComponent(query)}` : `/${l}/search`,

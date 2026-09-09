@@ -10,6 +10,8 @@ import { findCategory } from "@/lib/catalog/categories";
 import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
+import { restoreOrderStock } from "@/lib/orders/place";
+import { isOrderStatus } from "@/lib/orders/types";
 import {
   SETTINGS_KEYS,
   normaliseSocial,
@@ -427,6 +429,83 @@ export async function deleteCategory(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect("/admin/categories?deleted=1");
+}
+
+
+/* --------------------------------------------------------------------------
+ * Orders
+ * ----------------------------------------------------------------------- */
+
+/**
+ * Moves an order along.
+ *
+ * Cancelling is the one transition with a side effect: the items go back on the
+ * shelf. It's guarded against running twice — cancelling an already-cancelled
+ * order would restock it a second time and quietly inflate inventory.
+ */
+export async function setOrderStatus(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !isOrderStatus(status)) return;
+
+  const db = await getDb();
+  const [order] = await db
+    .select()
+    .from(schema.orders)
+    .where(eq(schema.orders.id, id))
+    .limit(1);
+  if (!order || order.status === status) return;
+
+  // Cancelling is terminal. Moving back out of it would put the order live
+  // again without re-taking the stock that cancelling returned to the shelf,
+  // and the shop would oversell. The screen says cancelling can't be undone;
+  // this is what makes that true rather than a hope.
+  if (order.status === "cancelled") return;
+
+  const restocking = status === "cancelled";
+  if (restocking) await restoreOrderStock(id);
+
+  await db
+    .update(schema.orders)
+    .set({ status, updatedAt: new Date() })
+    .where(eq(schema.orders.id, id));
+
+  revalidatePath("/", "layout");
+  redirect(`/admin/orders/${id}?${restocking ? "restocked" : "status"}=1`);
+}
+
+export async function setOrderPaid(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const paid = formData.get("paid") === "1";
+
+  const db = await getDb();
+  await db
+    .update(schema.orders)
+    .set({ paymentStatus: paid ? "paid" : "unpaid", updatedAt: new Date() })
+    .where(eq(schema.orders.id, id));
+
+  redirect(`/admin/orders/${id}?status=1`);
+}
+
+export async function saveOrderNote(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const note = String(formData.get("staffNote") ?? "").trim();
+
+  const db = await getDb();
+  await db
+    .update(schema.orders)
+    .set({ staffNote: note || null, updatedAt: new Date() })
+    .where(eq(schema.orders.id, id));
+
+  redirect(`/admin/orders/${id}?note=1`);
 }
 
 /* --------------------------------------------------------------------------

@@ -335,19 +335,80 @@ proxy, because which language a visitor lands in depends on settings in the
 database and Next's guidance is explicit that the proxy isn't for data fetching.
 The proxy still handles locale-less deeper links, which fall back to English.
 
+## Checkout and orders
+
+A shopper can buy. Bag → checkout → order, with the stock actually moving.
+
+**Cash on delivery only, for now.** That is not a placeholder: it's the payment
+method the shop already advertised and the one most Kuwaiti customers use.
+Building it first means the shop can take real orders while the merchant
+account for card payment is still being set up, rather than waiting weeks with
+nothing live. `paymentMethod` is a column and the card option is rendered and
+disabled, so adding KNET is a new branch at one point in
+[`checkout.ts`](src/lib/actions/checkout.ts) plus a gateway callback — not a
+retrofit.
+
+Two rules shape [`placeOrder`](src/lib/orders/place.ts):
+
+**Prices come from the database, never the request.** A Server Action is a
+public POST endpoint. The browser is trusted to say *which variant* and *how
+many* and nothing else; every amount charged is looked up server-side. The
+posted bag is re-validated too — quantities clamped, unknown products dropped.
+
+**Stock moves in one statement.** The production driver is `neon-http`, which
+has *no* transaction support: `db.transaction()` throws there while working
+fine on local PGlite — precisely the shape of bug that passes review and breaks
+in production. So the decrement is a single all-or-nothing `UPDATE` whose guard
+lives inside the statement: it only matches when every requested variant still
+has enough stock. Two people buying the last item at the same moment cannot
+both succeed. Writes after it compensate if they fail.
+
+Orders **snapshot** what was bought — name, price, size, colour — rather than
+referencing the catalogue. A product can be renamed, repriced or deleted later,
+and an order from six months ago still has to read the way it did on the day.
+It's also why deleting a product can't cascade away the record that somebody
+bought it.
+
+### Addresses
+
+Kuwait-shaped: governorate, area, block, street, building, plus a free line for
+the floor or a landmark. A phone number is mandatory and validated as Kuwaiti
+(eight digits, and `+965`/spacing accepted) because that is how delivery works
+here — the driver calls.
+
+### Order references
+
+`BM-` plus six characters from an alphabet with no `0`/`O` or `1`/`I`/`L`. They
+get read out over the phone, and a misheard character is a delivery to the wrong
+door. They're random rather than sequential for a second reason: the
+confirmation page is guarded by nothing but the reference, and `BM-000042` would
+let anyone read every order in the shop by counting.
+
+### In the admin
+
+**Orders** lists everything with totals and open count, and each order has the
+customer's details (phone as a `tel:` link — the first thing the shop does is
+call), the items, a status trail, a paid/unpaid toggle and private staff notes.
+
+Cancelling returns every item to stock, and is **terminal**: reopening a
+cancelled order would put it live again without re-taking stock that may since
+have sold, so the screen says it can't be undone and the action enforces that.
+
 ## What is not built
 
 This is a complete storefront, not a complete shop. Deliberately out of scope so
 far:
 
-- **Checkout.** The button is present and inert; there is no payment
-  integration (KNET, cards, Apple Pay, COD are shown as badges only).
-- **Customer accounts.** No shopper auth, orders, or addresses — the account
-  icon is a stub. (The *admin* has its own password; see above.) The admin's
-  **Customers** section is newsletter subscribers for this reason: without a
-  checkout there is no such thing as a purchaser.
-- **Orders.** The bag lives in `localStorage` and stock is never decremented,
-  because nothing places an order yet.
+- **Card and KNET payment.** Checkout works and takes real orders, but only
+  cash on delivery. The card path is built as a seam, not a stub — see
+  **Checkout and orders** below.
+- **Customer accounts.** No shopper auth or saved addresses — the account icon
+  is a stub. Checkout is deliberately guest-only: requiring an account before a
+  first purchase costs more orders than it saves. The admin's **Customers**
+  section is newsletter subscribers, separate from the people who have ordered.
+- **Customer-facing order history.** An order is reachable by its confirmation
+  link, but there's no "my orders" page, because there are no accounts to hang
+  one from.
 - **Image upload.** Products pick from the built-in illustration set; there's no
   photo upload, which needs blob storage.
 - **Reviews.** Ratings are seed data; there is no review submission.

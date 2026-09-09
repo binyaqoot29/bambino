@@ -13,6 +13,13 @@ import { relations } from "drizzle-orm";
 
 import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
 import type { CollectionRule } from "@/lib/catalog/collection-rules";
+import type {
+  DeliveryAddress,
+  OrderLine,
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+} from "@/lib/orders/types";
 
 /**
  * Catalogue schema.
@@ -202,6 +209,64 @@ export const subscribers = pgTable(
   (table) => [uniqueIndex("subscribers_email_idx").on(table.email)],
 );
 
+/**
+ * Orders.
+ *
+ * The money columns are integer fils captured at checkout, not derived from the
+ * catalogue on read. A price the shop owner edits next week must not silently
+ * rewrite what a customer was charged last week.
+ *
+ * `lines` is a JSON snapshot rather than a child table with foreign keys to
+ * products, for the same reason and one more: deleting a product must never
+ * cascade away the record that somebody bought it.
+ */
+export const orders = pgTable(
+  "orders",
+  {
+    id: text("id").primaryKey(),
+    /** Short, human-sayable, unique — what the customer quotes on the phone. */
+    reference: text("reference").notNull(),
+
+    status: text("status").$type<OrderStatus>().notNull().default("placed"),
+
+    customerName: text("customer_name").notNull(),
+    /** Kuwait delivery runs on phone calls; this is not optional. */
+    phone: text("phone").notNull(),
+    email: text("email"),
+
+    address: jsonb("address").$type<DeliveryAddress>().notNull(),
+    /** Which language they ordered in — so we write back in the same one. */
+    locale: text("locale").$type<"en" | "ar">().notNull().default("en"),
+
+    lines: jsonb("lines").$type<OrderLine[]>().notNull().default([]),
+
+    paymentMethod: text("payment_method").$type<PaymentMethod>().notNull(),
+    paymentStatus: text("payment_status")
+      .$type<PaymentStatus>()
+      .notNull()
+      .default("unpaid"),
+
+    /** All fils. Stored, not recomputed. */
+    subtotal: integer("subtotal").notNull(),
+    deliveryFee: integer("delivery_fee").notNull().default(0),
+    codFee: integer("cod_fee").notNull().default(0),
+    total: integer("total").notNull(),
+
+    /** Anything the customer asked for at checkout. */
+    note: text("note"),
+    /** The shop owner's own working notes — never shown to the customer. */
+    staffNote: text("staff_note"),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [uniqueIndex("orders_reference_idx").on(table.reference)],
+);
+
 export const productsRelations = relations(products, ({ many }) => ({
   variants: many(variants),
 }));
@@ -246,3 +311,6 @@ export type CollectionProductRow = typeof collectionProducts.$inferSelect;
 
 export type SubscriberRow = typeof subscribers.$inferSelect;
 export type NewSubscriberRow = typeof subscribers.$inferInsert;
+
+export type OrderRow = typeof orders.$inferSelect;
+export type NewOrderRow = typeof orders.$inferInsert;
