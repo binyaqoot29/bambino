@@ -126,7 +126,7 @@ export default async function HelpPage({
       <div className="container-bambino grid gap-12 py-12 lg:grid-cols-[14rem_1fr] lg:gap-20 lg:py-16">
         <nav
           aria-label={help.title}
-          className="lg:sticky lg:top-40 lg:self-start"
+          className="min-w-0 lg:sticky lg:top-40 lg:self-start"
         >
           <ul className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 lg:mx-0 lg:block lg:space-y-0.5 lg:overflow-visible lg:px-0">
             {HELP_TOPICS.map((key) => {
@@ -152,7 +152,7 @@ export default async function HelpPage({
           </ul>
         </nav>
 
-        <div className="max-w-2xl">
+        <div className="min-w-0 max-w-2xl">
           {topic === "contact" ? (
             <Contact
               locale={locale}
