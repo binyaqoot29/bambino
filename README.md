@@ -235,9 +235,9 @@ a no-op that backfills whatever is missing. Products are seeded once and never
 re-inserted — they're the shop owner's data, and one they delete must not come
 back.
 
-This runs in the build because Vercel marks Neon's variables Sensitive —
-`vercel env pull` returns the literal `[SENSITIVE]`, so the connection string
-can't be used from a laptop.
+This runs in the build because the connection string is a deployment secret:
+it lives where the app is deployed and never on a laptop, so the build is the
+one place that can both reach the database and apply anything pending.
 
 ## Admin panel
 
@@ -468,8 +468,8 @@ have sold, so the screen says it can't be undone and the action enforces that.
 
 ## Hosting
 
-The shop is built to run on **Cloudflare Workers** through the OpenNext
-adapter; Vercel hosts the demo only and is due to be deleted.
+The shop runs on **Cloudflare Workers** through the OpenNext adapter, at
+`bambino.binyaqoot29.workers.dev` until it has its own domain.
 
 ```bash
 npm run build:cf   # migrations + seed, then the Workers bundle → .open-next/
@@ -505,8 +505,9 @@ Connect the repo under **Workers & Pages → Create → Import a repository**:
 Then set the runtime secrets — `DATABASE_URL`, `SUPABASE_URL`,
 `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` — and
 **also add `DATABASE_URL` as a build variable**: the migration step runs at
-build time and needs it there, not only at runtime. This is the same split
-Vercel had.
+build time and needs it there, not only at runtime. Workers Builds keeps the
+two lists separate, and the import screen's fields go to the build list — so
+a Worker can build green and still start with no database.
 
 `wrangler.jsonc` enables `nodejs_compat` with a 2026 compatibility date, which
 is what makes those secrets appear on `process.env` unchanged. The Next
