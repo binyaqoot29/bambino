@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { deleteCollection } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { COLLECTION_RULE_LABELS } from "@/lib/catalog/collection-rules";
 import {
@@ -17,6 +18,10 @@ export default async function AdminCollectionsPage({
   searchParams,
 }: PageProps<"/admin/collections">) {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   const [params, locale, collections, catalogue] = await Promise.all([
     searchParams,

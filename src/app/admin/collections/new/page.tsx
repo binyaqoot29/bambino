@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { CollectionForm } from "@/admin/ui/CollectionForm";
 import { loadCollections } from "@/lib/catalog/collections";
@@ -8,6 +9,10 @@ import { pickableProducts } from "@/admin/pickable";
 
 export default async function NewCollectionPage() {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   const [locale, products, existing] = await Promise.all([
     getAdminLocale(),

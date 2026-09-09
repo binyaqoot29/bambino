@@ -13,11 +13,14 @@ import { cache } from "react";
  * Correctness rules, in order of importance:
  *
  * 1. **Off by default.** A loader only reads KV after `serveFromSnapshot()`
- *    has been called in the current request. The `[lang]` layout calls it;
- *    the admin never does, and Server Actions never do, so every write path
- *    and every admin screen sees the database as it is. An action that read
- *    a stale product to decide which photos to release would delete the
- *    wrong files — that is the failure this rule exists to prevent.
+ *    has been called in the current request. The `[lang]` layout calls it,
+ *    and so do the admin's catalogue and settings *pages* — but never a
+ *    Server Action, which runs in its own request. Every write path sees
+ *    the database as it is. An action that read a stale product to decide
+ *    which photos to release would delete the wrong files — that is the
+ *    failure this rule exists to prevent. Admin pages are safe because the
+ *    admin's own saves bump the generation before redirecting, and a KV
+ *    write is visible immediately in the location that made it.
  *
  * 2. **One generation number, not per-key deletes.** Every write calls
  *    `invalidateSnapshots()`, which bumps a single `gen` key. Data keys are
@@ -42,8 +45,15 @@ const ENTRY_TTL_SECONDS = 6 * 60 * 60;
 
 /** The slice of Cloudflare's KV binding this module uses. */
 interface KVStore {
-  get(key: string, options: { type: "text"; cacheTtl?: number }): Promise<string | null>;
-  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  get(
+    key: string,
+    options: { type: "text"; cacheTtl?: number },
+  ): Promise<string | null>;
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number },
+  ): Promise<void>;
 }
 
 const onWorkers =
@@ -58,7 +68,9 @@ export function serveFromSnapshot(): void {
   requestMode().snapshot = true;
 }
 
-async function binding(): Promise<{ store: KVStore; waitUntil: (p: Promise<unknown>) => void } | undefined> {
+async function binding(): Promise<
+  { store: KVStore; waitUntil: (p: Promise<unknown>) => void } | undefined
+> {
   if (!onWorkers) return undefined;
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
   const { env, ctx } = await getCloudflareContext({ async: true });
@@ -69,7 +81,10 @@ async function binding(): Promise<{ store: KVStore; waitUntil: (p: Promise<unkno
 
 /** Current generation, read once per request. */
 const generation = cache(async (store: KVStore): Promise<string> => {
-  return (await store.get(GEN_KEY, { type: "text", cacheTtl: EDGE_TTL_SECONDS })) ?? "0";
+  return (
+    (await store.get(GEN_KEY, { type: "text", cacheTtl: EDGE_TTL_SECONDS })) ??
+    "0"
+  );
 });
 
 /**
@@ -78,7 +93,10 @@ const generation = cache(async (store: KVStore): Promise<string> => {
  *
  * `name` must be stable for a given dataset and safe as a key segment.
  */
-export async function snapshot<T>(name: string, load: () => Promise<T>): Promise<T> {
+export async function snapshot<T>(
+  name: string,
+  load: () => Promise<T>,
+): Promise<T> {
   if (!requestMode().snapshot) return load();
   const kv = await binding();
   if (!kv) return load();
@@ -87,7 +105,10 @@ export async function snapshot<T>(name: string, load: () => Promise<T>): Promise
   try {
     const gen = await generation(kv.store);
     key = `v1:${gen}:${name}`;
-    const hit = await kv.store.get(key, { type: "text", cacheTtl: EDGE_TTL_SECONDS });
+    const hit = await kv.store.get(key, {
+      type: "text",
+      cacheTtl: EDGE_TTL_SECONDS,
+    });
     if (hit !== null) return JSON.parse(hit) as T;
   } catch (error) {
     // A cache that fails must degrade to the database, never to an error page.

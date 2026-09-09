@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { saveProduct } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { ProductForm } from "@/admin/ui/ProductForm";
 import {
   ageOptions,
@@ -14,6 +15,10 @@ import {
 
 export default async function NewProductPage() {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   // Bind the id up front so the form action's signature stays (state, formData).
   const action = saveProduct.bind(null, null);

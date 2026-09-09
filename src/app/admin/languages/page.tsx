@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { saveLanguages } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { findTranslationGaps } from "@/admin/coverage";
 import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { loadSettings } from "@/lib/site-settings";
@@ -11,6 +12,10 @@ export default async function AdminLanguagesPage({
   searchParams,
 }: PageProps<"/admin/languages">) {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   const [params, locale, settings, gaps] = await Promise.all([
     searchParams,

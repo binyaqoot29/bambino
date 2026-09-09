@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { deleteProduct } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { ProductArt } from "@/components/product/ProductArt";
 import { getAllProducts } from "@/lib/catalog/queries";
@@ -14,6 +15,10 @@ export default async function AdminProductsPage({
   searchParams,
 }: PageProps<"/admin/products">) {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   const params = await searchParams;
   const query = String(params.q ?? "")

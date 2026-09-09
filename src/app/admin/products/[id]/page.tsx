@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { saveProduct } from "@/admin/actions";
 import { isAuthenticated } from "@/admin/auth";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import { ProductForm } from "@/admin/ui/ProductForm";
 import {
   ageOptions,
@@ -11,15 +12,19 @@ import {
   colourFamilies,
   sizeOptions,
 } from "@/admin/ui/form-options";
-import { loadProductById } from "@/lib/catalog/repository";
+import { getAllProducts } from "@/lib/catalog/queries";
 
 export default async function EditProductPage({
   params,
 }: PageProps<"/admin/products/[id]">) {
   if (!(await isAuthenticated())) redirect("/admin/login");
+  // Catalogue and settings come from the KV snapshot here too: the admin's
+  // own saves refresh it, and a KV write is visible at once where it was
+  // made. Actions never read it — they run in their own requests.
+  serveFromSnapshot();
 
   const { id } = await params;
-  const product = await loadProductById(id);
+  const product = (await getAllProducts()).find((p) => p.id === id);
   if (!product) notFound();
 
   const action = saveProduct.bind(null, product.id);
