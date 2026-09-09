@@ -57,7 +57,16 @@ async function create(): Promise<Database> {
   // `npm run build` runs with NODE_ENV=production and should still use PGlite;
   // what must never happen is a deployed instance silently falling back to an
   // empty, ephemeral WASM database.
-  if (process.env.VERCEL || process.env.CI) {
+  //
+  // Cloudflare Workers sets neither VERCEL nor CI, so it's detected by the
+  // runtime's own user agent. Without this, a missing DATABASE_URL on Workers
+  // fell through to the PGlite branch — a package deliberately excluded from
+  // that bundle — and surfaced as a module-not-found 500 instead of a message
+  // naming the actual problem.
+  const onWorkers =
+    typeof navigator !== "undefined" &&
+    navigator.userAgent?.includes("Cloudflare-Workers");
+  if (process.env.VERCEL || process.env.CI || onWorkers) {
     throw new Error(
       "DATABASE_URL is not set. A deployed instance needs a Postgres connection string — see README, 'Database'.",
     );
