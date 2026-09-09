@@ -156,7 +156,9 @@ export async function saveProfile(
         }
       : null,
   });
-  return { status: "saved", attempt };
+  // Echo the values with the success too: the form remounts per attempt,
+  // and the page's own props still hold what was loaded before the save.
+  return { status: "saved", values, attempt };
 }
 
 export async function changePassword(
