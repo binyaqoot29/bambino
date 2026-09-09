@@ -121,6 +121,14 @@ it is allowed to — a loose pattern is an open proxy running on the shop's bill
 The bucket enforces the same 6MB cap and MIME allowlist as the upload route, so
 a bad file is refused even if the route were bypassed.
 
+Photos are **released when they stop being referenced**: remove or replace one
+and save, and the file is deleted from storage; delete a product and all of its
+photos go with it. The deletion runs only after the database write has
+succeeded, so a save that fails halfway never removes a file the product still
+points at, and it's best-effort — a storage blip costs a stray file at worst,
+never a failed edit. Without this, every dropped photo stayed in the bucket
+forever.
+
 ## Design
 
 Dense and commercial, built to match [mamasandpapas.com.kw](https://en.mamasandpapas.com.kw/):

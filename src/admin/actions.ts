@@ -11,6 +11,7 @@ import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
 import { restoreOrderStock } from "@/lib/orders/place";
+import { deleteImage } from "@/lib/uploads/store";
 import { isOrderStatus } from "@/lib/orders/types";
 import {
   SETTINGS_KEYS,
@@ -306,7 +307,15 @@ export async function saveProduct(
   const sizes = input.sizes.filter((s) => s in SIZE_LABELS);
 
   let id = productId;
+  let previousImages: string[] = [];
   if (id) {
+    const [current] = await db
+      .select({ images: schema.products.images })
+      .from(schema.products)
+      .where(eq(schema.products.id, id))
+      .limit(1);
+    previousImages = current?.images ?? [];
+
     await db
       .update(schema.products)
       .set(values)
@@ -318,8 +327,24 @@ export async function saveProduct(
 
   await writeVariants(db, id, colours, sizes, stock);
 
+  // Release photos that were removed or replaced. This runs only after the
+  // write succeeded: a save that fails halfway must never delete a file the
+  // product still points at. Without this, every dropped photo stayed in
+  // storage forever — a leak nobody notices until the bucket is full of ghosts.
+  await releaseImages(
+    previousImages.filter((url) => !values.images.includes(url)),
+  );
+
   revalidatePath("/", "layout");
   redirect(`/admin?saved=${encodeURIComponent(handle)}`);
+}
+
+/**
+ * Best-effort, in parallel. `deleteImage` swallows its own errors, so a storage
+ * blip costs a stray file at worst — never a failed product edit.
+ */
+async function releaseImages(urls: string[]) {
+  if (urls.length) await Promise.all(urls.map((url) => deleteImage(url)));
 }
 
 export async function deleteProduct(formData: FormData) {
@@ -329,8 +354,16 @@ export async function deleteProduct(formData: FormData) {
   if (!id) return;
 
   const db = await getDb();
-  // Variants go with it via ON DELETE CASCADE.
+  const [current] = await db
+    .select({ images: schema.products.images })
+    .from(schema.products)
+    .where(eq(schema.products.id, id))
+    .limit(1);
+
+  // Variants go with it via ON DELETE CASCADE. Photos don't live in the
+  // database, so they're released explicitly — after the row is gone.
   await db.delete(schema.products).where(eq(schema.products.id, id));
+  await releaseImages(current?.images ?? []);
 
   revalidatePath("/", "layout");
   redirect("/admin?deleted=1");
