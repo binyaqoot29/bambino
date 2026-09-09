@@ -488,6 +488,11 @@ npm run deploy     # push .open-next/ to Cloudflare
 
 Three things about this setup are decisions, not defaults:
 
+- **`build:cf` clears `.next/cache` first.** Workers Builds restores that
+  directory between builds, and on 2026-09-09 a build served a page from it
+  that no longer matched the source (the contact form was missing from the
+  deployed page while a clean local build had it). A cold compile costs
+  about a minute; a stale page costs trust.
 - **`build:cf` runs the database setup itself** rather than trusting the
   adapter to call the package's `build` script. If migrations silently skipped
   on a Cloudflare deploy, the shop would 500 on the next schema change with no

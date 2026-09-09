@@ -17,7 +17,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "rm -rf .pglite && npm run db:migrate && npm run db:seed",
     "db:setup": "tsx scripts/setup-db.ts",
-    "build:cf": "tsx scripts/setup-db.ts && opennextjs-cloudflare build",
+    "build:cf": "rm -rf .next/cache && tsx scripts/setup-db.ts && opennextjs-cloudflare build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
