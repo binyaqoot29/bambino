@@ -169,6 +169,7 @@ export function ProductArt({
   src,
   sizes,
   priority,
+  fit = "cover",
 }: {
   art: ArtKey;
   /** Usually the product id — picks the background tint. */
@@ -185,6 +186,13 @@ export function ProductArt({
   sizes?: string;
   /** Set on the one image above the fold — the PDP's main shot. */
   priority?: boolean;
+  /**
+   * `cover` crops to fill the frame — right for cards and thumbnails, where
+   * the frame is small and a uniform grid matters more than the edges of a
+   * photo. `contain` shows the whole photo inside the frame — right for the
+   * product page's main shot, where a cropped edge is a hidden product.
+   */
+  fit?: "cover" | "contain";
 }) {
   const surface = SURFACES[hash(seed) % SURFACES.length];
 
@@ -197,7 +205,7 @@ export function ProductArt({
           fill
           sizes={sizes ?? "(max-width: 768px) 50vw, 300px"}
           priority={priority}
-          className="object-cover"
+          className={fit === "contain" ? "object-contain" : "object-cover"}
         />
       </div>
     );

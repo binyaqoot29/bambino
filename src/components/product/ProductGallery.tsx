@@ -71,6 +71,11 @@ export function ProductGallery({
         </ul>
       ) : null}
 
+      {/* The main shot must fit on screen without scrolling. The frame is a
+          square whose side is the column width or what fits under the
+          header, whichever is smaller — 13rem covers the header, the
+          announcement bar, the breadcrumbs and the card's padding. The photo
+          sits whole inside it: cropping the main shot hides the product. */}
       <div className="min-w-0 flex-1">
         <ProductArt
           art={art}
@@ -78,8 +83,9 @@ export function ProductGallery({
           src={current}
           label={label}
           priority
-          sizes="(max-width: 640px) 100vw, 520px"
-          className="aspect-square w-full rounded-lg"
+          fit="contain"
+          sizes="(max-width: 640px) 100vw, 720px"
+          className="mx-auto aspect-square w-full max-w-[min(100%,calc(100dvh-13rem))] rounded-lg"
         />
       </div>
     </div>
