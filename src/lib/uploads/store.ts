@@ -65,7 +65,16 @@ export async function saveImage(file: File): Promise<SaveResult> {
       Buffer.from(await file.arrayBuffer()),
     );
     return { ok: true, url: `/uploads/products/${filename}` };
-  } catch {
+  } catch (error) {
+    // The caller only gets a code — the shop owner can't act on a stack trace.
+    // But swallowing it entirely leaves a 500 with no cause in the logs, which
+    // is how an upload outage becomes unfixable.
+    console.error("[uploads] save failed", {
+      backend: usingBlob() ? "blob" : "local",
+      type: file.type,
+      bytes: file.size,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return { ok: false, reason: "failed" };
   }
 }
