@@ -13,6 +13,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { getDb } from "../src/db/client";
+import { rowsOf } from "../src/db/rows";
 import { sql } from "drizzle-orm";
 
 const DIR = join(process.cwd(), "drizzle");
@@ -28,9 +29,9 @@ async function main() {
   );
 
   const applied = new Set(
-    (
-      (await db.execute(sql`SELECT name FROM _migrations`)) as { rows: { name: string }[] }
-    ).rows.map((r) => r.name),
+    rowsOf<{ name: string }>(
+      await db.execute(sql`SELECT name FROM _migrations`),
+    ).map((r) => r.name),
   );
 
   const files = (await readdir(DIR))

@@ -1,6 +1,7 @@
 import { eq, inArray, sql } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
+import { rowsOf } from "@/db/rows";
 import type { Locale } from "@/i18n/config";
 import { loadShipping } from "@/lib/site-settings";
 import type {
@@ -203,8 +204,7 @@ async function takeStock(db: Db, moves: StockMove[]): Promise<boolean> {
     RETURNING v.id
   `);
 
-  const rows = (result as unknown as { rows: unknown[] }).rows ?? [];
-  return rows.length === moves.length;
+  return rowsOf(result).length === moves.length;
 }
 
 /** Puts stock back — compensation, and cancelling an order. */

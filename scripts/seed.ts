@@ -28,6 +28,7 @@ import { sql } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 
 import { getDb, schema } from "../src/db/client";
+import { rowsOf } from "../src/db/rows";
 import { PRODUCTS } from "../src/lib/catalog/products";
 import { SEED_CATEGORIES } from "../src/lib/catalog/taxonomy";
 import { SEED_COLLECTIONS } from "../src/lib/catalog/seed-collections";
@@ -132,11 +133,9 @@ const STEPS: Step[] = [
     name: "products",
     async run(db) {
       const existing = new Set(
-        (
-          (await db.execute(sql`SELECT id FROM products`)) as {
-            rows: { id: string }[];
-          }
-        ).rows.map((r) => r.id),
+        rowsOf<{ id: string }>(
+          await db.execute(sql`SELECT id FROM products`),
+        ).map((r) => r.id),
       );
 
       let added = 0;
@@ -255,13 +254,16 @@ async function main() {
 
   await writeLedger(db, done);
 
-  const [{ products: p, variants: v }] = (
-    (await db.execute(
+  const [{ products: p, variants: v }] = rowsOf<{
+    products: number;
+    variants: number;
+  }>(
+    await db.execute(
       sql`SELECT
             (SELECT count(*)::int FROM products) AS products,
             (SELECT count(*)::int FROM variants) AS variants`,
-    )) as { rows: { products: number; variants: number }[] }
-  ).rows;
+    ),
+  );
 
   console.log(`seed: database now holds ${p} products, ${v} variants`);
 }
