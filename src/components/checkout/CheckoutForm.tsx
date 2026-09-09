@@ -21,12 +21,15 @@ export function CheckoutForm({
   rates,
   codEnabled,
   codFee,
+  prefill = {},
 }: {
   locale: Locale;
   dict: Dictionary;
   rates: ShippingRates;
   codEnabled: boolean;
   codFee: number;
+  /** A signed-in customer's saved details; typed values always win. */
+  prefill?: Record<string, string>;
 }) {
   const { lines, ready } = useBag();
   const { products, sizeLabels } = useCatalog();
@@ -43,7 +46,7 @@ export function CheckoutForm({
    * whole form. `defaultValue` only applies on mount, so the fields are keyed
    * on the attempt number — a failed submit remounts them with these values.
    */
-  const kept = state.values ?? {};
+  const kept = { ...prefill, ...(state.values ?? {}) };
   const attempt = state.attempt ?? 0;
 
   // The bag lives in localStorage, so there is nothing to show until it's read.

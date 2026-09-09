@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { isLocale, type Locale } from "@/i18n/config";
+import { currentCustomer, rememberFromOrder } from "@/lib/customers";
 import { placeOrder, type RequestedLine } from "@/lib/orders/place";
 import {
   isGovernorate,
@@ -140,6 +141,17 @@ export async function submitOrder(
     };
   }
 
+  // A signed-in customer keeps what they typed for next time. Best effort:
+  // the order is already placed, so a failure here must not surface.
+  const customer = await currentCustomer().catch(() => null);
+  if (customer) {
+    await rememberFromOrder(customer, {
+      name: customerName,
+      phone: phone!,
+      address,
+    }).catch(() => undefined);
+  }
+
   redirect(routes.orderConfirmation(locale, result.reference));
 }
 
@@ -166,7 +178,10 @@ function parseLines(payload: string): RequestedLine[] {
     const productId = typeof line.productId === "string" ? line.productId : "";
     const size = typeof line.size === "string" ? line.size : "";
     const colour = typeof line.colour === "string" ? line.colour : "";
-    const quantity = Math.min(99, Math.max(1, Math.trunc(Number(line.quantity))));
+    const quantity = Math.min(
+      99,
+      Math.max(1, Math.trunc(Number(line.quantity))),
+    );
 
     if (!productId || !size || !colour || !Number.isFinite(quantity)) continue;
     lines.push({ productId, size, colour, quantity });

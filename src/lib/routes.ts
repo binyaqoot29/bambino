@@ -27,6 +27,12 @@ export const routes = {
   search: (l: Locale, query?: string) =>
     query ? `/${l}/search?q=${encodeURIComponent(query)}` : `/${l}/search`,
   about: (l: Locale) => `/${l}/about`,
+  account: (l: Locale) => `/${l}/account`,
+  signIn: (l: Locale, next?: string) =>
+    next
+      ? `/${l}/account/sign-in?next=${encodeURIComponent(next)}`
+      : `/${l}/account/sign-in`,
+  signUp: (l: Locale) => `/${l}/account/sign-up`,
   help: (l: Locale, topic?: HelpTopic) =>
     topic ? `/${l}/help/${topic}` : `/${l}/help`,
 } as const;

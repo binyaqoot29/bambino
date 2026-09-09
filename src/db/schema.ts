@@ -200,6 +200,49 @@ export const collectionProducts = pgTable(
 );
 
 /**
+ * Customer accounts.
+ *
+ * Email and a password hash — PBKDF2-SHA256 with a per-account salt, in one
+ * self-describing string so the parameters can change later without a
+ * migration. Name, phone and address are the checkout's fields, kept so a
+ * returning customer doesn't type them twice. Orders are tied to a customer
+ * by email, the same key the confirmation is sent to.
+ */
+export const customers = pgTable(
+  "customers",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    name: text("name").notNull().default(""),
+    phone: text("phone").notNull().default(""),
+    address: jsonb("address").$type<DeliveryAddress | null>(),
+    locale: text("locale").$type<"en" | "ar">().notNull().default("en"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [uniqueIndex("customers_email_idx").on(table.email)],
+);
+
+export type CustomerRow = typeof customers.$inferSelect;
+
+/**
+ * Signed-in sessions. The cookie carries a random token; only its SHA-256
+ * is stored, so a leaked table cannot be replayed. Expiry is absolute.
+ */
+export const customerSessions = pgTable("customer_sessions", {
+  id: text("id").primaryKey(),
+  customerId: text("customer_id")
+    .notNull()
+    .references(() => customers.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
  * Messages from the contact page.
  *
  * The shop has no mail-sending service, so a message is stored here and read

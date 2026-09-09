@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { checkoutPrefill, currentCustomer } from "@/lib/customers";
 import { loadShipping } from "@/lib/site-settings";
 
 export async function generateMetadata({
@@ -25,7 +26,10 @@ export default async function CheckoutPage({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
 
-  const shipping = await loadShipping();
+  const [shipping, customer] = await Promise.all([
+    loadShipping(),
+    currentCustomer(),
+  ]);
 
   return (
     <CheckoutForm
@@ -37,6 +41,7 @@ export default async function CheckoutPage({
       }}
       codEnabled={shipping.codEnabled}
       codFee={shipping.codFee}
+      prefill={checkoutPrefill(customer)}
     />
   );
 }

@@ -187,13 +187,13 @@ export function Header({
                   <Count value={wishlist.length} locale={locale} />
                 ) : null}
               </Link>
-              <button
-                type="button"
+              <Link
+                href={routes.account(locale)}
                 aria-label={strings.account}
                 className={`${iconButton} hidden lg:inline-flex`}
               >
                 <UserIcon className="size-5.5" />
-              </button>
+              </Link>
               <Link
                 href={routes.cart(locale)}
                 aria-label={strings.cart}
@@ -466,13 +466,22 @@ function MobileMenu({
         </nav>
 
         <div className="border-ink-200/70 flex items-center justify-between border-t p-4">
-          <Link
-            href={routes.wishlist(locale)}
-            className="text-ink-700 inline-flex items-center gap-2 text-sm"
-          >
-            <HeartIcon className="size-5" />
-            {strings.wishlist}
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link
+              href={routes.account(locale)}
+              className="text-ink-700 inline-flex items-center gap-2 text-sm"
+            >
+              <UserIcon className="size-5" />
+              {strings.account}
+            </Link>
+            <Link
+              href={routes.wishlist(locale)}
+              className="text-ink-700 inline-flex items-center gap-2 text-sm"
+            >
+              <HeartIcon className="size-5" />
+              {strings.wishlist}
+            </Link>
+          </div>
           {showLanguageSwitch ? (
             <LocaleSwitcher locale={locale} label={strings.changeLanguage} />
           ) : null}

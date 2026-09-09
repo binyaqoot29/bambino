@@ -64,10 +64,11 @@
   --color-success: #3d7a5f;
 
   /* --- Type ------------------------------------------------------------- */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", sans-serif;
-  --font-arabic: var(--font-tajawal), var(--font-inter), ui-sans-serif,
-    system-ui, sans-serif;
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-arabic:
+    var(--font-tajawal), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   /* Headlines. Overridden per language on <html> below — a Tailwind utility
      reads the variable, so `font-display` picks the right face by itself. */
   --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
@@ -77,8 +78,10 @@
   --radius-pill: 9999px;
 
   /* --- Depth: plum-tinted, never grey ------------------------------------ */
-  --shadow-soft: 0 1px 2px rgb(102 31 71 / 0.04), 0 12px 32px -12px rgb(102 31 71 / 0.16);
-  --shadow-lift: 0 2px 4px rgb(102 31 71 / 0.05), 0 28px 56px -20px rgb(102 31 71 / 0.24);
+  --shadow-soft:
+    0 1px 2px rgb(102 31 71 / 0.04), 0 12px 32px -12px rgb(102 31 71 / 0.16);
+  --shadow-lift:
+    0 2px 4px rgb(102 31 71 / 0.05), 0 28px 56px -20px rgb(102 31 71 / 0.24);
 
   /* --- Motion ----------------------------------------------------------- */
   --ease-soft: cubic-bezier(0.32, 0.72, 0.3, 1);
@@ -196,6 +199,8 @@
     padding: 0.1875rem 0;
     padding-inline-start: 42%;
     text-align: end;
+    /* A long email or handle must wrap inside the card, never widen the page. */
+    overflow-wrap: anywhere;
   }
 
   .stack-table td::before {

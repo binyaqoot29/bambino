@@ -66,7 +66,7 @@ export default async function AdminLayout({
       dir={t.dir}
       className={`${inter.variable} ${playfair.variable} ${tajawal.variable} ${amiri.variable} h-full`}
     >
-      <body className="bg-canvas flex min-h-full flex-col antialiased">
+      <body className="bg-canvas flex min-h-full flex-col overflow-x-clip antialiased">
         <header className="border-ink-200/70 bg-paper/92 sticky top-0 z-40 border-b backdrop-blur-md">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
             <Link href="/admin" className="flex items-center gap-2.5" dir="ltr">
@@ -121,7 +121,7 @@ export default async function AdminLayout({
         {signedIn ? (
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 lg:flex-row lg:gap-12 lg:py-12">
             <AdminNav labels={t.nav} />
-            <main className="min-w-0 flex-1">{children}</main>
+            <main className="min-w-0 flex-1 overflow-x-clip">{children}</main>
           </div>
         ) : (
           <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-16">
