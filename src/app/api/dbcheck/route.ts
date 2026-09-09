@@ -16,7 +16,20 @@ function timed<T>(label: string, p: Promise<T>, ms = 9000) {
     new Promise<{ label: string; ok: false; ms: number; error: string }>((r) =>
       setTimeout(() => r({ label, ok: false, ms: Date.now() - t0, error: "timeout" }), ms),
     ),
-  ]).catch((e) => ({ label, ok: false, ms: Date.now() - t0, error: String(e) }));
+  ]).catch((e) => ({
+    label,
+    ok: false,
+    ms: Date.now() - t0,
+    error: String(e),
+    cause: describe((e as { cause?: unknown })?.cause),
+  }));
+}
+
+/** Postgres errors carry the useful part in code/message; keep those only. */
+function describe(c: unknown) {
+  if (!c || typeof c !== "object") return c === undefined ? undefined : String(c);
+  const o = c as Record<string, unknown>;
+  return { name: o.name, code: o.code, message: o.message, errno: o.errno, syscall: o.syscall, address: o.address };
 }
 
 export async function GET(request: Request) {
