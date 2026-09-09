@@ -21,7 +21,19 @@ import {
  * setting added after a row was written reads as its default instead of
  * `undefined`. That's what lets a new field ship without a data migration.
  */
-export const loadSettings = cache(() => snapshot("settings", loadSettingsFromDb));
+/**
+ * Defaults are applied *after* the snapshot read as well as before it: a
+ * setting added in code (say, a new field) must show its default even when
+ * the cached snapshot was written by an older deploy that never knew it.
+ */
+export const loadSettings = cache(async (): Promise<SiteSettings> => {
+  const stored = await snapshot("settings", loadSettingsFromDb);
+  return {
+    social: { ...DEFAULT_SETTINGS.social, ...stored.social },
+    shipping: { ...DEFAULT_SETTINGS.shipping, ...stored.shipping },
+    languages: { ...DEFAULT_SETTINGS.languages, ...stored.languages },
+  };
+});
 
 async function loadSettingsFromDb(): Promise<SiteSettings> {
   const db = await getDb();
