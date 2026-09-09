@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import { getDb, schema } from "@/db";
+import { snapshot } from "@/lib/cache/snapshot";
 import {
   DEFAULT_SETTINGS,
   SETTINGS_KEYS,
@@ -20,7 +21,9 @@ import {
  * setting added after a row was written reads as its default instead of
  * `undefined`. That's what lets a new field ship without a data migration.
  */
-export const loadSettings = cache(async (): Promise<SiteSettings> => {
+export const loadSettings = cache(() => snapshot("settings", loadSettingsFromDb));
+
+async function loadSettingsFromDb(): Promise<SiteSettings> {
   const db = await getDb();
   const rows = await db.select().from(schema.settings);
   const byKey = new Map(rows.map((r) => [r.key, r.value]));
@@ -37,7 +40,7 @@ export const loadSettings = cache(async (): Promise<SiteSettings> => {
     shipping: { ...DEFAULT_SETTINGS.shipping, ...(shipping ?? {}) },
     languages: { ...DEFAULT_SETTINGS.languages, ...(languages ?? {}) },
   };
-});
+}
 
 /** Delivery terms alone — the cart and product page only need these. */
 export async function loadShipping(): Promise<ShippingSettings> {

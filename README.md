@@ -505,6 +505,42 @@ Connect the repo under **Workers & Pages → Create → Import a repository**:
 | Deploy command | `npx opennextjs-cloudflare deploy` |
 | Root directory | `/` |
 
+### Why the storefront is fast
+
+Every request on Workers opens a fresh connection to Supabase in Mumbai, and
+from Kuwait that handshake is most of a second before the first row. So the
+storefront does not read the database on a normal page view. `src/lib/cache/
+snapshot.ts` keeps the catalogue, categories, collections and settings in a
+Cloudflare KV namespace (`CACHE_KV`), and the `[lang]` layout opts each
+storefront request into it. Pages render in ~0.25 s instead of ~2 s.
+
+The rules that keep it correct:
+
+- **The admin and every Server Action read the database.** Only requests
+  that called `serveFromSnapshot()` — the storefront layout — read KV. A
+  write path that read a stale product to decide which photos to release
+  would delete the wrong files; that is why the default is the database.
+- **Writes bump one generation key.** Every admin save and every stock change
+  (order placed, order cancelled) calls `invalidateSnapshots()`. Data keys are
+  namespaced by generation, so a bump orphans all old entries at once; they
+  expire on their own within six hours.
+- **Staleness is bounded at about a minute.** KV edge reads are cached for
+  60 s, so the shop can show the previous state that long after a save. Stock
+  is never decided from the snapshot: `placeOrder` runs against the database
+  in a transaction, so the worst case is "in stock" on a product page for a
+  moment longer than true, and checkout saying otherwise.
+- Without the binding (local dev, tests) every read is a pass-through.
+
+To inspect or force a refill:
+
+```bash
+npx wrangler kv key list --namespace-id d33b64bd413b4bbaac70bc5d4a4cebcd --remote
+```
+
+```bash
+npx wrangler kv key put v1:gen "$(date +%s000)" --namespace-id d33b64bd413b4bbaac70bc5d4a4cebcd --remote
+```
+
 Two things about the shared pooler matter in `src/db/client.ts`. It does not
 support **pipelined queries**, and postgres-js pipelines anything run
 concurrently on a busy connection, so the client sets `max_pipeline: 0` and a

@@ -74,6 +74,10 @@ async function create(): Promise<Database> {
       max: 5,
       idle_timeout: 20,
       connect_timeout: 10,
+      // postgres-js queries pg_type on every new connection to learn custom
+      // types. This schema uses none, and on Workers every request is a new
+      // connection, so that is a pure round trip to Mumbai on every page.
+      fetch_types: false,
       // Parsed by postgres-js (see its src/index.js) but absent from its
       // type definitions, hence the cast.
       ...({ max_pipeline: 0 } as object),

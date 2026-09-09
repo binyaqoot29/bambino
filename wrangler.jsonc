@@ -20,6 +20,11 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Storefront snapshot of the catalogue and settings; see
+  // src/lib/cache/snapshot.ts. Created with `wrangler kv namespace create`.
+  "kv_namespaces": [
+    { "binding": "CACHE_KV", "id": "d33b64bd413b4bbaac70bc5d4a4cebcd" }
+  ],
   "observability": {
     "enabled": true
   }

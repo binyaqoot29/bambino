@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
+import { invalidateSnapshots } from "@/lib/cache/snapshot";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { count, eq } from "drizzle-orm";
@@ -32,6 +34,16 @@ import {
 /* --------------------------------------------------------------------------
  * Auth
  * ----------------------------------------------------------------------- */
+
+/**
+ * Every write the shop can see ends here: Next drops its router cache for the
+ * storefront, and the KV snapshot is marked stale so the next visitor reads
+ * the database once and re-fills it.
+ */
+async function storefrontChanged() {
+  revalidatePath("/", "layout");
+  await invalidateSnapshots();
+}
 
 export async function login(_prev: unknown, formData: FormData) {
   const password = String(formData.get("password") ?? "");
@@ -335,7 +347,7 @@ export async function saveProduct(
     previousImages.filter((url) => !values.images.includes(url)),
   );
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect(`/admin?saved=${encodeURIComponent(handle)}`);
 }
 
@@ -365,7 +377,7 @@ export async function deleteProduct(formData: FormData) {
   await db.delete(schema.products).where(eq(schema.products.id, id));
   await releaseImages(current?.images ?? []);
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect("/admin?deleted=1");
 }
 
@@ -382,7 +394,7 @@ export async function setStock(formData: FormData) {
     .set({ stock })
     .where(eq(schema.variants.id, variantId));
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
 }
 
 /* --------------------------------------------------------------------------
@@ -472,7 +484,7 @@ export async function saveCategory(
     await db.insert(schema.categories).values({ slug, ...values });
   }
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect("/admin/categories?saved=1");
 }
 
@@ -496,7 +508,7 @@ export async function deleteCategory(formData: FormData) {
 
   await db.delete(schema.categories).where(eq(schema.categories.slug, slug));
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect("/admin/categories?deleted=1");
 }
 
@@ -541,7 +553,7 @@ export async function setOrderStatus(formData: FormData) {
     .set({ status, updatedAt: new Date() })
     .where(eq(schema.orders.id, id));
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect(`/admin/orders/${id}?${restocking ? "restocked" : "status"}=1`);
 }
 
@@ -616,7 +628,7 @@ export async function setStockBulk(formData: FormData) {
       .where(eq(schema.variants.id, update.id));
   }
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect(`/admin/inventory?saved=${updates.length}${queryTail(formData)}`);
 }
 
@@ -734,7 +746,7 @@ export async function saveCollection(
       .where(eq(schema.collectionProducts.collectionSlug, slug));
   }
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect(`/admin/collections?${isNew ? "created" : "saved"}=1`);
 }
 
@@ -749,7 +761,7 @@ export async function deleteCollection(formData: FormData) {
   // collection is a view onto the catalogue, not a container for it.
   await db.delete(schema.collections).where(eq(schema.collections.slug, slug));
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
   redirect("/admin/collections?deleted=1");
 }
 
@@ -871,7 +883,7 @@ async function writeSetting(key: string, value: unknown) {
     .values({ key, value })
     .onConflictDoUpdate({ target: schema.settings.key, set: { value } });
 
-  revalidatePath("/", "layout");
+  await storefrontChanged();
 }
 
 export async function saveSettings(formData: FormData) {

@@ -1,6 +1,8 @@
+import { cache } from "react";
 import { asc, eq, inArray } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
+import { snapshot } from "@/lib/cache/snapshot";
 import { COLOURS } from "./taxonomy";
 import type { Product, Variant } from "./types";
 
@@ -64,14 +66,21 @@ function toDomain({ product, variants }: Rows): Product {
 }
 
 /**
- * Every product with its variants.
+ * Every product with its variants, loaded once per request.
+ *
+ * React's cache() memoises the promise for the lifetime of a server render,
+ * so the layout (product index), the home page's four rails and the nav's
+ * category counts share one pair of queries instead of each issuing their
+ * own. Before this the home page loaded the whole catalogue five times.
  *
  * The catalogue is small enough (tens of products) that loading it whole and
  * filtering in memory is simpler and faster than round-tripping per facet. If
  * it grows past a few thousand, the filtering in queries.ts is what should move
  * into SQL — not this function.
  */
-export async function loadCatalogue(): Promise<Product[]> {
+export const loadCatalogue = cache(() => snapshot("catalogue", loadCatalogueFromDb));
+
+async function loadCatalogueFromDb(): Promise<Product[]> {
   const db = await getDb();
 
   const [productRows, variantRows] = await Promise.all([
@@ -91,9 +100,9 @@ export async function loadCatalogue(): Promise<Product[]> {
   );
 }
 
-export async function loadProductByHandle(
+export const loadProductByHandle = cache(async (
   handle: string,
-): Promise<Product | undefined> {
+): Promise<Product | undefined> => {
   const db = await getDb();
 
   const [product] = await db
@@ -109,7 +118,7 @@ export async function loadProductByHandle(
     .where(eq(schema.variants.productId, product.id));
 
   return toDomain({ product, variants });
-}
+});
 
 export async function loadProductById(
   id: string,

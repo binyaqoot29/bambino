@@ -17,6 +17,7 @@ import { text } from "@/lib/catalog/types";
 import { languageAlternates } from "@/lib/alternates";
 import { announcements } from "@/lib/delivery-copy";
 import { loadSettings } from "@/lib/site-settings";
+import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import "../globals.css";
 
 const poppins = Poppins({
@@ -57,6 +58,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
+  serveFromSnapshot();
   const { lang } = await params;
   const locale: Locale = isLocale(lang) ? lang : "en";
   const dict = getDictionary(locale);
@@ -84,6 +86,8 @@ export default async function LocaleLayout({
   children,
   params,
 }: LayoutProps<"/[lang]">) {
+  // Storefront reads come from the KV snapshot; see src/lib/cache/snapshot.ts.
+  serveFromSnapshot();
   const { lang } = await params;
   // `/about` or `/cart` with no language: [lang] matched the page name as if it
   // were a locale. Send it to the right language rather than 404 — the
@@ -93,11 +97,14 @@ export default async function LocaleLayout({
 
   const locale: Locale = lang;
   const dict = getDictionary(locale);
-  const nav = await buildNav(locale);
   const ages = buildAgeLinks(locale);
-  const [settings, collections] = await Promise.all([
+  // One wave, not three: each of these is a separate round trip to the
+  // database, and none depends on another.
+  const [nav, settings, collections, index] = await Promise.all([
+    buildNav(locale),
     loadSettings(),
     visibleCollections(),
+    buildProductIndex(locale),
   ]);
   const shipping = settings.shipping;
 
@@ -123,7 +130,7 @@ export default async function LocaleLayout({
           {dict.common.skipToContent}
         </a>
 
-        <CatalogProvider index={await buildProductIndex(locale)}>
+        <CatalogProvider index={index}>
           <BagProvider>
             <Header
               locale={locale}

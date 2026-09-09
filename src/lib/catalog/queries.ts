@@ -1,11 +1,7 @@
 import type { Locale } from "@/i18n/config";
 
 import { loadCategories } from "./categories";
-import {
-  loadCatalogue,
-  loadProductByHandle,
-  loadProductsByIds,
-} from "./repository";
+import { loadCatalogue } from "./repository";
 import {
   type AgeGroup,
   type Category,
@@ -28,14 +24,19 @@ export async function getAllProducts(): Promise<Product[]> {
   return loadCatalogue();
 }
 
+// Single-product reads come out of the whole catalogue rather than their own
+// queries: the catalogue is one request-scoped load (and a snapshot on the
+// storefront), so a second round trip for one row would only cost time.
 export async function getProductByHandle(
   handle: string,
 ): Promise<Product | undefined> {
-  return loadProductByHandle(handle);
+  return (await loadCatalogue()).find((p) => p.handle === handle);
 }
 
 export async function getProductsByIds(ids: string[]): Promise<Product[]> {
-  return loadProductsByIds(ids);
+  if (ids.length === 0) return [];
+  const wanted = new Set(ids);
+  return (await loadCatalogue()).filter((p) => wanted.has(p.id));
 }
 
 export async function getFeatured(limit = 8) {

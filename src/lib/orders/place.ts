@@ -3,6 +3,7 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { rowsOf } from "@/db/rows";
 import type { Locale } from "@/i18n/config";
+import { invalidateSnapshots } from "@/lib/cache/snapshot";
 import { loadShipping } from "@/lib/site-settings";
 import type {
   DeliveryAddress,
@@ -163,6 +164,8 @@ export async function placeOrder(
     throw error;
   }
 
+  // Stock moved; the storefront's snapshot of it is now wrong.
+  await invalidateSnapshots();
   return { ok: true, reference: row.reference };
 }
 

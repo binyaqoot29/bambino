@@ -2,6 +2,7 @@ import { cache } from "react";
 import { asc } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
+import { snapshot } from "@/lib/cache/snapshot";
 import { DEPARTMENT_ORDER } from "./taxonomy";
 import type { Category, Department } from "./types";
 
@@ -13,7 +14,9 @@ import type { Category, Department } from "./types";
  * share a single query per request instead of each issuing their own.
  */
 
-export const loadCategories = cache(async (): Promise<Category[]> => {
+export const loadCategories = cache(() => snapshot("categories", loadCategoriesFromDb));
+
+async function loadCategoriesFromDb(): Promise<Category[]> {
   const db = await getDb();
   const rows = await db
     .select()
@@ -37,7 +40,7 @@ export const loadCategories = cache(async (): Promise<Category[]> => {
   }
 
   return DEPARTMENT_ORDER.flatMap((d) => byDepartment.get(d) ?? []);
-});
+}
 
 export async function findCategory(slug: string): Promise<Category | undefined> {
   return (await loadCategories()).find((c) => c.slug === slug);

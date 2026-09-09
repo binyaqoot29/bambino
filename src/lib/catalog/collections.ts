@@ -2,6 +2,7 @@ import { cache } from "react";
 import { asc, eq } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
+import { snapshot } from "@/lib/cache/snapshot";
 import { applyCollectionRule, type CollectionRule } from "./collection-rules";
 import type { I18nText, Product } from "./types";
 
@@ -22,7 +23,9 @@ export type Collection = {
   visible: boolean;
 };
 
-export const loadCollections = cache(async (): Promise<Collection[]> => {
+export const loadCollections = cache(() => snapshot("collections", loadCollectionsFromDb));
+
+async function loadCollectionsFromDb(): Promise<Collection[]> {
   const db = await getDb();
   const rows = await db
     .select()
@@ -37,7 +40,7 @@ export const loadCollections = cache(async (): Promise<Collection[]> => {
     position: row.position,
     visible: row.visible,
   }));
-});
+}
 
 /** What the storefront shows. Hidden collections keep their data but drop out. */
 export async function visibleCollections(): Promise<Collection[]> {
@@ -51,8 +54,12 @@ export async function findCollection(
 }
 
 /** Product ids of a manual collection, in their curated order. */
-export const loadCollectionMembers = cache(
-  async (slug: string): Promise<string[]> => {
+export const loadCollectionMembers = cache((slug: string) =>
+  snapshot(`members:${slug}`, () => loadCollectionMembersFromDb(slug)),
+);
+
+async function loadCollectionMembersFromDb(slug: string): Promise<string[]> {
+  {
     const db = await getDb();
     const rows = await db
       .select({ productId: schema.collectionProducts.productId })
@@ -61,8 +68,8 @@ export const loadCollectionMembers = cache(
       .orderBy(asc(schema.collectionProducts.position));
 
     return rows.map((r) => r.productId);
-  },
-);
+  }
+}
 
 /**
  * Resolves a collection to its products.
