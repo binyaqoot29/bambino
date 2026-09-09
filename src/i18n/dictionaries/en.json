@@ -297,5 +297,128 @@
     "statusDelivered": "Delivered",
     "statusCancelled": "Cancelled",
     "qty": "Qty"
+  },
+  "help": {
+    "title": "Help",
+    "lede": "Straight answers about delivery, returns, sizing and how to reach us.",
+    "reachUs": "Still need us? Message us on WhatsApp and a person will reply.",
+    "topics": {
+      "contact": {
+        "title": "Contact us",
+        "lede": "A real person answers, usually within the day.",
+        "hoursTitle": "When we reply",
+        "hours": "Saturday to Thursday, 10am to 8pm Kuwait time. Messages sent outside these hours are answered the next morning.",
+        "whatsapp": "WhatsApp",
+        "whatsappBody": "The fastest way. Tell us your order number if you have one.",
+        "instagram": "Instagram",
+        "instagramBody": "Send a direct message, or find us in your feed.",
+        "orderTitle": "About an order",
+        "orderBody": "Quote the reference on your confirmation page — it starts with BM — and we can find it at once.",
+        "storeTitle": "Visit us",
+        "storeBody": "Kuwait City. Opening hours and the address are on our Instagram."
+      },
+      "delivery": {
+        "title": "Delivery",
+        "lede": "Across Kuwait, to your door, with a call before the driver arrives.",
+        "windowTitle": "When it arrives",
+        "windowBody": "{window}. Orders placed before 2pm leave the same day.",
+        "costTitle": "What it costs",
+        "free": "Free delivery on orders of {free} or more.",
+        "rate": "Below that, delivery is {rate} per order.",
+        "ratesHeading": "Rates",
+        "rateOrders": "Orders",
+        "rateCost": "Delivery",
+        "rateFrom": "From {free}",
+        "rateBelow": "Below {free}",
+        "freeLabel": "Free",
+        "areasTitle": "Where we deliver",
+        "areasBody": "Every governorate: Al Asimah, Hawalli, Farwaniya, Mubarak Al-Kabeer, Ahmadi and Jahra.",
+        "trackTitle": "Tracking",
+        "trackBody": "You receive a WhatsApp message when your order is packed and again when the driver is on the way.",
+        "codTitle": "Cash on delivery",
+        "codBody": "Pay the driver in cash when your order arrives.",
+        "codFee": "A {fee} handling fee applies.",
+        "codFree": "No extra charge.",
+        "largeTitle": "Prams, cots and large items",
+        "largeBody": "Delivered boxed. The driver brings it inside the door but does not assemble it."
+      },
+      "returns": {
+        "title": "Returns & exchanges",
+        "lede": "{days} days to change your mind, with collection from your door.",
+        "windowTitle": "The window",
+        "windowBody": "Return or exchange anything within {days} days of delivery.",
+        "conditionTitle": "The condition",
+        "conditionBody": "Unworn, unwashed, with tags attached and in its original packaging. Sleepwear and swimwear must be unopened for hygiene.",
+        "howTitle": "How it works",
+        "steps": [
+          "Message us on WhatsApp with your order reference and the item.",
+          "We arrange a collection from your door at a time that suits you.",
+          "Once it reaches us, a refund is issued to your original payment method, or the exchange is sent out."
+        ],
+        "refundTitle": "Refunds",
+        "refundBody": "Card and KNET refunds appear within 5 to 10 working days depending on your bank. Cash on delivery orders are refunded to a bank account you give us.",
+        "exchangeTitle": "Exchanges",
+        "exchangeBody": "A different size or colour of the same item is exchanged free of charge, subject to stock.",
+        "excludedTitle": "Not returnable",
+        "excludedBody": "Personalised items, opened sleepwear or swimwear, and items marked final sale."
+      },
+      "size-guide": {
+        "title": "Size guide",
+        "lede": "Our sizes follow height first, then age — children grow at their own pace.",
+        "howTitle": "How to measure",
+        "howBody": "Measure standing, without shoes, from the top of the head to the floor. If between two sizes, choose the larger: little ones grow into it.",
+        "babyTitle": "Baby",
+        "kidsTitle": "Kids",
+        "shoesTitle": "Shoes",
+        "size": "Size",
+        "age": "Age",
+        "height": "Height",
+        "weight": "Weight",
+        "foot": "Foot length",
+        "euSize": "EU size",
+        "cm": "cm",
+        "kg": "kg",
+        "note": "A guide, not a rule. If unsure, message us with height and weight and we will point you to the right size.",
+        "onProductBody": "Fit notes for a specific item are on its product page under Details."
+      },
+      "faq": {
+        "title": "FAQ",
+        "lede": "The questions we are asked most.",
+        "items": [
+          {
+            "q": "How long does delivery take?",
+            "a": "{window}. Free on orders of {free} or more, otherwise {rate}."
+          },
+          {
+            "q": "Can I pay when the order arrives?",
+            "a": "Yes — cash on delivery is available across Kuwait. KNET and cards are also accepted."
+          },
+          {
+            "q": "How do I return something?",
+            "a": "Message us on WhatsApp within {days} days of delivery. We collect it from your door and refund or exchange it."
+          },
+          {
+            "q": "Are the prams and car seats certified?",
+            "a": "Every pram and car seat we sell meets EU safety standards and comes with the manufacturer's warranty."
+          },
+          {
+            "q": "Do you gift wrap?",
+            "a": "Yes. Add a note at checkout and we will wrap it and leave the price off the slip."
+          },
+          {
+            "q": "What if an item is out of stock?",
+            "a": "Use \"Notify me\" on the product page and we will message you the moment it is back."
+          },
+          {
+            "q": "Can I change or cancel an order?",
+            "a": "Message us straight away with your reference. If it has not left us, we will change or cancel it."
+          },
+          {
+            "q": "Which sizes should I choose?",
+            "a": "See the size guide — sizes follow height first. When in doubt, go up a size."
+          }
+        ]
+      }
+    }
   }
 }

@@ -121,11 +121,13 @@ export async function Footer({
           </Column>
 
           <Column title={dict.footer.helpTitle}>
-            <Row href={routes.about(locale)}>{links.contact}</Row>
-            <Row href={routes.about(locale)}>{links.delivery}</Row>
-            <Row href={routes.about(locale)}>{links.returns}</Row>
-            <Row href={routes.about(locale)}>{links.sizeGuide}</Row>
-            <Row href={routes.about(locale)}>{links.faq}</Row>
+            <Row href={routes.help(locale, "contact")}>{links.contact}</Row>
+            <Row href={routes.help(locale, "delivery")}>{links.delivery}</Row>
+            <Row href={routes.help(locale, "returns")}>{links.returns}</Row>
+            <Row href={routes.help(locale, "size-guide")}>
+              {links.sizeGuide}
+            </Row>
+            <Row href={routes.help(locale, "faq")}>{links.faq}</Row>
           </Column>
 
           <Column title={dict.footer.aboutUsTitle}>

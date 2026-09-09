@@ -1,5 +1,17 @@
 import type { Locale } from "@/i18n/config";
 
+export const HELP_TOPICS = [
+  "contact",
+  "delivery",
+  "returns",
+  "size-guide",
+  "faq",
+] as const;
+export type HelpTopic = (typeof HELP_TOPICS)[number];
+export function isHelpTopic(value: string): value is HelpTopic {
+  return (HELP_TOPICS as readonly string[]).includes(value);
+}
+
 export const routes = {
   home: (l: Locale) => `/${l}`,
   category: (l: Locale, slug: string) => `/${l}/c/${slug}`,
@@ -15,6 +27,8 @@ export const routes = {
   search: (l: Locale, query?: string) =>
     query ? `/${l}/search?q=${encodeURIComponent(query)}` : `/${l}/search`,
   about: (l: Locale) => `/${l}/about`,
+  help: (l: Locale, topic?: HelpTopic) =>
+    topic ? `/${l}/help/${topic}` : `/${l}/help`,
 } as const;
 
 /**

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useMemo, useState } from "react";
 
 import { useBag } from "@/components/cart/store";
@@ -10,6 +12,7 @@ import type { Dictionary } from "@/i18n/get-dictionary";
 import { createTranslator } from "@/i18n/t";
 import { SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import type { Product } from "@/lib/catalog/types";
+import { routes } from "@/lib/routes";
 import { WishlistButton } from "./WishlistButton";
 
 /**
@@ -112,9 +115,12 @@ export function BuyBox({
         <fieldset>
           <legend className={legend}>
             <span>{dict.common.size}</span>
-            <span className="link-draw text-ink-600 cursor-pointer font-normal tracking-normal normal-case">
+            <Link
+              href={routes.help(locale, "size-guide")}
+              className="link-draw text-ink-600 cursor-pointer font-normal tracking-normal normal-case"
+            >
               {dict.product.sizeGuide}
-            </span>
+            </Link>
           </legend>
           <div className="flex flex-wrap gap-2">
             {sizes.map((option) => {
