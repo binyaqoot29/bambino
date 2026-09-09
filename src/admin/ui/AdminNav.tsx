@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export type NavLabels = {
   home: string;
@@ -38,6 +38,7 @@ export type NavLabels = {
  */
 export function AdminNav({ labels }: { labels: NavLabels }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const groups = [
     {
@@ -137,6 +138,12 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
                     <li key={item.href}>
                       <Link
                         href={item.href}
+                        // Start loading on hover, not on sight: eleven pages
+                        // prefetched at once would be eleven database
+                        // connections for nothing. A hover is an intent.
+                        prefetch={false}
+                        onMouseEnter={() => router.prefetch(item.href)}
+                        onFocus={() => router.prefetch(item.href)}
                         aria-current={active ? "page" : undefined}
                         className={`flex h-10 items-center rounded-full px-4 text-[13px] whitespace-nowrap transition-colors duration-200 lg:rounded-xl ${
                           active
