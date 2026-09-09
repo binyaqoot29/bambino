@@ -72,6 +72,8 @@ export type Product = {
   /** Original price, when the item is discounted. */
   compareAtPrice?: Fils;
   art: ArtKey;
+  /** Uploaded photos, in order. Empty falls back to the `art` illustration. */
+  images: string[];
   colours: ColourOption[];
   variants: Variant[];
   ageGroups: AgeGroup[];

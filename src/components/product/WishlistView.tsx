@@ -63,6 +63,8 @@ export function WishlistView({
                   <ProductArt
                     art={product.art}
                     seed={product.id}
+                    src={product.image}
+                    sizes="(max-width: 640px) 50vw, 260px"
                     className="size-full transition-transform duration-500 group-hover:scale-[1.04]"
                   />
                 </Link>

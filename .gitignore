@@ -45,3 +45,6 @@ next-env.d.ts
 
 # macOS drops these into the Postgres data dir and Postgres rejects them
 .DS_Store
+
+# Uploaded product photos. Local only — deployments store these in Vercel Blob.
+/public/uploads/

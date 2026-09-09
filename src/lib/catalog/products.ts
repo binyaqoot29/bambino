@@ -1204,6 +1204,9 @@ function build(seed: Seed): Product {
   return {
     id: seed.h,
     handle: seed.h,
+    // The seed catalogue ships with no photography — every fixture product
+    // renders its illustration until the shop uploads a real shot.
+    images: [],
     name: pair(seed.n),
     summary: pair(seed.s),
     description: pair(seed.d),

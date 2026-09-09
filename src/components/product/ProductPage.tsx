@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { BuyBox } from "@/components/product/BuyBox";
-import { ProductArt } from "@/components/product/ProductArt";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { Accordion } from "@/components/ui/Accordion";
 import {
   CardIcon,
@@ -96,39 +96,25 @@ export async function ProductPage({
           {/* gallery + copy */}
           <div className="space-y-4">
             <div className="ring-ink-200 rounded-xl bg-white p-4 ring-1">
-              <div className="grid gap-3 sm:grid-cols-[5rem_1fr]">
-                <ul className="order-2 flex gap-2 sm:order-1 sm:flex-col">
-                  {[0, 1, 2, 3].map((i) => (
-                    <li key={i} className="flex-1 sm:flex-none">
-                      <span
-                        className={`block overflow-hidden rounded-md ring-1 ${
-                          i === 0 ? "ring-brand-500 ring-2" : "ring-ink-200"
-                        }`}
-                      >
-                        <ProductArt
-                          art={product.art}
-                          seed={`${product.id}-${i}`}
-                          className="aspect-square w-full"
-                        />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="relative order-1 sm:order-2">
-                  <ProductArt
-                    art={product.art}
-                    seed={product.id}
-                    label={t(dict.a11y.productImage, {
-                      name: product.name[locale],
-                    })}
-                    className="aspect-square w-full rounded-lg"
-                  />
-                  {percent > 0 ? (
-                    <span className="bg-sale absolute start-3 top-3 rounded px-2.5 py-1 text-xs font-bold text-white tabular-nums">
-                      <bdi dir="ltr">−{nf.format(percent)}%</bdi>
-                    </span>
-                  ) : null}
-                </div>
+              {/* The gallery arranges its own thumbnails and main shot, so
+                  there's no outer column grid to squeeze it into. */}
+              <div className="relative">
+                <ProductGallery
+                  images={product.images}
+                  art={product.art}
+                  productId={product.id}
+                  label={t(dict.a11y.productImage, {
+                    name: product.name[locale],
+                  })}
+                  thumbLabel={t(dict.a11y.productImage, {
+                    name: product.name[locale],
+                  })}
+                />
+                {percent > 0 ? (
+                  <span className="bg-sale absolute start-3 top-3 z-10 rounded px-2.5 py-1 text-xs font-bold text-white tabular-nums">
+                    <bdi dir="ltr">−{nf.format(percent)}%</bdi>
+                  </span>
+                ) : null}
               </div>
             </div>
 

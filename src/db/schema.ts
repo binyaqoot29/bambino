@@ -60,6 +60,14 @@ export const products = pgTable(
     compareAtPrice: integer("compare_at_price"),
 
     art: text("art").$type<ArtKey>().notNull(),
+    /**
+     * Uploaded photo URLs, in display order — first one is the card thumbnail.
+     *
+     * Empty means the product falls back to its `art` illustration, which is
+     * why `art` stays required: a shop mid-photoshoot has both kinds at once
+     * and neither should render a broken frame.
+     */
+    images: jsonb("images").$type<string[]>().notNull().default([]),
     ageGroups: jsonb("age_groups").$type<AgeGroup[]>().notNull().default([]),
 
     rating: real("rating").notNull().default(0),

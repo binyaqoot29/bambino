@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { ImageUploader } from "@/admin/ui/ImageUploader";
+
 import type { ProductFormState } from "@/admin/actions";
 import type { Product } from "@/lib/catalog/types";
 
@@ -120,9 +122,27 @@ export function ProductForm({
               ))}
             </select>
           </Field>
+          <div className="sm:col-span-2">
+            <ImageUploader
+              initial={product?.images ?? []}
+              labels={{
+                title: "Photos",
+                hint: "First one is the cover. Resized automatically — JPEG, PNG or WebP.",
+                add: "+ Add",
+                uploading: "Uploading…",
+                remove: "Remove",
+                makeFirst: "Make cover",
+                cover: "Cover",
+                tooLarge: "Too large",
+                wrongType: "Not an image",
+                failed: "Upload failed",
+                empty: "No photos yet — the illustration below will be used.",
+              }}
+            />
+          </div>
           <Field
             label="Illustration"
-            hint="Stands in until real photography exists"
+            hint="Used whenever this product has no photos"
             error={err.art}
           >
             <select

@@ -76,12 +76,44 @@ and dislikes transparency.
 
 ## Product imagery
 
-There is no product photography yet. Every product renders a line-art
-illustration from [`ProductArt.tsx`](src/components/product/ProductArt.tsx),
-drawn in the same stroke language as the elephant, on a deterministic
-per-product background tint. It's a deliberate stand-in — it keeps a grid
-looking designed rather than broken. Swapping in `<Image>` touches three call
-sites: the product card, the PDP gallery, and the cart line.
+Products can carry real photographs, uploaded from the admin. A product with no
+photo falls back to a line-art illustration from
+[`ProductArt.tsx`](src/components/product/ProductArt.tsx), drawn in the same
+stroke language as the elephant on a deterministic per-product background tint.
+
+Both live in **one component**, on purpose. A shop mid-photoshoot has some
+products shot and some not, and otherwise every grid, cart line and order row
+would have to make that choice for itself — with a broken image frame the price
+of forgetting. Call sites pass `src` and stop thinking about it.
+
+### Uploading
+
+The browser **resizes before uploading** — longest edge 1600px, JPEG at 82%. A
+4.4MB phone photo becomes about 24KB. That is not only a page-speed win: it
+keeps uploads under the request body limit, which a photo straight off a phone
+would otherwise exceed. If anything in the canvas path fails it sends the
+original rather than losing the upload, and the server still enforces its own
+type and size limits.
+
+Storage follows the same split as the database:
+
+| Environment | Backend |
+|---|---|
+| Deployed (`BLOB_READ_WRITE_TOKEN` set) | Vercel Blob |
+| Local | `public/uploads/`, gitignored |
+
+The local backend exists because the Blob token is marked Secret on Vercel and
+can't be pulled to a laptop — exactly like Neon's connection string. Without it,
+uploading would be untestable anywhere but production.
+
+Two things are deliberately strict. Saved image URLs are **checked against an
+allowlist** (this shop's own Blob host and path prefix, or the local uploads
+path): the list is posted by the browser, so without that check an edited
+request could point a product's photo anywhere on the internet and the shop
+would serve it. And `next.config.ts` scopes `remotePatterns` to that one store
+and prefix rather than a wildcard, because the image endpoint will fetch and
+optimise anything it is allowed to — a loose pattern turns it into an open proxy
+running on the shop's bill.
 
 ## Design
 
@@ -409,8 +441,6 @@ far:
 - **Customer-facing order history.** An order is reachable by its confirmation
   link, but there's no "my orders" page, because there are no accounts to hang
   one from.
-- **Image upload.** Products pick from the built-in illustration set; there's no
-  photo upload, which needs blob storage.
 - **Reviews.** Ratings are seed data; there is no review submission.
 - **Search** is a substring match over the seed catalogue, not a search engine.
 

@@ -50,6 +50,8 @@ export function ProductCard({
           <ProductArt
             art={product.art}
             seed={product.id}
+            src={product.images[0]}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
             className="aspect-square w-full rounded-t-lg"
           />
         </Link>

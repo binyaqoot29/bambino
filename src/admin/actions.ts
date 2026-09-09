@@ -214,6 +214,28 @@ async function writeVariants(
   if (rows.length) await db.insert(schema.variants).values(rows);
 }
 
+/**
+ * Is this a URL the shop itself issued?
+ *
+ * The image list is posted by the browser as plain strings, so without this an
+ * edited request could point a product's photo anywhere on the internet and the
+ * shop would serve it to every visitor — someone else's bandwidth, or worse,
+ * someone else's content under Bambino's name.
+ */
+function isOwnImage(url: string): boolean {
+  if (url.startsWith("/uploads/products/")) return true;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.hostname.endsWith(".public.blob.vercel-storage.com") &&
+      parsed.pathname.startsWith("/products/")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function saveProduct(
   productId: string | null,
   _prev: ProductFormState,
@@ -257,6 +279,18 @@ export async function saveProduct(
       ? parsePrice(input.compareAtPrice)
       : null,
     art: input.art,
+    /**
+     * Only URLs this shop actually issued.
+     *
+     * The field is a list of strings posted by the browser, so without this an
+     * edited request could point a product's photo at any address on the
+     * internet — and the shop would render it to every visitor.
+     */
+    images: formData
+      .getAll("image")
+      .map((v) => String(v))
+      .filter(isOwnImage)
+      .slice(0, 12),
     ageGroups: input.ageGroups.filter((a) => AGE_VALUES.includes(a)),
     rating: Number(input.rating) || 0,
     reviewCount: Number(input.reviewCount) || 0,

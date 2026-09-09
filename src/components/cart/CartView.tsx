@@ -89,6 +89,8 @@ export function CartView({
                   <ProductArt
                     art={product.art}
                     seed={product.id}
+                    src={product.image}
+                    sizes="112px"
                     className="size-24 rounded-2xl sm:size-28"
                   />
                 </Link>

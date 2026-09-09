@@ -15,6 +15,8 @@ export type MiniProduct = {
   price: number;
   compareAtPrice?: number;
   art: ArtKey;
+  /** First photo, if the shop has uploaded one. Cards need no more. */
+  image?: string;
   colours: Record<string, { name: string; hex: string }>;
 };
 
@@ -34,6 +36,7 @@ export async function buildProductIndex(locale: Locale): Promise<ProductIndex> {
       price: p.price,
       compareAtPrice: p.compareAtPrice,
       art: p.art,
+      image: p.images[0],
       colours: Object.fromEntries(
         p.colours.map((c) => [c.key, { name: c.name[locale], hex: c.hex }]),
       ),

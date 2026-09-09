@@ -1,12 +1,16 @@
 /**
- * Stand-in product imagery.
+ * Product imagery.
  *
- * There is no product photography yet, so every product renders a line-art
- * illustration drawn in the same stroke language as the Bambino elephant. It
- * keeps the grid looking deliberate instead of showing broken image frames.
- * When real shots arrive, swap this component for <Image> at the call sites —
- * ProductCard, the PDP gallery, and the cart line item.
+ * Renders the shop's own photograph when there is one, and otherwise a line-art
+ * illustration drawn in the same stroke language as the Bambino elephant.
+ *
+ * Both live in one component on purpose. A shop mid-photoshoot has some
+ * products shot and some not, and every grid, cart line and order row would
+ * otherwise need to make the same choice for itself — with a broken image frame
+ * the cost of forgetting. Call sites pass `src` and stop thinking about it.
  */
+
+import Image from "next/image";
 
 import type { ArtKey } from "@/lib/catalog/types";
 
@@ -162,14 +166,42 @@ export function ProductArt({
   seed,
   className = "",
   label,
+  src,
+  sizes,
+  priority,
 }: {
   art: ArtKey;
   /** Usually the product id — picks the background tint. */
   seed: string;
   className?: string;
   label?: string;
+  /** A real photograph. When present it replaces the illustration. */
+  src?: string;
+  /**
+   * Rendered widths, for the srcset. Defaults to a thumbnail-sized hint,
+   * because most call sites are cards and cart lines — sending a 1600px
+   * photograph to a 96px slot is the whole cost of having photography.
+   */
+  sizes?: string;
+  /** Set on the one image above the fold — the PDP's main shot. */
+  priority?: boolean;
 }) {
   const surface = SURFACES[hash(seed) % SURFACES.length];
+
+  if (src) {
+    return (
+      <div className={`relative overflow-hidden bg-white ${className}`}>
+        <Image
+          src={src}
+          alt={label ?? ""}
+          fill
+          sizes={sizes ?? "(max-width: 768px) 50vw, 300px"}
+          priority={priority}
+          className="object-cover"
+        />
+      </div>
+    );
+  }
 
   return (
     <div

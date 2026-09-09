@@ -86,6 +86,8 @@ export function AddedToBagDrawer({
             <ProductArt
               art={product.art}
               seed={product.id}
+              src={product.image}
+              sizes="80px"
               className="size-20 rounded-2xl"
             />
           </Link>

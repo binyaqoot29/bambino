@@ -326,6 +326,8 @@ export function CheckoutForm({
                   <ProductArt
                     art={product.art}
                     seed={product.id}
+                    src={product.image}
+                    sizes="44px"
                     className="size-11 shrink-0 rounded-lg"
                   />
                   <div className="min-w-0 flex-1">

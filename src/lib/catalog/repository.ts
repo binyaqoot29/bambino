@@ -35,6 +35,7 @@ function toDomain({ product, variants }: Rows): Product {
     price: product.price,
     compareAtPrice: product.compareAtPrice ?? undefined,
     art: product.art,
+    images: product.images ?? [],
     colours: colourKeys
       .map((key) => COLOURS[key])
       // A colour could be removed from taxonomy while variants still cite it;
