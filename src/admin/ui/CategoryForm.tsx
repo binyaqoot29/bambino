@@ -33,7 +33,7 @@ export function CategoryForm({
     typeof v[name] === "string" ? (v[name] as string) : fallback;
 
   const input =
-    "ring-ink-300 focus:ring-brand-500 w-full rounded-lg bg-white px-3 py-2 text-sm ring-1 focus:ring-2 focus:outline-none";
+    "ring-ink-300 focus:ring-ink-900 w-full rounded-xl bg-white px-3 py-2 text-sm ring-1 focus:outline-none";
 
   return (
     <form action={formAction} className="max-w-3xl space-y-5">
@@ -41,21 +41,21 @@ export function CategoryForm({
         {state.error ? (
           <p
             role="alert"
-            className="bg-sale/10 text-sale rounded-lg px-4 py-2.5 text-sm font-medium"
+            className="bg-sale/10 text-sale rounded-xl px-4 py-2.5 text-sm font-medium"
           >
             {state.error}
           </p>
         ) : null}
 
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
           <div className="space-y-4">
             <div>
-              <p className="text-ink-700 text-xs font-semibold">
+              <p className="text-ink-700 text-[12px] font-medium">
                 {t.categories.name}
               </p>
               <div className="mt-1.5 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <span className="text-ink-400 text-[10px] font-bold tracking-wide uppercase">
+                  <span className="text-ink-400 text-[10px] font-medium tracking-[0.14em] uppercase">
                     {t.form.english}
                   </span>
                   <input
@@ -70,7 +70,7 @@ export function CategoryForm({
                   ) : null}
                 </div>
                 <div>
-                  <span className="text-ink-400 text-[10px] font-bold tracking-wide uppercase">
+                  <span className="text-ink-400 text-[10px] font-medium tracking-[0.14em] uppercase">
                     {t.form.arabic}
                   </span>
                   <input
@@ -89,7 +89,7 @@ export function CategoryForm({
             </div>
 
             <div>
-              <p className="text-ink-700 text-xs font-semibold">
+              <p className="text-ink-700 text-[12px] font-medium">
                 {t.categories.blurb}
               </p>
               <p className="text-ink-400 mt-0.5 text-[11px]">
@@ -119,10 +119,10 @@ export function CategoryForm({
           </div>
         </section>
 
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-ink-700 block text-xs font-semibold">
+              <label className="text-ink-700 block text-[12px] font-medium">
                 {t.categories.department}
               </label>
               <p className="text-ink-400 mt-0.5 text-[11px]">
@@ -148,7 +148,7 @@ export function CategoryForm({
             </div>
 
             <div>
-              <label className="text-ink-700 block text-xs font-semibold">
+              <label className="text-ink-700 block text-[12px] font-medium">
                 {t.categories.art}
               </label>
               <select
@@ -171,7 +171,7 @@ export function CategoryForm({
             </div>
 
             <div>
-              <label className="text-ink-700 block text-xs font-semibold">
+              <label className="text-ink-700 block text-[12px] font-medium">
                 {t.categories.slug}
               </label>
               <p className="text-ink-400 mt-0.5 text-[11px]">
@@ -191,7 +191,7 @@ export function CategoryForm({
             </div>
 
             <div>
-              <label className="text-ink-700 block text-xs font-semibold">
+              <label className="text-ink-700 block text-[12px] font-medium">
                 {t.categories.position}
               </label>
               <p className="text-ink-400 mt-0.5 text-[11px]">
@@ -211,7 +211,7 @@ export function CategoryForm({
           <button
             type="submit"
             disabled={pending}
-            className="bg-brand-500 hover:bg-brand-600 h-11 rounded-lg px-6 text-sm font-semibold text-white disabled:opacity-50"
+            className="bg-brand-900 hover:bg-brand-800 h-11 rounded-full px-6 text-[13px] font-medium text-white disabled:opacity-50"
           >
             {pending ? t.form.saving : category ? t.form.save : t.form.create}
           </button>

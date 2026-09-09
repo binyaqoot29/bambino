@@ -18,7 +18,7 @@ export default async function NewCollectionPage() {
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-ink-900 mb-5 text-xl font-bold">
+      <h1 className="font-display text-ink-900 mb-6 text-3xl">
         {t.collections.newTitle}
       </h1>
       <CollectionForm

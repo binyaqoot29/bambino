@@ -28,7 +28,9 @@ export default async function AdminOrdersPage({
   const t = adminDictionary(locale);
   const stats = summariseOrders(orders);
 
-  const query = String(params.q ?? "").trim().toLowerCase();
+  const query = String(params.q ?? "")
+    .trim()
+    .toLowerCase();
   const matches = query
     ? orders.filter((o) =>
         [o.reference, o.customerName, o.phone]
@@ -54,7 +56,7 @@ export default async function AdminOrdersPage({
   return (
     <div>
       <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="text-ink-900 text-xl font-bold">{t.orders.title}</h1>
+        <h1 className="font-display text-ink-900 text-3xl">{t.orders.title}</h1>
         {orders.length ? (
           <p className="text-ink-500 text-sm">
             {stats.total} {t.orders.ordersWord} · {stats.open} {t.orders.open} ·{" "}
@@ -65,7 +67,7 @@ export default async function AdminOrdersPage({
       <p className="text-ink-500 mb-5 text-sm">{t.orders.blurb}</p>
 
       {orders.length === 0 ? (
-        <div className="ring-ink-200 rounded-xl bg-white px-4 py-12 text-center ring-1">
+        <div className="rounded-card bg-white px-6 py-16 text-center shadow-[var(--shadow-soft)]">
           <p className="text-ink-700 text-sm font-medium">{t.orders.none}</p>
           <p className="text-ink-500 mx-auto mt-1.5 max-w-md text-xs leading-relaxed">
             {t.orders.noneHint}
@@ -78,45 +80,45 @@ export default async function AdminOrdersPage({
               name="q"
               defaultValue={query}
               placeholder={t.orders.search}
-              className="ring-ink-300 focus:ring-brand-500 h-10 min-w-0 flex-1 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:max-w-xs sm:flex-none"
+              className="ring-ink-300 focus:ring-ink-900 h-10 min-w-0 flex-1 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none sm:max-w-xs sm:flex-none"
             />
             <button
               type="submit"
-              className="ring-ink-300 hover:bg-ink-100 h-10 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1"
+              className="ring-ink-300 hover:bg-ink-900 hover:text-white h-10 shrink-0 rounded-full bg-white px-5 text-[13px] font-medium whitespace-nowrap ring-1 transition-colors duration-200"
             >
               {t.form.search}
             </button>
           </form>
 
-          <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+          <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
             <table className="stack-table w-full text-sm">
-              <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
+              <thead className="bg-canvas text-ink-500 text-[11px] font-medium tracking-[0.12em] uppercase">
                 <tr>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.orders.reference}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.orders.customer}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.orders.placed}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.orders.total}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.orders.status}
                   </th>
                   <th className="px-4 py-2.5" />
                 </tr>
               </thead>
-              <tbody className="divide-ink-100 divide-y">
+              <tbody className="divide-ink-200/70 divide-y">
                 {matches.map((order) => (
-                  <tr key={order.id} className="hover:bg-ink-50/60">
+                  <tr key={order.id} className="hover:bg-canvas/70">
                     <td data-label="" className="px-4 py-2.5">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-ink-900 hover:text-brand-600 font-bold"
+                        className="text-ink-900 hover:text-brand-700 font-medium"
                         dir="ltr"
                       >
                         {order.reference}
@@ -143,13 +145,13 @@ export default async function AdminOrdersPage({
                     </td>
                     <td
                       data-label={t.orders.total}
-                      className="text-ink-900 px-4 py-2.5 font-semibold tabular-nums"
+                      className="text-ink-900 px-4 py-2.5 font-medium tabular-nums"
                     >
                       {formatPrice(order.total, locale)}
                     </td>
                     <td data-label={t.orders.status} className="px-4 py-2.5">
                       <span
-                        className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${TONE[order.status]}`}
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${TONE[order.status]}`}
                       >
                         {label[order.status]}
                       </span>
@@ -161,7 +163,7 @@ export default async function AdminOrdersPage({
                     >
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+                        className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
                       >
                         {t.orders.view}
                       </Link>

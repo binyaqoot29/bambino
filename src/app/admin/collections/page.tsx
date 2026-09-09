@@ -48,7 +48,7 @@ export default async function AdminCollectionsPage({
     <div>
       {notice ? (
         <p
-          className={`mb-4 rounded-lg px-4 py-2.5 text-sm font-medium ${
+          className={`mb-4 rounded-xl px-4 py-2.5 text-sm font-medium ${
             params.deleted
               ? "bg-ink-200 text-ink-700"
               : "bg-success/10 text-success"
@@ -59,12 +59,12 @@ export default async function AdminCollectionsPage({
       ) : null}
 
       <div className="mb-1 flex items-center gap-3">
-        <h1 className="text-ink-900 text-xl font-bold">
+        <h1 className="font-display text-ink-900 text-3xl">
           {t.collections.title}
         </h1>
         <Link
           href="/admin/collections/new"
-          className="bg-brand-500 hover:bg-brand-600 ms-auto inline-flex h-10 items-center rounded-lg px-4 text-sm font-semibold text-white"
+          className="bg-brand-900 hover:bg-brand-800 ms-auto inline-flex h-10 items-center rounded-full px-4 text-[13px] font-medium text-white"
         >
           {t.collections.add}
         </Link>
@@ -73,29 +73,29 @@ export default async function AdminCollectionsPage({
         {t.collections.blurb}
       </p>
 
-      <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+      <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
         <table className="stack-table w-full text-sm">
-          <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
+          <thead className="bg-canvas text-ink-500 text-[11px] font-medium tracking-[0.12em] uppercase">
             <tr>
-              <th className="px-4 py-2.5 text-start font-bold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.collections.name}
               </th>
-              <th className="px-4 py-2.5 text-start font-bold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.collections.type}
               </th>
-              <th className="px-4 py-2.5 text-start font-bold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.collections.products}
               </th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
-          <tbody className="divide-ink-100 divide-y">
+          <tbody className="divide-ink-200/70 divide-y">
             {collections.map((collection, index) => (
-              <tr key={collection.slug} className="hover:bg-ink-50/60">
+              <tr key={collection.slug} className="hover:bg-canvas/70">
                 <td data-label="" className="px-4 py-2.5">
                   <Link
                     href={`/admin/collections/${collection.slug}`}
-                    className="text-ink-900 hover:text-brand-600 font-medium"
+                    className="text-ink-900 hover:text-brand-700 font-medium"
                   >
                     {text(collection.name, locale)}
                   </Link>
@@ -103,7 +103,7 @@ export default async function AdminCollectionsPage({
                     /{collection.slug}
                   </span>
                   {!collection.visible ? (
-                    <span className="bg-ink-100 text-ink-500 ms-2 rounded px-1.5 py-0.5 text-[11px] font-semibold">
+                    <span className="bg-ink-100 text-ink-500 ms-2 rounded px-1.5 py-0.5 text-[11px] font-medium">
                       {t.collections.hidden}
                     </span>
                   ) : null}
@@ -114,7 +114,7 @@ export default async function AdminCollectionsPage({
                 >
                   {collection.rule ? (
                     <>
-                      <span className="text-ink-800 font-semibold">
+                      <span className="text-ink-800 font-medium">
                         {t.collections.automatic}
                       </span>
                       <span className="text-ink-400 ms-1.5">
@@ -122,7 +122,7 @@ export default async function AdminCollectionsPage({
                       </span>
                     </>
                   ) : (
-                    <span className="text-ink-800 font-semibold">
+                    <span className="text-ink-800 font-medium">
                       {t.collections.manual}
                     </span>
                   )}
@@ -137,7 +137,7 @@ export default async function AdminCollectionsPage({
                   <div className="flex items-center gap-1 sm:justify-end">
                     <Link
                       href={`/admin/collections/${collection.slug}`}
-                      className="text-ink-600 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+                      className="text-ink-600 hover:bg-ink-100 rounded-xl px-2.5 py-1.5 text-xs font-medium"
                     >
                       {t.collections.edit}
                     </Link>
@@ -149,7 +149,7 @@ export default async function AdminCollectionsPage({
                       />
                       <button
                         type="submit"
-                        className="text-sale hover:bg-sale/10 rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+                        className="text-sale hover:bg-sale/10 rounded-xl px-2.5 py-1.5 text-xs font-medium"
                       >
                         {t.collections.delete}
                       </button>

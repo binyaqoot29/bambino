@@ -29,7 +29,8 @@ export type NavLabels = {
  *
  * On narrow screens the same tree becomes a horizontally scrolling strip;
  * a phone can't spare 200px of width, and the group headings survive as
- * separators.
+ * separators. Styled like the storefront: small-capital group labels, the
+ * active item in ink.
  */
 export function AdminNav({ labels }: { labels: NavLabels }) {
   const pathname = usePathname();
@@ -38,7 +39,11 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
     {
       heading: labels.sales,
       items: [
-        { href: "/admin/orders", label: labels.orders, match: /^\/admin\/orders/ },
+        {
+          href: "/admin/orders",
+          label: labels.orders,
+          match: /^\/admin\/orders/,
+        },
       ],
     },
     {
@@ -99,12 +104,12 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
   ];
 
   return (
-    <nav aria-label={labels.menu} className="lg:w-52 lg:shrink-0">
+    <nav aria-label={labels.menu} className="lg:w-56 lg:shrink-0">
       <div className="no-scrollbar -mx-4 overflow-x-auto px-4 pe-8 lg:mx-0 lg:overflow-visible lg:p-0">
-        <ul className="flex items-center gap-1 lg:block lg:space-y-5">
+        <ul className="flex items-center gap-1 lg:block lg:space-y-7">
           {groups.map((group) => (
             <li key={group.heading} className="contents lg:block">
-              <p className="text-ink-400 hidden px-3 pb-1.5 text-[11px] font-bold tracking-wide uppercase lg:block">
+              <p className="eyebrow text-ink-400 hidden px-3 pb-2 lg:block">
                 {group.heading}
               </p>
               <ul className="flex items-center gap-1 lg:block lg:space-y-0.5">
@@ -115,9 +120,9 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
                       <Link
                         href={item.href}
                         aria-current={active ? "page" : undefined}
-                        className={`flex h-9 items-center rounded-lg px-3 text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                        className={`flex h-10 items-center rounded-full px-4 text-[13px] whitespace-nowrap transition-colors duration-200 lg:rounded-xl ${
                           active
-                            ? "bg-brand-50 text-brand-700"
+                            ? "bg-ink-900 text-white"
                             : "text-ink-600 hover:bg-ink-100 hover:text-ink-900"
                         }`}
                       >

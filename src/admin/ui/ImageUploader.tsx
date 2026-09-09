@@ -36,10 +36,13 @@ async function shrink(file: File): Promise<Blob> {
   try {
     // "from-image" applies the EXIF rotation, so a portrait phone photo is
     // stored upright instead of relying on every viewer to honour the tag.
-    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const bitmap = await createImageBitmap(file, {
+      imageOrientation: "from-image",
+    });
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
     // Already small and already WebP: nothing to gain by re-encoding.
-    if (scale === 1 && file.type === "image/webp" && file.size < 400_000) return file;
+    if (scale === 1 && file.type === "image/webp" && file.size < 400_000)
+      return file;
 
     const canvas = document.createElement("canvas");
     canvas.width = Math.round(bitmap.width * scale);
@@ -50,12 +53,15 @@ async function shrink(file: File): Promise<Blob> {
     bitmap.close();
 
     const encode = (type: string, quality: number) =>
-      new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, quality));
+      new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, type, quality),
+      );
 
     // A browser that cannot encode WebP silently returns PNG from toBlob;
     // the type check catches that and falls back to JPEG.
     let blob = await encode("image/webp", WEBP_QUALITY);
-    if (!blob || blob.type !== "image/webp") blob = await encode("image/jpeg", JPEG_QUALITY);
+    if (!blob || blob.type !== "image/webp")
+      blob = await encode("image/jpeg", JPEG_QUALITY);
     if (!blob) return file;
 
     // Only if it actually helped. A tiny, already-optimised file can come
@@ -85,9 +91,7 @@ export function ImageUploader({
     empty: string;
   };
 }) {
-  const [items, setItems] = useState<Item[]>(
-    initial.map((url) => ({ url })),
-  );
+  const [items, setItems] = useState<Item[]>(initial.map((url) => ({ url })));
   const input = useRef<HTMLInputElement>(null);
 
   const message = (code: string) =>
@@ -99,7 +103,10 @@ export function ImageUploader({
 
   async function handleFiles(files: FileList) {
     for (const file of Array.from(files)) {
-      const placeholder: Item = { url: URL.createObjectURL(file), uploading: true };
+      const placeholder: Item = {
+        url: URL.createObjectURL(file),
+        uploading: true,
+      };
       setItems((current) => [...current, placeholder]);
 
       try {
@@ -141,7 +148,7 @@ export function ImageUploader({
 
   return (
     <div>
-      <p className="text-ink-700 text-xs font-semibold">{labels.title}</p>
+      <p className="text-ink-700 text-[12px] font-medium">{labels.title}</p>
       <p className="text-ink-400 mt-0.5 text-[11px]">{labels.hint}</p>
 
       {/* Only settled uploads are submitted; a failed one must not be saved. */}
@@ -153,7 +160,7 @@ export function ImageUploader({
         {items.map((item, index) => (
           <div
             key={item.url}
-            className={`ring-ink-200 relative size-24 overflow-hidden rounded-lg ring-1 ${
+            className={`ring-ink-200 relative size-24 overflow-hidden rounded-xl ring-1 ${
               item.error ? "ring-sale ring-2" : ""
             }`}
           >
@@ -169,19 +176,19 @@ export function ImageUploader({
             />
 
             {item.uploading ? (
-              <span className="text-ink-600 absolute inset-0 grid place-items-center text-[10px] font-semibold">
+              <span className="text-ink-600 absolute inset-0 grid place-items-center text-[10px] font-medium">
                 {labels.uploading}
               </span>
             ) : null}
 
             {item.error ? (
-              <span className="bg-sale/90 absolute inset-x-0 bottom-0 px-1 py-0.5 text-[9px] leading-tight font-semibold text-white">
+              <span className="bg-sale/90 absolute inset-x-0 bottom-0 px-1 py-0.5 text-[9px] leading-tight font-medium text-white">
                 {item.error}
               </span>
             ) : null}
 
             {index === 0 && !item.uploading && !item.error ? (
-              <span className="bg-brand-500 absolute start-1 top-1 rounded px-1.5 py-0.5 text-[9px] font-bold text-white">
+              <span className="bg-brand-900 absolute start-1 top-1 rounded-full px-1.5 py-0.5 text-[9px] font-medium text-white">
                 {labels.cover}
               </span>
             ) : null}
@@ -192,7 +199,7 @@ export function ImageUploader({
                   type="button"
                   onClick={() => move(index)}
                   title={labels.makeFirst}
-                  className="px-1.5 py-1 text-[10px] font-semibold text-white"
+                  className="px-1.5 py-1 text-[10px] font-medium text-white"
                 >
                   ★
                 </button>
@@ -201,11 +208,9 @@ export function ImageUploader({
               )}
               <button
                 type="button"
-                onClick={() =>
-                  setItems((c) => c.filter((_, i) => i !== index))
-                }
+                onClick={() => setItems((c) => c.filter((_, i) => i !== index))}
                 title={labels.remove}
-                className="px-1.5 py-1 text-[10px] font-semibold text-white"
+                className="px-1.5 py-1 text-[10px] font-medium text-white"
               >
                 ✕
               </button>
@@ -216,7 +221,7 @@ export function ImageUploader({
         <button
           type="button"
           onClick={() => input.current?.click()}
-          className="ring-ink-300 text-ink-500 hover:bg-ink-50 hover:text-brand-600 grid size-24 place-items-center rounded-lg text-xs font-semibold ring-1 ring-dashed"
+          className="ring-ink-300 text-ink-500 hover:bg-ink-50 hover:text-brand-700 grid size-24 place-items-center rounded-xl text-xs font-medium ring-1 ring-dashed"
         >
           {labels.add}
         </button>

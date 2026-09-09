@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Tajawal } from "next/font/google";
+import { Amiri, Inter, Playfair_Display, Tajawal } from "next/font/google";
 import Link from "next/link";
 
 import { BambinoMark } from "@/components/brand/BambinoMark";
@@ -10,8 +10,15 @@ import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { AdminNav } from "@/admin/ui/AdminNav";
 import "../globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -21,6 +28,13 @@ const tajawal = Tajawal({
   variable: "--font-tajawal",
   subsets: ["arabic"],
   weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -50,20 +64,16 @@ export default async function AdminLayout({
     <html
       lang={locale}
       dir={t.dir}
-      className={`${poppins.variable} ${tajawal.variable} h-full`}
+      className={`${inter.variable} ${playfair.variable} ${tajawal.variable} ${amiri.variable} h-full`}
     >
-      <body
-        className={`bg-ink-50 flex min-h-full flex-col antialiased ${
-          locale === "ar" ? "font-[family-name:var(--font-tajawal)]" : ""
-        }`}
-      >
-        <header className="border-ink-200 border-b bg-white">
-          <div className="mx-auto flex h-14 w-full max-w-6xl items-center gap-3 px-4">
-            <Link href="/admin" className="flex items-center gap-2" dir="ltr">
-              <BambinoMark className="text-brand-500 h-7 w-auto" />
-              <Wordmark className="text-brand-500 h-3.5 w-auto" />
+      <body className="bg-canvas flex min-h-full flex-col antialiased">
+        <header className="border-ink-200/70 bg-paper/92 sticky top-0 z-40 border-b backdrop-blur-md">
+          <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
+            <Link href="/admin" className="flex items-center gap-2.5" dir="ltr">
+              <BambinoMark className="text-brand-500 h-8 w-auto" />
+              <Wordmark className="text-brand-900 h-4 w-auto" />
             </Link>
-            <span className="bg-ink-100 text-ink-600 hidden rounded px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase sm:inline">
+            <span className="eyebrow text-ink-400 hidden sm:inline">
               {t.brand}
             </span>
 
@@ -78,7 +88,7 @@ export default async function AdminLayout({
                 />
                 <button
                   type="submit"
-                  className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-medium whitespace-nowrap ring-1"
+                  className="text-ink-700 hover:bg-ink-100 rounded-full px-3 py-2 text-[13px] whitespace-nowrap transition-colors duration-200"
                 >
                   {locale === "ar" ? "English" : "العربية"}
                 </button>
@@ -90,14 +100,14 @@ export default async function AdminLayout({
                     href="/en"
                     target="_blank"
                     title={t.viewShop}
-                    className="text-ink-500 hover:text-brand-600 text-xs font-medium whitespace-nowrap"
+                    className="link-draw text-ink-600 hover:text-ink-900 text-[13px] whitespace-nowrap"
                   >
                     <span className="max-sm:sr-only">{t.viewShop} </span>↗
                   </Link>
                   <form action={logout}>
                     <button
                       type="submit"
-                      className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap ring-1"
+                      className="text-ink-800 ring-ink-300 hover:bg-ink-900 hover:text-white rounded-full px-4 py-2 text-[13px] whitespace-nowrap ring-1 transition-colors duration-200"
                     >
                       {t.signOut}
                     </button>
@@ -109,12 +119,12 @@ export default async function AdminLayout({
         </header>
 
         {signedIn ? (
-          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10 lg:py-8">
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 lg:flex-row lg:gap-12 lg:py-12">
             <AdminNav labels={t.nav} />
             <main className="min-w-0 flex-1">{children}</main>
           </div>
         ) : (
-          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-16">
             {children}
           </main>
         )}

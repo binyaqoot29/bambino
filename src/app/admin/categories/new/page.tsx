@@ -16,11 +16,11 @@ export default async function NewCategoryPage() {
     <div>
       <Link
         href="/admin/categories"
-        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+        className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← {t.categories.title}
       </Link>
-      <h1 className="text-ink-900 mt-2 mb-5 text-xl font-bold">
+      <h1 className="font-display text-ink-900 mt-2 mb-6 text-3xl">
         {t.categories.addTitle}
       </h1>
 

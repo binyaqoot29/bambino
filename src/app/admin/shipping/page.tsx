@@ -20,12 +20,12 @@ export default async function AdminShippingPage({
   return (
     <div className="max-w-2xl">
       {params.saved ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.shipping.saved}
         </p>
       ) : null}
 
-      <h1 className="text-ink-900 mb-1 text-xl font-bold">
+      <h1 className="text-ink-900 mb-1 text-xl font-medium">
         {t.shipping.title}
       </h1>
       <p className="text-ink-500 mb-5 text-sm leading-relaxed">

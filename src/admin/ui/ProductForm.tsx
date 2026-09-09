@@ -78,7 +78,7 @@ export function ProductForm({
         {state.error ? (
           <p
             role="alert"
-            className="bg-sale/10 text-sale rounded-lg px-4 py-2.5 text-sm font-medium"
+            className="bg-sale/10 text-sale rounded-xl px-4 py-2.5 text-sm font-medium"
           >
             {state.error}
           </p>
@@ -153,7 +153,7 @@ export function ProductForm({
               <select
                 name="category"
                 defaultValue={kept("category", product?.category)}
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none"
               >
                 <option value="">Choose…</option>
                 {categories.map((c) => (
@@ -189,7 +189,7 @@ export function ProductForm({
               <select
                 name="art"
                 defaultValue={kept("art", product?.art)}
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none"
               >
                 <option value="">Choose…</option>
                 {arts.map((a) => (
@@ -207,7 +207,7 @@ export function ProductForm({
                 name="handle"
                 defaultValue={kept("handle", product?.handle)}
                 placeholder="tiered-twirl-dress"
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white px-3 font-mono text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-full rounded-xl bg-white px-3 font-mono text-sm ring-1 focus:outline-none"
               />
             </Field>
           </div>
@@ -232,7 +232,7 @@ export function ProductForm({
                 inputMode="decimal"
                 defaultValue={kept("price", money(product?.price))}
                 placeholder="12.500"
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white px-3 text-sm tabular-nums ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-full rounded-xl bg-white px-3 text-sm tabular-nums ring-1 focus:outline-none"
               />
             </Field>
             <Field
@@ -248,7 +248,7 @@ export function ProductForm({
                   money(product?.compareAtPrice),
                 )}
                 placeholder="19.500"
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white px-3 text-sm tabular-nums ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-full rounded-xl bg-white px-3 text-sm tabular-nums ring-1 focus:outline-none"
               />
             </Field>
           </div>
@@ -263,7 +263,7 @@ export function ProductForm({
               {colours.map((c) => (
                 <label
                   key={c.value}
-                  className="ring-ink-300 has-checked:ring-brand-500 has-checked:bg-brand-50 flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-xs ring-1 has-checked:ring-2"
+                  className="ring-ink-300 has-checked:ring-ink-900 has-checked:bg-ink-900 has-checked:text-white flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs ring-1 has-checked:ring-2"
                 >
                   <input
                     type="checkbox"
@@ -295,7 +295,7 @@ export function ProductForm({
               type="number"
               min={0}
               defaultValue={kept("stock", "5")}
-              className="ring-ink-300 focus:ring-brand-500 h-10 w-32 rounded-lg bg-white px-3 text-sm tabular-nums ring-1 focus:ring-2 focus:outline-none"
+              className="ring-ink-300 focus:ring-ink-900 h-10 w-32 rounded-xl bg-white px-3 text-sm tabular-nums ring-1 focus:outline-none"
             />
           </Field>
         </Card>
@@ -310,7 +310,7 @@ export function ProductForm({
                 min={0}
                 max={5}
                 defaultValue={kept("rating", String(product?.rating ?? 4.5))}
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-32 rounded-lg bg-white px-3 text-sm tabular-nums ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-32 rounded-xl bg-white px-3 text-sm tabular-nums ring-1 focus:outline-none"
               />
             </Field>
             <Field label="Review count">
@@ -322,7 +322,7 @@ export function ProductForm({
                   "reviewCount",
                   String(product?.reviewCount ?? 0),
                 )}
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-32 rounded-lg bg-white px-3 text-sm tabular-nums ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 w-32 rounded-xl bg-white px-3 text-sm tabular-nums ring-1 focus:outline-none"
               />
             </Field>
           </div>
@@ -344,7 +344,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={pending}
-            className="bg-brand-500 hover:bg-brand-600 h-11 rounded-lg px-6 text-sm font-semibold text-white disabled:opacity-50"
+            className="bg-brand-900 hover:bg-brand-800 h-11 rounded-full px-6 text-[13px] font-medium text-white disabled:opacity-50"
           >
             {pending ? "Saving…" : product ? "Save changes" : "Create product"}
           </button>
@@ -372,8 +372,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-      <h2 className="text-ink-900 text-sm font-bold">{title}</h2>
+    <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+      <h2 className="font-display text-ink-900 text-xl">{title}</h2>
       {note ? <p className="text-ink-500 mt-1 text-xs">{note}</p> : null}
       <div className="mt-4 space-y-4">{children}</div>
     </section>
@@ -393,7 +393,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-ink-700 block text-xs font-semibold">
+      <label className="text-ink-700 block text-[12px] font-medium">
         {label}
       </label>
       {hint ? <p className="text-ink-400 mt-0.5 text-[11px]">{hint}</p> : null}
@@ -427,15 +427,15 @@ function Bilingual({
   textarea?: boolean;
 }) {
   const base =
-    "ring-ink-300 focus:ring-brand-500 w-full rounded-lg bg-white px-3 py-2 text-sm ring-1 focus:ring-2 focus:outline-none";
+    "ring-ink-300 focus:ring-ink-900 w-full rounded-xl bg-white px-3 py-2 text-sm ring-1 focus:outline-none";
 
   return (
     <div>
-      <p className="text-ink-700 text-xs font-semibold">{label}</p>
+      <p className="text-ink-700 text-[12px] font-medium">{label}</p>
       {hint ? <p className="text-ink-400 mt-0.5 text-[11px]">{hint}</p> : null}
       <div className="mt-1.5 grid gap-3 sm:grid-cols-2">
         <div>
-          <span className="text-ink-400 text-[10px] font-bold tracking-wide uppercase">
+          <span className="text-ink-400 text-[10px] font-medium tracking-[0.14em] uppercase">
             English
           </span>
           {textarea ? (
@@ -457,7 +457,7 @@ function Bilingual({
           ) : null}
         </div>
         <div>
-          <span className="text-ink-400 text-[10px] font-bold tracking-wide uppercase">
+          <span className="text-ink-400 text-[10px] font-medium tracking-[0.14em] uppercase">
             العربية
           </span>
           {textarea ? (
@@ -499,7 +499,7 @@ function CheckGrid({
       {options.map((o) => (
         <label
           key={o.value}
-          className="ring-ink-300 has-checked:ring-brand-500 has-checked:bg-brand-50 has-checked:text-brand-700 text-ink-600 cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium ring-1 has-checked:ring-2"
+          className="ring-ink-300 has-checked:ring-ink-900 has-checked:bg-ink-900 has-checked:text-white text-ink-600 cursor-pointer rounded-xl px-3 py-1.5 text-xs font-medium ring-1 has-checked:ring-2"
         >
           <input
             type="checkbox"
@@ -530,7 +530,7 @@ function Toggle({
         type="checkbox"
         name={name}
         defaultChecked={defaultChecked}
-        className="accent-brand-500 size-4"
+        className="accent-brand-900 size-4"
       />
       {label}
     </label>

@@ -43,19 +43,21 @@ export default async function AdminProductsPage({
   return (
     <div>
       {saved ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.products.saved}: “{saved}”
         </p>
       ) : null}
       {deleted ? (
-        <p className="bg-ink-200 text-ink-700 mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-canvas text-ink-700 mb-5 rounded-xl px-4 py-3 text-sm">
           {t.products.deleted}
         </p>
       ) : null}
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-ink-900 text-xl font-bold">{t.products.title}</h1>
+          <h1 className="font-display text-ink-900 text-3xl">
+            {t.products.title}
+          </h1>
           <p className="text-ink-500 mt-0.5 text-xs tabular-nums">
             {all.length} {t.products.inCatalogue}
             {query ? ` · ${products.length} ${t.products.matching}` : ""}
@@ -70,43 +72,43 @@ export default async function AdminProductsPage({
               name="q"
               defaultValue={query}
               placeholder={t.products.search}
-              className="ring-ink-300 focus:ring-brand-500 h-9 w-full min-w-0 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:w-52"
+              className="ring-ink-300 focus:ring-ink-900 h-9 w-full min-w-0 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none sm:w-52"
             />
           </form>
           <Link
             href="/admin/products/new"
-            className="bg-brand-500 hover:bg-brand-600 inline-flex h-9 shrink-0 items-center rounded-lg px-4 text-sm font-semibold whitespace-nowrap text-white"
+            className="bg-brand-900 hover:bg-brand-800 inline-flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-medium whitespace-nowrap text-white"
           >
             {t.products.add}
           </Link>
         </div>
       </div>
 
-      <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+      <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
         <table className="stack-table w-full text-sm">
-          <thead className="border-ink-200 bg-ink-50 border-b">
-            <tr className="text-ink-500 text-start text-[11px] tracking-wide uppercase">
-              <th className="px-4 py-2.5 text-start font-semibold">
+          <thead className="border-ink-200/70 bg-canvas border-b">
+            <tr className="text-ink-500 text-start text-[11px] tracking-[0.12em] uppercase">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.products.product}
               </th>
-              <th className="px-4 py-2.5 text-start font-semibold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.products.category}
               </th>
-              <th className="px-4 py-2.5 text-start font-semibold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.products.price}
               </th>
-              <th className="px-4 py-2.5 text-start font-semibold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.products.stock}
               </th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
-          <tbody className="divide-ink-100 divide-y">
+          <tbody className="divide-ink-200/70 divide-y">
             {products.map((product) => {
               const category = categoryFor(product.category);
               const stock = totalStock(product.id);
               return (
-                <tr key={product.id} className="hover:bg-ink-50/60">
+                <tr key={product.id} className="hover:bg-canvas/70">
                   <td data-label="" className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <ProductArt
@@ -151,7 +153,7 @@ export default async function AdminProductsPage({
                       className={
                         inStock(product)
                           ? "text-ink-700"
-                          : "text-sale font-semibold"
+                          : "text-sale font-medium"
                       }
                     >
                       {stock}
@@ -168,7 +170,7 @@ export default async function AdminProductsPage({
                   >
                     <Link
                       href={`/admin/products/${product.id}`}
-                      className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+                      className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
                     >
                       {t.products.edit}
                     </Link>
@@ -176,7 +178,7 @@ export default async function AdminProductsPage({
                       <input type="hidden" name="id" value={product.id} />
                       <button
                         type="submit"
-                        className="text-ink-400 hover:text-sale text-xs font-semibold"
+                        className="text-ink-400 hover:text-sale text-xs font-medium"
                       >
                         {t.products.delete}
                       </button>

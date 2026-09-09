@@ -26,24 +26,24 @@ export default async function AdminCategoriesPage({
   return (
     <div>
       {params.saved ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.categories.saved}
         </p>
       ) : null}
       {params.deleted ? (
-        <p className="bg-ink-200 text-ink-700 mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-canvas text-ink-700 mb-5 rounded-xl px-4 py-3 text-sm">
           {t.categories.deleted}
         </p>
       ) : null}
       {blocked ? (
-        <p className="bg-sale/10 text-sale mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-sale/10 text-sale mb-4 rounded-xl px-4 py-2.5 text-sm font-medium">
           {t.categories.deleteBlocked}
         </p>
       ) : null}
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-ink-900 text-xl font-bold">
+          <h1 className="font-display text-ink-900 text-3xl">
             {t.categories.title}
           </h1>
           <p className="text-ink-500 mt-0.5 text-xs tabular-nums">
@@ -52,33 +52,33 @@ export default async function AdminCategoriesPage({
         </div>
         <Link
           href="/admin/categories/new"
-          className="bg-brand-500 hover:bg-brand-600 inline-flex h-9 items-center rounded-lg px-4 text-sm font-semibold text-white"
+          className="bg-brand-900 hover:bg-brand-800 inline-flex h-9 items-center rounded-full px-4 text-[13px] font-medium text-white"
         >
           {t.categories.add}
         </Link>
       </div>
 
-      <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+      <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
         <table className="stack-table w-full text-sm">
-          <thead className="border-ink-200 bg-ink-50 border-b">
-            <tr className="text-ink-500 text-start text-[11px] tracking-wide uppercase">
-              <th className="px-4 py-2.5 text-start font-semibold">
+          <thead className="border-ink-200/70 bg-canvas border-b">
+            <tr className="text-ink-500 text-start text-[11px] tracking-[0.12em] uppercase">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.categories.name}
               </th>
-              <th className="px-4 py-2.5 text-start font-semibold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.categories.department}
               </th>
-              <th className="px-4 py-2.5 text-start font-semibold">
+              <th className="px-4 py-3 text-start font-medium">
                 {t.products.title}
               </th>
               <th className="px-4 py-2.5" />
             </tr>
           </thead>
-          <tbody className="divide-ink-100 divide-y">
+          <tbody className="divide-ink-200/70 divide-y">
             {categories.map((category) => {
               const used = counts[category.slug] ?? 0;
               return (
-                <tr key={category.slug} className="hover:bg-ink-50/60">
+                <tr key={category.slug} className="hover:bg-canvas/70">
                   <td data-label="" className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <ProductArt
@@ -115,7 +115,7 @@ export default async function AdminCategoriesPage({
                   >
                     <Link
                       href={`/admin/categories/${category.slug}`}
-                      className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+                      className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
                     >
                       {t.products.edit}
                     </Link>
@@ -128,7 +128,7 @@ export default async function AdminCategoriesPage({
                         />
                         <button
                           type="submit"
-                          className="text-ink-400 hover:text-sale text-xs font-semibold"
+                          className="text-ink-400 hover:text-sale text-xs font-medium"
                         >
                           {t.products.delete}
                         </button>
@@ -136,7 +136,7 @@ export default async function AdminCategoriesPage({
                     ) : (
                       <span
                         title={t.categories.deleteBlocked}
-                        className="text-ink-300 ms-3 text-xs font-semibold"
+                        className="text-ink-300 ms-3 text-xs font-medium"
                       >
                         {t.categories.inUse}
                       </span>

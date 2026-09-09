@@ -25,16 +25,18 @@ export default async function EditCategoryPage({
     <div>
       <Link
         href="/admin/categories"
-        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+        className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← {t.categories.title}
       </Link>
       <div className="mt-2 mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-ink-900 text-xl font-bold">{category.name.en}</h1>
+        <h1 className="font-display text-ink-900 text-3xl">
+          {category.name.en}
+        </h1>
         <Link
           href={`/en/c/${category.slug}`}
           target="_blank"
-          className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+          className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
         >
           {t.products.viewOnShop} ↗
         </Link>

@@ -22,11 +22,13 @@ export default async function NewProductPage() {
     <div>
       <Link
         href="/admin"
-        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+        className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← Products
       </Link>
-      <h1 className="text-ink-900 mt-2 mb-5 text-xl font-bold">Add product</h1>
+      <h1 className="font-display text-ink-900 mt-2 mb-6 text-3xl">
+        Add product
+      </h1>
 
       <ProductForm
         action={action}

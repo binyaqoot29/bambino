@@ -85,7 +85,7 @@ export function CollectionForm({
           : undefined;
 
   const field =
-    "focus:ring-brand-500 mt-1.5 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none";
+    "focus:ring-ink-900 mt-1.5 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none";
   const ok = "ring-ink-300";
   const bad = "ring-sale ring-2";
 
@@ -97,12 +97,12 @@ export function CollectionForm({
         value={isNew ? "" : draft.slug}
       />
 
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label
               htmlFor="nameEn"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.name} — {t.form.english}
             </label>
@@ -121,7 +121,7 @@ export function CollectionForm({
           <div>
             <label
               htmlFor="nameAr"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.name} — {t.form.arabic}
             </label>
@@ -142,7 +142,7 @@ export function CollectionForm({
           <div className="sm:col-span-2">
             <label
               htmlFor="slug"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.slug}
             </label>
@@ -163,7 +163,7 @@ export function CollectionForm({
           <div>
             <label
               htmlFor="blurbEn"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.blurbLabel} — {t.form.english}
             </label>
@@ -179,7 +179,7 @@ export function CollectionForm({
           <div>
             <label
               htmlFor="blurbAr"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.blurbLabel} — {t.form.arabic}
             </label>
@@ -195,7 +195,7 @@ export function CollectionForm({
           <div>
             <label
               htmlFor="position"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.position}
             </label>
@@ -215,7 +215,7 @@ export function CollectionForm({
               type="checkbox"
               name="visible"
               defaultChecked={draft.visible}
-              className="accent-brand-500 size-4"
+              className="accent-brand-900 size-4"
             />
             <span className="text-ink-700 text-sm font-medium">
               {t.collections.visible}
@@ -224,8 +224,10 @@ export function CollectionForm({
         </div>
       </section>
 
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">{t.collections.type}</h2>
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">
+          {t.collections.type}
+        </h2>
 
         <div className="mt-3 space-y-2.5">
           <label className="flex cursor-pointer items-start gap-2.5">
@@ -234,10 +236,10 @@ export function CollectionForm({
               name="membership"
               checked={automatic}
               onChange={() => setAutomatic(true)}
-              className="accent-brand-500 mt-0.5 size-4"
+              className="accent-brand-900 mt-0.5 size-4"
             />
             <span>
-              <span className="text-ink-900 block text-sm font-semibold">
+              <span className="text-ink-900 block text-sm font-medium">
                 {t.collections.automatic}
               </span>
               <span className="text-ink-500 block text-[11px] leading-relaxed">
@@ -252,10 +254,10 @@ export function CollectionForm({
               name="membership"
               checked={!automatic}
               onChange={() => setAutomatic(false)}
-              className="accent-brand-500 mt-0.5 size-4"
+              className="accent-brand-900 mt-0.5 size-4"
             />
             <span>
-              <span className="text-ink-900 block text-sm font-semibold">
+              <span className="text-ink-900 block text-sm font-medium">
                 {t.collections.manual}
               </span>
               <span className="text-ink-500 block text-[11px] leading-relaxed">
@@ -269,7 +271,7 @@ export function CollectionForm({
           <div className="mt-4">
             <label
               htmlFor="rule"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.collections.rule}
             </label>
@@ -294,19 +296,19 @@ export function CollectionForm({
       </section>
 
       {!automatic ? (
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="font-display text-ink-900 text-xl">
             {t.collections.choose}
           </h2>
 
-          <p className="text-ink-500 mt-3 text-xs font-semibold">
+          <p className="text-ink-500 mt-3 text-xs font-medium">
             {t.collections.chosen} ({members.length})
           </p>
 
           {members.length === 0 ? (
             <p className="text-ink-400 mt-2 text-xs">{t.collections.empty}</p>
           ) : (
-            <ol className="divide-ink-100 ring-ink-200 mt-2 divide-y rounded-lg ring-1">
+            <ol className="divide-ink-100 ring-ink-200 mt-2 divide-y rounded-xl ring-1">
               {members.map((id, index) => (
                 <li key={id} className="flex items-center gap-2 px-3 py-1.5">
                   <input type="hidden" name="member" value={id} />
@@ -337,7 +339,7 @@ export function CollectionForm({
                   <button
                     type="button"
                     onClick={() => setMembers((m) => m.filter((x) => x !== id))}
-                    className="text-sale hover:bg-sale/10 rounded px-2 py-1 text-xs font-semibold"
+                    className="text-sale hover:bg-sale/10 rounded px-2 py-1 text-xs font-medium"
                   >
                     {t.collections.remove}
                   </button>
@@ -346,7 +348,7 @@ export function CollectionForm({
             </ol>
           )}
 
-          <p className="text-ink-500 mt-5 text-xs font-semibold">
+          <p className="text-ink-500 mt-5 text-xs font-medium">
             {t.collections.available}
           </p>
           <input
@@ -356,7 +358,7 @@ export function CollectionForm({
             className={`${field} ${ok}`}
           />
 
-          <ul className="divide-ink-100 ring-ink-200 mt-2 max-h-64 divide-y overflow-y-auto rounded-lg ring-1">
+          <ul className="divide-ink-100 ring-ink-200 mt-2 max-h-64 divide-y overflow-y-auto rounded-xl ring-1">
             {available.map((product) => (
               <li
                 key={product.id}
@@ -371,7 +373,7 @@ export function CollectionForm({
                 <button
                   type="button"
                   onClick={() => setMembers((m) => [...m, product.id])}
-                  className="text-brand-600 hover:bg-brand-50 rounded px-2 py-1 text-xs font-semibold"
+                  className="text-brand-600 hover:bg-brand-50 rounded px-2 py-1 text-xs font-medium"
                 >
                   {t.collections.add_}
                 </button>
@@ -385,13 +387,13 @@ export function CollectionForm({
         <button
           type="submit"
           disabled={pending}
-          className="bg-brand-500 hover:bg-brand-600 h-11 rounded-lg px-6 text-sm font-semibold text-white disabled:opacity-60"
+          className="bg-brand-900 hover:bg-brand-800 h-11 rounded-full px-6 text-[13px] font-medium text-white disabled:opacity-60"
         >
           {pending ? t.form.saving : isNew ? t.form.create : t.form.save}
         </button>
         <Link
           href="/admin/collections"
-          className="text-ink-600 hover:text-ink-900 text-sm font-semibold"
+          className="text-ink-600 hover:text-ink-900 text-sm font-medium"
         >
           {t.form.cancel}
         </Link>

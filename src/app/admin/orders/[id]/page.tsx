@@ -66,26 +66,26 @@ export default async function AdminOrderPage({
     <div className="max-w-3xl">
       <Link
         href="/admin/orders"
-        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+        className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← {t.orders.back}
       </Link>
 
       {notice ? (
-        <p className="bg-success/10 text-success mt-3 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mt-3 rounded-xl px-4 py-2.5 text-sm font-medium">
           {notice}
         </p>
       ) : null}
 
       <div className="mt-3 mb-1 flex flex-wrap items-center gap-3">
-        <h1 className="text-ink-900 text-xl font-bold" dir="ltr">
+        <h1 className="font-display text-ink-900 text-3xl" dir="ltr">
           {order.reference}
         </h1>
-        <span className="bg-brand-50 text-brand-700 rounded px-2 py-0.5 text-[11px] font-semibold">
+        <span className="bg-brand-50 text-brand-700 rounded px-2 py-0.5 text-[11px] font-medium">
           {label[order.status]}
         </span>
         <span
-          className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
+          className={`rounded px-2 py-0.5 text-[11px] font-medium ${
             paid ? "bg-success/10 text-success" : "bg-ink-100 text-ink-500"
           }`}
         >
@@ -96,8 +96,8 @@ export default async function AdminOrderPage({
         {t.orders.placedOn} {dateFormat.format(order.createdAt)}
       </p>
 
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">{t.orders.items}</h2>
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">{t.orders.items}</h2>
         <ul className="divide-ink-100 mt-3 divide-y">
           {order.lines.map((line, index) => (
             <li
@@ -107,12 +107,12 @@ export default async function AdminOrderPage({
               <ProductArt
                 art={line.art}
                 seed={line.productId}
-                className="size-11 shrink-0 rounded-lg"
+                className="size-11 shrink-0 rounded-xl"
               />
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/admin/products/${line.productId}`}
-                  className="text-ink-900 hover:text-brand-600 block truncate text-sm font-medium"
+                  className="text-ink-900 hover:text-brand-700 block truncate text-sm font-medium"
                 >
                   {text(line.name, locale)}
                 </Link>
@@ -120,7 +120,7 @@ export default async function AdminOrderPage({
                   {line.colour} · {line.size} · {t.orders.qty} {line.quantity}
                 </p>
               </div>
-              <span className="text-ink-800 text-sm font-semibold tabular-nums">
+              <span className="text-ink-800 text-sm font-medium tabular-nums">
                 {formatPrice(line.unitPrice * line.quantity, locale)}
               </span>
             </li>
@@ -147,8 +147,8 @@ export default async function AdminOrderPage({
             />
           ) : null}
           <div className="border-ink-100 mt-1 flex items-baseline justify-between border-t pt-2.5">
-            <dt className="text-ink-900 font-semibold">{t.orders.total}</dt>
-            <dd className="text-ink-900 text-base font-bold tabular-nums">
+            <dt className="text-ink-900 font-medium">{t.orders.total}</dt>
+            <dd className="text-ink-900 text-base font-medium tabular-nums">
               {formatPrice(order.total, locale)}
             </dd>
           </div>
@@ -156,8 +156,8 @@ export default async function AdminOrderPage({
       </section>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="font-display text-ink-900 text-xl">
             {t.orders.deliverTo}
           </h2>
           <p className="text-ink-600 mt-2 text-sm leading-relaxed">
@@ -175,12 +175,14 @@ export default async function AdminOrderPage({
           </p>
         </section>
 
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">{t.orders.contact}</h2>
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="font-display text-ink-900 text-xl">
+            {t.orders.contact}
+          </h2>
           {/* A tel: link, because the first thing the shop does is call. */}
           <a
             href={`tel:+965${order.phone}`}
-            className="text-brand-600 mt-2 block text-sm font-semibold"
+            className="text-brand-600 mt-2 block text-sm font-medium"
             dir="ltr"
           >
             {order.phone}
@@ -188,14 +190,14 @@ export default async function AdminOrderPage({
           {order.email ? (
             <a
               href={`mailto:${order.email}`}
-              className="text-ink-500 hover:text-brand-600 block text-sm"
+              className="text-ink-500 hover:text-brand-700 block text-sm"
               dir="ltr"
             >
               {order.email}
             </a>
           ) : null}
 
-          <h2 className="text-ink-900 mt-4 text-sm font-bold">
+          <h2 className="text-ink-900 mt-4 text-sm font-medium">
             {t.orders.payment}
           </h2>
           <p className="text-ink-600 mt-1 text-sm">{t.orders.cod}</p>
@@ -204,7 +206,7 @@ export default async function AdminOrderPage({
             <input type="hidden" name="paid" value={paid ? "0" : "1"} />
             <button
               type="submit"
-              className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1"
+              className="text-ink-600 ring-ink-300 hover:bg-ink-100 rounded-xl px-3 py-1.5 text-xs font-medium ring-1"
             >
               {paid ? t.orders.markUnpaid : t.orders.markPaid}
             </button>
@@ -213,16 +215,16 @@ export default async function AdminOrderPage({
       </div>
 
       {order.note ? (
-        <section className="ring-ink-200 mt-4 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">
+        <section className="rounded-card mt-5 bg-white p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="font-display text-ink-900 text-xl">
             {t.orders.customerNote}
           </h2>
           <p className="text-ink-600 mt-2 text-sm">{order.note}</p>
         </section>
       ) : null}
 
-      <section className="ring-ink-200 mt-4 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">
+      <section className="rounded-card mt-5 bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">
           {t.orders.changeStatus}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -233,7 +235,7 @@ export default async function AdminOrderPage({
               <button
                 type="submit"
                 disabled={settled || status === order.status}
-                className={`h-9 rounded-lg px-3.5 text-xs font-semibold ring-1 disabled:cursor-default disabled:opacity-40 ${
+                className={`h-9 rounded-xl px-3.5 text-xs font-medium ring-1 disabled:cursor-default disabled:opacity-40 ${
                   status === "cancelled"
                     ? "text-sale ring-sale/30 hover:bg-sale/10"
                     : "text-ink-700 ring-ink-300 hover:bg-ink-100"
@@ -249,22 +251,24 @@ export default async function AdminOrderPage({
         </p>
       </section>
 
-      <section className="ring-ink-200 mt-4 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">{t.orders.staffNote}</h2>
+      <section className="rounded-card mt-5 bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">
+          {t.orders.staffNote}
+        </h2>
         <form action={saveOrderNote} className="mt-3">
           <input type="hidden" name="id" value={order.id} />
           <textarea
             name="staffNote"
             rows={3}
             defaultValue={order.staffNote ?? ""}
-            className="ring-ink-300 focus:ring-brand-500 w-full rounded-lg bg-white px-3 py-2 text-sm ring-1 focus:ring-2 focus:outline-none"
+            className="ring-ink-300 focus:ring-ink-900 w-full rounded-xl bg-white px-3 py-2 text-sm ring-1 focus:outline-none"
           />
           <p className="text-ink-400 mt-1 text-[11px]">
             {t.orders.staffNoteHint}
           </p>
           <button
             type="submit"
-            className="bg-brand-500 hover:bg-brand-600 mt-3 h-10 rounded-lg px-5 text-sm font-semibold text-white"
+            className="bg-brand-900 hover:bg-brand-800 mt-3 h-10 rounded-full px-5 text-[13px] font-medium text-white"
           >
             {t.orders.saveNote}
           </button>

@@ -35,12 +35,12 @@ export default async function AdminLanguagesPage({
   return (
     <div className="max-w-2xl">
       {params.saved ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.languages.saved}
         </p>
       ) : null}
 
-      <h1 className="text-ink-900 mb-1 text-xl font-bold">
+      <h1 className="text-ink-900 mb-1 text-xl font-medium">
         {t.languages.title}
       </h1>
       <p className="text-ink-500 mb-5 text-sm leading-relaxed">
@@ -48,17 +48,17 @@ export default async function AdminLanguagesPage({
       </p>
 
       <form action={saveLanguages}>
-        <section className="ring-ink-200 divide-ink-100 divide-y rounded-xl bg-white ring-1">
+        <section className="ring-ink-200 divide-ink-200/70 divide-y rounded-xl bg-white ring-1">
           <div className="flex items-center gap-3 p-4">
             <div className="flex-1">
-              <p className="text-ink-900 text-sm font-semibold">
+              <p className="text-ink-900 text-sm font-medium">
                 {t.languages.english}
               </p>
               <p className="text-ink-400 mt-0.5 text-[11px]">
                 {t.languages.alwaysOn}
               </p>
             </div>
-            <span className="bg-success/10 text-success rounded px-2 py-0.5 text-[11px] font-semibold">
+            <span className="bg-success/10 text-success rounded px-2 py-0.5 text-[11px] font-medium">
               {t.languages.enabled}
             </span>
           </div>
@@ -68,10 +68,10 @@ export default async function AdminLanguagesPage({
               type="checkbox"
               name="arabicEnabled"
               defaultChecked={settings.languages.arabicEnabled}
-              className="accent-brand-500 mt-0.5 size-4"
+              className="accent-brand-900 mt-0.5 size-4"
             />
             <span className="flex-1">
-              <span className="text-ink-900 block text-sm font-semibold">
+              <span className="text-ink-900 block text-sm font-medium">
                 {t.languages.arabic}
               </span>
               <span className="text-ink-500 mt-0.5 block text-[11px] leading-relaxed">
@@ -83,7 +83,7 @@ export default async function AdminLanguagesPage({
           <div className="p-4">
             <label
               htmlFor="defaultLocale"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.languages.defaultLocale}
             </label>
@@ -91,7 +91,7 @@ export default async function AdminLanguagesPage({
               id="defaultLocale"
               name="defaultLocale"
               defaultValue={settings.languages.defaultLocale}
-              className="ring-ink-300 focus:ring-brand-500 mt-1.5 h-10 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+              className="ring-ink-300 focus:ring-ink-900 mt-1.5 h-10 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none"
             >
               <option value="en">{t.languages.english}</option>
               <option value="ar">{t.languages.arabic}</option>
@@ -104,14 +104,14 @@ export default async function AdminLanguagesPage({
 
         <button
           type="submit"
-          className="bg-brand-500 hover:bg-brand-600 mt-5 h-11 rounded-lg px-6 text-sm font-semibold text-white"
+          className="bg-brand-900 hover:bg-brand-800 mt-5 h-11 rounded-full px-6 text-[13px] font-medium text-white"
         >
           {t.form.save}
         </button>
       </form>
 
       <section className="mt-8">
-        <h2 className="text-ink-900 text-sm font-bold">
+        <h2 className="font-display text-ink-900 text-xl">
           {t.languages.coverage}
         </h2>
         <p className="text-ink-500 mt-1 mb-3 text-xs leading-relaxed">
@@ -123,24 +123,24 @@ export default async function AdminLanguagesPage({
             {t.languages.complete}
           </p>
         ) : (
-          <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+          <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
             <table className="w-full text-sm">
-              <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
+              <thead className="bg-canvas text-ink-500 text-[11px] font-medium tracking-[0.12em] uppercase">
                 <tr>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.languages.item}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.languages.missingFields}
                   </th>
                   <th className="px-4 py-2.5" />
                 </tr>
               </thead>
-              <tbody className="divide-ink-100 divide-y">
+              <tbody className="divide-ink-200/70 divide-y">
                 {gaps.map((gap) => (
                   <tr
                     key={`${gap.kind}:${gap.id}`}
-                    className="hover:bg-ink-50/60"
+                    className="hover:bg-canvas/70"
                   >
                     <td className="px-4 py-2">
                       <span className="text-ink-900 font-medium">
@@ -156,7 +156,7 @@ export default async function AdminLanguagesPage({
                     <td className="px-4 py-2 text-end">
                       <Link
                         href={gap.href}
-                        className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+                        className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
                       >
                         {t.languages.fix}
                       </Link>

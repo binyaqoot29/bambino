@@ -28,16 +28,18 @@ export default async function EditProductPage({
     <div>
       <Link
         href="/admin"
-        className="text-ink-500 hover:text-brand-600 text-xs font-medium"
+        className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← Products
       </Link>
       <div className="mt-2 mb-5 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-ink-900 text-xl font-bold">{product.name.en}</h1>
+        <h1 className="font-display text-ink-900 text-3xl">
+          {product.name.en}
+        </h1>
         <Link
           href={`/en/p/${product.handle}`}
           target="_blank"
-          className="text-brand-600 hover:text-brand-700 text-xs font-semibold"
+          className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
         >
           View on the shop ↗
         </Link>

@@ -41,18 +41,18 @@ export default async function AdminSettingsPage({
   return (
     <div className="max-w-2xl">
       {params.saved ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.settings.saved}
         </p>
       ) : null}
 
-      <h1 className="text-ink-900 mb-5 text-xl font-bold">
+      <h1 className="font-display text-ink-900 mb-6 text-3xl">
         {t.settings.title}
       </h1>
 
       <form action={saveSettings}>
-        <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-          <h2 className="text-ink-900 text-sm font-bold">
+        <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+          <h2 className="font-display text-ink-900 text-xl">
             {t.settings.social}
           </h2>
           <p className="text-ink-500 mt-1 text-xs leading-relaxed">
@@ -64,7 +64,7 @@ export default async function AdminSettingsPage({
               <div key={field.name}>
                 <label
                   htmlFor={field.name}
-                  className="text-ink-700 block text-xs font-semibold"
+                  className="text-ink-700 block text-[12px] font-medium"
                 >
                   {field.label}
                 </label>
@@ -74,7 +74,7 @@ export default async function AdminSettingsPage({
                   defaultValue={field.value}
                   placeholder={field.hint}
                   dir="ltr"
-                  className="ring-ink-300 focus:ring-brand-500 mt-1.5 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none"
+                  className="ring-ink-300 focus:ring-ink-900 mt-1.5 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none"
                 />
                 <p className="text-ink-400 mt-1 text-[11px]" dir="ltr">
                   {field.value
@@ -88,7 +88,7 @@ export default async function AdminSettingsPage({
 
         <button
           type="submit"
-          className="bg-brand-500 hover:bg-brand-600 mt-5 h-11 rounded-lg px-6 text-sm font-semibold text-white"
+          className="bg-brand-900 hover:bg-brand-800 mt-5 h-11 rounded-full px-6 text-[13px] font-medium text-white"
         >
           {t.form.save}
         </button>

@@ -26,7 +26,7 @@ function Money({
     <div>
       <label
         htmlFor={name}
-        className="text-ink-700 block text-xs font-semibold"
+        className="text-ink-700 block text-[12px] font-medium"
       >
         {label}
       </label>
@@ -38,7 +38,7 @@ function Money({
           inputMode="decimal"
           dir="ltr"
           aria-invalid={error ? true : undefined}
-          className={`focus:ring-brand-500 h-10 w-32 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none ${
+          className={`focus:ring-ink-900 h-10 w-32 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none ${
             error ? "ring-sale ring-2" : "ring-ink-300"
           }`}
         />
@@ -68,8 +68,10 @@ export function ShippingForm({
 
   return (
     <form action={action} className="space-y-5">
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">{t.shipping.rates}</h2>
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">
+          {t.shipping.rates}
+        </h2>
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <Money
@@ -91,15 +93,15 @@ export function ShippingForm({
         </div>
       </section>
 
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">{t.shipping.cod}</h2>
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">{t.shipping.cod}</h2>
 
         <label className="mt-3 flex items-center gap-2.5">
           <input
             type="checkbox"
             name="codEnabled"
             defaultChecked={settings.codEnabled}
-            className="accent-brand-500 size-4"
+            className="accent-brand-900 size-4"
           />
           <span className="text-ink-700 text-sm font-medium">
             {t.shipping.codEnabled}
@@ -118,8 +120,8 @@ export function ShippingForm({
         </div>
       </section>
 
-      <section className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-        <h2 className="text-ink-900 text-sm font-bold">
+      <section className="rounded-card bg-white p-6 shadow-[var(--shadow-soft)]">
+        <h2 className="font-display text-ink-900 text-xl">
           {t.shipping.promises}
         </h2>
 
@@ -127,7 +129,7 @@ export function ShippingForm({
           <div>
             <label
               htmlFor="deliveryEn"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.shipping.deliveryWindow} — {t.form.english}
             </label>
@@ -137,7 +139,7 @@ export function ShippingForm({
               defaultValue={settings.deliveryWindow.en}
               dir="ltr"
               aria-invalid={errors.deliveryEn ? true : undefined}
-              className={`focus:ring-brand-500 mt-1.5 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none ${
+              className={`focus:ring-ink-900 mt-1.5 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none ${
                 errors.deliveryEn ? "ring-sale ring-2" : "ring-ink-300"
               }`}
             />
@@ -146,7 +148,7 @@ export function ShippingForm({
           <div>
             <label
               htmlFor="deliveryAr"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.shipping.deliveryWindow} — {t.form.arabic}
             </label>
@@ -156,7 +158,7 @@ export function ShippingForm({
               defaultValue={settings.deliveryWindow.ar}
               dir="rtl"
               aria-invalid={errors.deliveryAr ? true : undefined}
-              className={`focus:ring-brand-500 mt-1.5 h-10 w-full rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none ${
+              className={`focus:ring-ink-900 mt-1.5 h-10 w-full rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none ${
                 errors.deliveryAr ? "ring-sale ring-2" : "ring-ink-300"
               }`}
             />
@@ -168,7 +170,7 @@ export function ShippingForm({
           <div>
             <label
               htmlFor="returnsDays"
-              className="text-ink-700 block text-xs font-semibold"
+              className="text-ink-700 block text-[12px] font-medium"
             >
               {t.shipping.returnsDays}
             </label>
@@ -182,7 +184,7 @@ export function ShippingForm({
                 defaultValue={settings.returnsDays}
                 dir="ltr"
                 aria-invalid={errors.returnsDays ? true : undefined}
-                className={`focus:ring-brand-500 h-10 w-24 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none ${
+                className={`focus:ring-ink-900 h-10 w-24 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none ${
                   errors.returnsDays ? "ring-sale ring-2" : "ring-ink-300"
                 }`}
               />
@@ -202,7 +204,7 @@ export function ShippingForm({
       <button
         type="submit"
         disabled={pending}
-        className="bg-brand-500 hover:bg-brand-600 h-11 rounded-lg px-6 text-sm font-semibold text-white disabled:opacity-60"
+        className="bg-brand-900 hover:bg-brand-800 h-11 rounded-full px-6 text-[13px] font-medium text-white disabled:opacity-60"
       >
         {pending ? t.form.saving : t.form.save}
       </button>

@@ -84,13 +84,15 @@ export default async function AdminInventoryPage({
   return (
     <div>
       {saved !== null ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.inventory.saved} ({saved})
         </p>
       ) : null}
 
       <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="text-ink-900 text-xl font-bold">{t.inventory.title}</h1>
+        <h1 className="font-display text-ink-900 text-3xl">
+          {t.inventory.title}
+        </h1>
         <p className="text-ink-500 text-sm">
           {totalUnits.toLocaleString("en")} {t.inventory.totalUnits} ·{" "}
           {t.inventory.across} {rows.length} {t.inventory.variantsWord}
@@ -106,11 +108,11 @@ export default async function AdminInventoryPage({
           name="q"
           defaultValue={query}
           placeholder={t.inventory.search}
-          className="ring-ink-300 focus:ring-brand-500 h-10 min-w-0 flex-1 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:max-w-xs sm:flex-none"
+          className="ring-ink-300 focus:ring-ink-900 h-10 min-w-0 flex-1 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none sm:max-w-xs sm:flex-none"
         />
         <button
           type="submit"
-          className="ring-ink-300 hover:bg-ink-100 h-10 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1"
+          className="ring-ink-300 hover:bg-ink-900 hover:text-white h-10 shrink-0 rounded-full bg-white px-5 text-[13px] font-medium whitespace-nowrap ring-1 transition-colors duration-200"
         >
           {t.form.search}
         </button>
@@ -122,9 +124,9 @@ export default async function AdminInventoryPage({
             key={tab.key}
             href={tabHref(tab.key)}
             aria-current={filter === tab.key ? "page" : undefined}
-            className={`-mb-px inline-flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-semibold whitespace-nowrap ${
+            className={`-mb-px inline-flex h-9 shrink-0 items-center gap-1.5 border-b-2 px-3 text-[13px] font-medium whitespace-nowrap ${
               filter === tab.key
-                ? "border-brand-500 text-brand-700"
+                ? "border-ink-900 text-ink-900"
                 : "text-ink-500 hover:text-ink-800 border-transparent"
             }`}
           >
@@ -151,28 +153,28 @@ export default async function AdminInventoryPage({
           <input type="hidden" name="q" value={query} />
           <input type="hidden" name="filter" value={filter} />
 
-          <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+          <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
             <table className="stack-table w-full text-sm">
-              <thead className="bg-ink-50 text-ink-500 text-start text-[11px] font-bold tracking-wide uppercase">
+              <thead className="bg-ink-50 text-ink-500 text-start text-[11px] font-medium tracking-wide uppercase">
                 <tr>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.inventory.product}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.inventory.variant}
                   </th>
-                  <th className="w-32 px-4 py-2.5 text-start font-bold">
+                  <th className="w-32 px-4 py-3 text-start font-medium">
                     {t.inventory.stock}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-ink-100 divide-y">
+              <tbody className="divide-ink-200/70 divide-y">
                 {matches.map(({ product, variant, label }) => (
-                  <tr key={variant.id} className="hover:bg-ink-50/60">
+                  <tr key={variant.id} className="hover:bg-canvas/70">
                     <td data-label="" className="px-4 py-2">
                       <Link
                         href={`/admin/products/${product.id}`}
-                        className="text-ink-900 hover:text-brand-600 font-medium"
+                        className="text-ink-900 hover:text-brand-700 font-medium"
                       >
                         {text(product.name, locale)}
                       </Link>
@@ -198,16 +200,16 @@ export default async function AdminInventoryPage({
                           name={`stock:${variant.id}`}
                           defaultValue={variant.stock}
                           aria-label={`${text(product.name, locale)} — ${label}`}
-                          className={`ring-ink-300 focus:ring-brand-500 h-9 w-20 rounded-lg bg-white px-2 text-sm ring-1 focus:ring-2 focus:outline-none ${
-                            variant.stock === 0 ? "text-sale font-semibold" : ""
+                          className={`ring-ink-300 focus:ring-ink-900 h-9 w-20 rounded-xl bg-white px-2 text-sm ring-1 focus:outline-none ${
+                            variant.stock === 0 ? "text-sale font-medium" : ""
                           }`}
                         />
                         {variant.stock === 0 ? (
-                          <span className="bg-sale/10 text-sale rounded px-1.5 py-0.5 text-[11px] font-semibold">
+                          <span className="bg-sale/10 text-sale rounded px-1.5 py-0.5 text-[11px] font-medium">
                             {t.inventory.outOfStock}
                           </span>
                         ) : variant.stock <= LOW_STOCK ? (
-                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700">
+                          <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-medium text-amber-700">
                             {t.inventory.lowStock}
                           </span>
                         ) : null}
@@ -221,7 +223,7 @@ export default async function AdminInventoryPage({
 
           <button
             type="submit"
-            className="bg-brand-500 hover:bg-brand-600 mt-4 h-11 rounded-lg px-6 text-sm font-semibold text-white"
+            className="bg-brand-900 hover:bg-brand-800 mt-4 h-11 rounded-full px-6 text-[13px] font-medium text-white"
           >
             {t.form.save}
           </button>

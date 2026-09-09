@@ -38,18 +38,20 @@ export default async function AdminCustomersPage({
   return (
     <div>
       {params.done ? (
-        <p className="bg-success/10 text-success mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
           {t.customers.done}
         </p>
       ) : null}
       {params.deleted ? (
-        <p className="bg-ink-200 text-ink-700 mb-4 rounded-lg px-4 py-2.5 text-sm font-medium">
+        <p className="bg-canvas text-ink-700 mb-5 rounded-xl px-4 py-3 text-sm">
           {t.customers.deleted}
         </p>
       ) : null}
 
       <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h1 className="text-ink-900 text-xl font-bold">{t.customers.title}</h1>
+        <h1 className="font-display text-ink-900 text-3xl">
+          {t.customers.title}
+        </h1>
         {rows.length ? (
           <p className="text-ink-500 text-sm">
             {stats.active} {t.customers.total}
@@ -64,7 +66,7 @@ export default async function AdminCustomersPage({
       </p>
 
       {rows.length === 0 ? (
-        <div className="ring-ink-200 rounded-xl bg-white px-4 py-12 text-center ring-1">
+        <div className="rounded-card bg-white px-6 py-16 text-center shadow-[var(--shadow-soft)]">
           <p className="text-ink-700 text-sm font-medium">{t.customers.none}</p>
           <p className="text-ink-500 mx-auto mt-1.5 max-w-sm text-xs leading-relaxed">
             {t.customers.noneHint}
@@ -82,11 +84,11 @@ export default async function AdminCustomersPage({
                 defaultValue={query}
                 placeholder={t.customers.search}
                 dir="ltr"
-                className="ring-ink-300 focus:ring-brand-500 h-10 min-w-0 flex-1 rounded-lg bg-white px-3 text-sm ring-1 focus:ring-2 focus:outline-none sm:max-w-xs sm:flex-none"
+                className="ring-ink-300 focus:ring-ink-900 h-10 min-w-0 flex-1 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none sm:max-w-xs sm:flex-none"
               />
               <button
                 type="submit"
-                className="ring-ink-300 hover:bg-ink-100 h-10 shrink-0 rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1"
+                className="ring-ink-300 hover:bg-ink-900 hover:text-white h-10 shrink-0 rounded-full bg-white px-5 text-[13px] font-medium whitespace-nowrap ring-1 transition-colors duration-200"
               >
                 {t.form.search}
               </button>
@@ -98,37 +100,37 @@ export default async function AdminCustomersPage({
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/admin/customers/export"
-              className="ring-ink-300 hover:bg-ink-100 inline-flex h-10 shrink-0 items-center rounded-lg bg-white px-4 text-sm font-semibold whitespace-nowrap ring-1 sm:ms-auto"
+              className="ring-ink-300 hover:bg-ink-100 inline-flex h-10 shrink-0 items-center rounded-xl bg-white px-4 text-sm font-medium whitespace-nowrap ring-1 sm:ms-auto"
               title={t.customers.exportHint}
             >
               {t.customers.export}
             </a>
           </div>
 
-          <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
+          <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
             <table className="stack-table w-full text-sm">
-              <thead className="bg-ink-50 text-ink-500 text-[11px] font-bold tracking-wide uppercase">
+              <thead className="bg-canvas text-ink-500 text-[11px] font-medium tracking-[0.12em] uppercase">
                 <tr>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.customers.email}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.customers.language}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.customers.joined}
                   </th>
-                  <th className="px-4 py-2.5 text-start font-bold">
+                  <th className="px-4 py-3 text-start font-medium">
                     {t.customers.status}
                   </th>
                   <th className="px-4 py-2.5" />
                 </tr>
               </thead>
-              <tbody className="divide-ink-100 divide-y">
+              <tbody className="divide-ink-200/70 divide-y">
                 {matches.map((row) => {
                   const active = !row.unsubscribedAt;
                   return (
-                    <tr key={row.id} className="hover:bg-ink-50/60">
+                    <tr key={row.id} className="hover:bg-canvas/70">
                       <td
                         data-label=""
                         className="text-ink-900 px-4 py-2 font-medium"
@@ -150,7 +152,7 @@ export default async function AdminCustomersPage({
                       </td>
                       <td data-label={t.customers.status} className="px-4 py-2">
                         <span
-                          className={`rounded px-1.5 py-0.5 text-[11px] font-semibold ${
+                          className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${
                             active
                               ? "bg-success/10 text-success"
                               : "bg-ink-100 text-ink-500"
@@ -172,7 +174,7 @@ export default async function AdminCustomersPage({
                             />
                             <button
                               type="submit"
-                              className="text-ink-600 hover:bg-ink-100 rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+                              className="text-ink-600 hover:bg-ink-100 rounded-xl px-2.5 py-1.5 text-xs font-medium"
                             >
                               {active
                                 ? t.customers.unsubscribe
@@ -183,7 +185,7 @@ export default async function AdminCustomersPage({
                             <input type="hidden" name="id" value={row.id} />
                             <button
                               type="submit"
-                              className="text-sale hover:bg-sale/10 rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+                              className="text-sale hover:bg-sale/10 rounded-xl px-2.5 py-1.5 text-xs font-medium"
                             >
                               {t.customers.delete}
                             </button>
