@@ -200,6 +200,28 @@ export const collectionProducts = pgTable(
 );
 
 /**
+ * Messages from the contact page.
+ *
+ * The shop has no mail-sending service, so a message is stored here and read
+ * in the admin's inbox rather than emailed anywhere. `readAt` is a timestamp,
+ * not a flag, for the same reason `unsubscribedAt` is.
+ */
+export const messages = pgTable("messages", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().default(""),
+  phone: text("phone").notNull().default(""),
+  body: text("body").notNull(),
+  locale: text("locale").$type<"en" | "ar">().notNull().default("en"),
+  readAt: timestamp("read_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type MessageRow = typeof messages.$inferSelect;
+
+/**
  * Newsletter subscribers.
  *
  * This is the shop's only real audience data until checkout exists — the

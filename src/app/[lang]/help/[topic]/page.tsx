@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ContactForm } from "@/components/help/ContactForm";
 import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
 import {
   CardIcon,
   InstagramIcon,
+  MailIcon,
   ReturnIcon,
   ShieldIcon,
   TruckIcon,
@@ -243,15 +245,25 @@ function Contact({
 }: {
   locale: Locale;
   page: Dict["help"]["topics"]["contact"];
-  social: { whatsapp?: string; instagram?: string };
+  social: { whatsapp?: string; instagram?: string; email?: string };
 }) {
   const channels = [
+    social.email
+      ? {
+          href: `mailto:${social.email}`,
+          Icon: MailIcon,
+          title: page.emailTitle,
+          body: page.emailBody,
+          detail: social.email,
+        }
+      : null,
     social.whatsapp
       ? {
           href: social.whatsapp,
           Icon: WhatsappIcon,
           title: page.whatsapp,
           body: page.whatsappBody,
+          detail: "",
         }
       : null,
     social.instagram
@@ -260,6 +272,7 @@ function Contact({
           Icon: InstagramIcon,
           title: page.instagram,
           body: page.instagramBody,
+          detail: "",
         }
       : null,
   ].filter((c): c is NonNullable<typeof c> => c !== null);
@@ -267,8 +280,8 @@ function Contact({
   return (
     <>
       {channels.length ? (
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {channels.map(({ href, Icon, title, body }) => (
+        <ul className="grid gap-4 sm:grid-cols-3">
+          {channels.map(({ href, Icon, title, body, detail }) => (
             <li key={title}>
               <a
                 href={href}
@@ -285,12 +298,42 @@ function Contact({
                 <p className="text-ink-600 mt-1.5 text-[14px] leading-relaxed">
                   {body}
                 </p>
+                {detail ? (
+                  <p
+                    className="text-ink-900 mt-3 text-[14px] font-medium"
+                    dir="ltr"
+                  >
+                    {detail}
+                  </p>
+                ) : null}
               </a>
             </li>
           ))}
         </ul>
       ) : null}
-      <div className={channels.length ? "mt-10" : ""}>
+      <div className={channels.length ? "mt-12" : ""}>
+        <Block title={page.formTitle}>
+          <p>{page.formBody}</p>
+          <div className="relative mt-6">
+            <ContactForm
+              locale={locale}
+              labels={{
+                name: page.name,
+                email: page.email,
+                phone: page.phone,
+                message: page.message,
+                send: page.send,
+                sending: page.sending,
+                sent: page.sent,
+                required: page.required,
+                invalidEmail: page.invalidEmail,
+                needContact: page.needContact,
+                tooShort: page.tooShort,
+                failed: page.failed,
+              }}
+            />
+          </div>
+        </Block>
         <Block title={page.hoursTitle}>
           <p>{page.hours}</p>
         </Block>

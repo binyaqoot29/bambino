@@ -9,6 +9,8 @@ export type SocialLinks = {
   instagram: string;
   tiktok: string;
   whatsapp: string;
+  /** The address shown on the contact page and in the footer. */
+  email: string;
 };
 
 type I18n = { en: string; ar: string };
@@ -65,7 +67,12 @@ export const SETTINGS_KEYS = {
 export const DEFAULT_SETTINGS: SiteSettings = {
   // Empty means "not set" — the footers hide a link rather than pointing at a
   // placeholder profile that doesn't exist.
-  social: { instagram: "", tiktok: "", whatsapp: "" },
+  social: {
+    instagram: "",
+    tiktok: "",
+    whatsapp: "",
+    email: "info@bambino.ltd",
+  },
 
   // The terms the storefront shipped with, now editable rather than compiled in.
   shipping: {
@@ -126,7 +133,7 @@ export function normaliseSocial(
   const value = raw.trim();
   if (!value) return "";
 
-  if (/^https?:\/\//i.test(value)) return value;
+  if (platform !== "email" && /^https?:\/\//i.test(value)) return value;
 
   const handle = value.replace(/^@/, "");
 
@@ -139,6 +146,10 @@ export function normaliseSocial(
       // wa.me wants digits only — no +, spaces or dashes.
       const digits = value.replace(/[^\d]/g, "");
       return digits ? `https://wa.me/${digits}` : "";
+    }
+    case "email": {
+      const address = value.toLowerCase().replace(/^mailto:/, "");
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) ? address : "";
     }
   }
 }

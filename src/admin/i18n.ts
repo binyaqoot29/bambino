@@ -41,6 +41,7 @@ const EN = {
     transfer: "Import & export",
     audience: "Audience",
     customers: "Customers",
+    messages: "Inbox",
     configuration: "Settings",
     shipping: "Shipping and delivery",
     languages: "Languages",
@@ -74,6 +75,7 @@ const EN = {
     subscribers: "Newsletter subscribers",
     subscribersNew: "new",
     openOrders: "open orders to fulfil",
+    unreadMessages: "unread messages",
     recent: "Latest orders",
     viewAll: "View all",
     noOrders: "No orders in this period yet.",
@@ -190,6 +192,8 @@ const EN = {
     tiktok: "TikTok",
     whatsapp: "WhatsApp",
     whatsappHint: "Include the country code, e.g. 965 5000 0000",
+    email: "Email",
+    emailHint: "Shown on the contact page and in the footer",
     saved: "Settings saved.",
     preview: "Will link to",
     notSet: "Hidden — nothing set",
@@ -314,6 +318,21 @@ const EN = {
     slugTaken: "That URL is already used by another collection.",
     slugInvalid: "Use lowercase letters, numbers and hyphens only.",
     autoEmpty: "Automatic — membership comes from the rule.",
+  },
+
+  messages: {
+    title: "Inbox",
+    blurb:
+      "Messages from the contact page on the shop. Reply from your own email or phone; mark each one read when it's handled.",
+    total: "messages",
+    unread: "unread",
+    none: "No messages yet.",
+    noneHint:
+      "When a visitor writes to you from the Contact page, it appears here.",
+    markRead: "Mark as read",
+    markUnread: "Mark as unread",
+    delete: "Delete",
+    deleted: "Message deleted.",
   },
 
   customers: {
@@ -443,6 +462,7 @@ const AR: typeof EN = {
     transfer: "استيراد وتصدير",
     audience: "الجمهور",
     customers: "العملاء",
+    messages: "صندوق الوارد",
     configuration: "الإعدادات",
     shipping: "الشحن والتوصيل",
     languages: "اللغات",
@@ -475,6 +495,7 @@ const AR: typeof EN = {
     subscribers: "مشتركو النشرة",
     subscribersNew: "جديد",
     openOrders: "طلبات مفتوحة للتجهيز",
+    unreadMessages: "رسائل غير مقروءة",
     recent: "أحدث الطلبات",
     viewAll: "عرض الكل",
     noOrders: "لا توجد طلبات في هذه الفترة بعد.",
@@ -588,6 +609,8 @@ const AR: typeof EN = {
     tiktok: "تيك توك",
     whatsapp: "واتساب",
     whatsappHint: "أدخل رمز الدولة، مثال: 965 5000 0000",
+    email: "البريد الإلكتروني",
+    emailHint: "يظهر في صفحة التواصل وفي أسفل الموقع",
     saved: "تم حفظ الإعدادات.",
     preview: "سيفتح على",
     notSet: "مخفي — لم يتم ضبطه",
@@ -710,6 +733,20 @@ const AR: typeof EN = {
     slugTaken: "هذا الرابط مستخدم في مجموعة أخرى.",
     slugInvalid: "استخدم أحرفاً إنجليزية صغيرة وأرقاماً وشرطات فقط.",
     autoEmpty: "تلقائية — المنتجات تأتي من القاعدة.",
+  },
+
+  messages: {
+    title: "صندوق الوارد",
+    blurb:
+      "رسائل من صفحة التواصل في المتجر. رُدّ من بريدك أو هاتفك، وعلّم كل رسالة كمقروءة عند معالجتها.",
+    total: "رسالة",
+    unread: "غير مقروءة",
+    none: "لا توجد رسائل بعد.",
+    noneHint: "عندما يكتب لك زائر من صفحة التواصل، تظهر رسالته هنا.",
+    markRead: "تعليم كمقروءة",
+    markUnread: "تعليم كغير مقروءة",
+    delete: "حذف",
+    deleted: "تم حذف الرسالة.",
   },
 
   customers: {

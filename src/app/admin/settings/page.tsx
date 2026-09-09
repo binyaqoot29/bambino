@@ -36,6 +36,12 @@ export default async function AdminSettingsPage({
       hint: t.settings.whatsappHint,
       value: settings.social.whatsapp,
     },
+    {
+      name: "email",
+      label: t.settings.email,
+      hint: t.settings.emailHint,
+      value: settings.social.email,
+    },
   ];
 
   return (

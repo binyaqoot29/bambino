@@ -5,6 +5,7 @@ import { isAuthenticated } from "@/admin/auth";
 import { adminDictionary, getAdminLocale } from "@/admin/i18n";
 import { AreaChart, BarList, StatTile } from "@/admin/ui/charts";
 import { buildOverview, isRange, type Range } from "@/lib/analytics";
+import { unreadMessages } from "@/lib/messages";
 import { formatPrice } from "@/lib/money";
 import type { OrderStatus } from "@/lib/orders/types";
 
@@ -23,7 +24,10 @@ export default async function AdminOverviewPage({
   const o = t.overview;
   const requested = Number(params.range ?? 30);
   const range: Range = isRange(requested) ? requested : 30;
-  const data = await buildOverview(range);
+  const [data, unread] = await Promise.all([
+    buildOverview(range),
+    unreadMessages(),
+  ]);
 
   const nf = new Intl.NumberFormat(
     locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW",
@@ -307,6 +311,14 @@ export default async function AdminOverviewPage({
               {nf.format(data.open)}
             </p>
             <p className="mt-1.5 text-[13px] text-white/75">{o.openOrders}</p>
+            {unread ? (
+              <Link
+                href="/admin/messages"
+                className="mt-3 block text-[13px] text-white/90 underline-offset-4 hover:underline"
+              >
+                {nf.format(unread)} {o.unreadMessages}
+              </Link>
+            ) : null}
             <Link
               href="/admin/orders"
               className="mt-4 inline-block text-[12px] font-medium tracking-[0.08em] text-white uppercase underline-offset-4 hover:underline [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case"

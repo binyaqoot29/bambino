@@ -16,6 +16,7 @@ export type NavLabels = {
   transfer: string;
   audience: string;
   customers: string;
+  messages: string;
   configuration: string;
   shipping: string;
   languages: string;
@@ -90,6 +91,11 @@ export function AdminNav({ labels }: { labels: NavLabels }) {
           href: "/admin/customers",
           label: labels.customers,
           match: /^\/admin\/customers/,
+        },
+        {
+          href: "/admin/messages",
+          label: labels.messages,
+          match: /^\/admin\/messages/,
         },
       ],
     },

@@ -18,6 +18,7 @@ import type {
 } from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
 import { restoreOrderStock } from "@/lib/orders/place";
+import { deleteMessage, markMessageRead } from "@/lib/messages";
 import {
   applyInventoryImport,
   applyProductImport,
@@ -995,6 +996,7 @@ export async function saveSettings(formData: FormData) {
       "whatsapp",
       String(formData.get("whatsapp") ?? ""),
     ),
+    email: normaliseSocial("email", String(formData.get("email") ?? "")),
   };
 
   await writeSetting(SETTINGS_KEYS.social, social);
@@ -1121,4 +1123,25 @@ export async function attachPhotos(
   const result = await attachPhotosByHandle(clean);
   if (result.attached) await storefrontChanged();
   return result;
+}
+
+/* --------------------------------------------------------------------------
+ * Inbox
+ * ----------------------------------------------------------------------- */
+
+export async function setMessageRead(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await markMessageRead(id, String(formData.get("read")) === "1");
+  revalidatePath("/admin/messages");
+  redirect("/admin/messages");
+}
+
+export async function deleteMessageAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await deleteMessage(id);
+  redirect("/admin/messages?deleted=1");
 }

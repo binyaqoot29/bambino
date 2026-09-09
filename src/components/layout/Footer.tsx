@@ -6,6 +6,7 @@ import { Newsletter } from "@/components/layout/Newsletter";
 import {
   CardIcon,
   InstagramIcon,
+  MailIcon,
   ReturnIcon,
   ShieldIcon,
   TiktokIcon,
@@ -41,6 +42,9 @@ export async function Footer({
     { href: social.instagram, Icon: InstagramIcon, label: "Instagram" },
     { href: social.tiktok, Icon: TiktokIcon, label: "TikTok" },
     { href: social.whatsapp, Icon: WhatsappIcon, label: "WhatsApp" },
+    social.email
+      ? { href: `mailto:${social.email}`, Icon: MailIcon, label: social.email }
+      : { href: "", Icon: MailIcon, label: "" },
   ].filter((s) => s.href);
   const guarantees = [
     {
@@ -132,8 +136,6 @@ export async function Footer({
 
           <Column title={dict.footer.aboutUsTitle}>
             <Row href={routes.about(locale)}>{links.story}</Row>
-            <Row href={routes.about(locale)}>{links.stores}</Row>
-            <Row href={routes.about(locale)}>{links.careers}</Row>
             <Row href={routes.about(locale)}>{links.giftCards}</Row>
           </Column>
         </div>
