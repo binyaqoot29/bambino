@@ -396,7 +396,7 @@ export async function saveProduct(
   );
 
   await storefrontChanged();
-  redirect(`/admin?saved=${encodeURIComponent(handle)}`);
+  redirect(`/admin/products?saved=${encodeURIComponent(handle)}`);
 }
 
 /**
@@ -426,7 +426,7 @@ export async function deleteProduct(formData: FormData) {
   await releaseImages(current?.images ?? []);
 
   await storefrontChanged();
-  redirect("/admin?deleted=1");
+  redirect("/admin/products?deleted=1");
 }
 
 export async function setStock(formData: FormData) {

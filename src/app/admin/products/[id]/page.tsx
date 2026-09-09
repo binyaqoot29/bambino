@@ -27,7 +27,7 @@ export default async function EditProductPage({
   return (
     <div>
       <Link
-        href="/admin"
+        href="/admin/products"
         className="link-draw text-ink-500 hover:text-ink-900 text-xs"
       >
         ← Products

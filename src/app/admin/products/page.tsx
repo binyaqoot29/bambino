@@ -1,0 +1,207 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
+import { deleteProduct } from "@/admin/actions";
+import { isAuthenticated } from "@/admin/auth";
+import { adminDictionary, getAdminLocale } from "@/admin/i18n";
+import { ProductArt } from "@/components/product/ProductArt";
+import { getAllProducts } from "@/lib/catalog/queries";
+import { categoryLookup } from "@/lib/catalog/queries";
+import { inStock } from "@/lib/catalog/types";
+import { formatPrice } from "@/lib/money";
+
+export default async function AdminProductsPage({
+  searchParams,
+}: PageProps<"/admin/products">) {
+  if (!(await isAuthenticated())) redirect("/admin/login");
+
+  const params = await searchParams;
+  const query = String(params.q ?? "")
+    .trim()
+    .toLowerCase();
+  const saved = params.saved ? String(params.saved) : null;
+  const deleted = Boolean(params.deleted);
+
+  const [all, categoryFor, locale] = await Promise.all([
+    getAllProducts(),
+    categoryLookup(),
+    getAdminLocale(),
+  ]);
+  const t = adminDictionary(locale);
+  const products = query
+    ? all.filter((p) =>
+        [p.name.en, p.name.ar, p.handle, p.category]
+          .join(" ")
+          .toLowerCase()
+          .includes(query),
+      )
+    : all;
+
+  const totalStock = (id: string) =>
+    all.find((p) => p.id === id)!.variants.reduce((n, v) => n + v.stock, 0);
+
+  return (
+    <div>
+      {saved ? (
+        <p className="bg-success/10 text-success mb-5 rounded-xl px-4 py-3 text-sm">
+          {t.products.saved}: “{saved}”
+        </p>
+      ) : null}
+      {deleted ? (
+        <p className="bg-canvas text-ink-700 mb-5 rounded-xl px-4 py-3 text-sm">
+          {t.products.deleted}
+        </p>
+      ) : null}
+
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-ink-900 text-3xl">
+            {t.products.title}
+          </h1>
+          <p className="text-ink-500 mt-0.5 text-xs tabular-nums">
+            {all.length} {t.products.inCatalogue}
+            {query ? ` · ${products.length} ${t.products.matching}` : ""}
+          </p>
+        </div>
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <form
+            method="get"
+            className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none"
+          >
+            <input
+              name="q"
+              defaultValue={query}
+              placeholder={t.products.search}
+              className="ring-ink-300 focus:ring-ink-900 h-9 w-full min-w-0 rounded-xl bg-white px-3 text-sm ring-1 focus:outline-none sm:w-52"
+            />
+          </form>
+          <Link
+            href="/admin/transfer"
+            className="ring-ink-300 hover:bg-ink-900 hover:text-white inline-flex h-9 shrink-0 items-center rounded-full bg-white px-4 text-[13px] font-medium whitespace-nowrap ring-1 transition-colors duration-200"
+          >
+            {t.nav.transfer}
+          </Link>
+          <Link
+            href="/admin/products/new"
+            className="bg-brand-900 hover:bg-brand-800 inline-flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-medium whitespace-nowrap text-white"
+          >
+            {t.products.add}
+          </Link>
+        </div>
+      </div>
+
+      <div className="rounded-card overflow-hidden bg-white shadow-[var(--shadow-soft)]">
+        <table className="stack-table w-full text-sm">
+          <thead className="border-ink-200/70 bg-canvas border-b">
+            <tr className="text-ink-500 text-start text-[11px] tracking-[0.12em] uppercase">
+              <th className="px-4 py-3 text-start font-medium">
+                {t.products.product}
+              </th>
+              <th className="px-4 py-3 text-start font-medium">
+                {t.products.category}
+              </th>
+              <th className="px-4 py-3 text-start font-medium">
+                {t.products.price}
+              </th>
+              <th className="px-4 py-3 text-start font-medium">
+                {t.products.stock}
+              </th>
+              <th className="px-4 py-2.5" />
+            </tr>
+          </thead>
+          <tbody className="divide-ink-200/70 divide-y">
+            {products.map((product) => {
+              const category = categoryFor(product.category);
+              const stock = totalStock(product.id);
+              return (
+                <tr key={product.id} className="hover:bg-canvas/70">
+                  <td data-label="" className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <ProductArt
+                        art={product.art}
+                        seed={product.id}
+                        className="size-10 shrink-0 rounded-md"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-ink-900 truncate font-medium">
+                          {product.name.en}
+                        </p>
+                        <p className="text-ink-400 truncate text-xs" dir="rtl">
+                          {product.name.ar}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td
+                    data-label={t.products.category}
+                    className="text-ink-600 px-4 py-3 text-xs"
+                  >
+                    {category?.name[locale] ?? product.category}
+                  </td>
+                  <td
+                    data-label={t.products.price}
+                    className="px-4 py-3 text-xs tabular-nums"
+                  >
+                    <span className="text-ink-900 font-medium">
+                      {formatPrice(product.price, locale)}
+                    </span>
+                    {product.compareAtPrice ? (
+                      <span className="text-ink-400 ms-1.5 line-through">
+                        {formatPrice(product.compareAtPrice, locale)}
+                      </span>
+                    ) : null}
+                  </td>
+                  <td
+                    data-label={t.products.stock}
+                    className="px-4 py-3 text-xs tabular-nums"
+                  >
+                    <span
+                      className={
+                        inStock(product)
+                          ? "text-ink-700"
+                          : "text-sale font-medium"
+                      }
+                    >
+                      {stock}
+                    </span>
+                    <span className="text-ink-400">
+                      {" "}
+                      / {product.variants.length} {t.products.variants}
+                    </span>
+                  </td>
+                  <td
+                    data-label=""
+                    data-actions=""
+                    className="px-4 py-3 text-end whitespace-nowrap max-sm:text-start"
+                  >
+                    <Link
+                      href={`/admin/products/${product.id}`}
+                      className="link-draw text-ink-800 hover:text-ink-900 text-xs font-medium"
+                    >
+                      {t.products.edit}
+                    </Link>
+                    <form action={deleteProduct} className="ms-3 inline">
+                      <input type="hidden" name="id" value={product.id} />
+                      <button
+                        type="submit"
+                        className="text-ink-400 hover:text-sale text-xs font-medium"
+                      >
+                        {t.products.delete}
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {products.length === 0 ? (
+          <p className="text-ink-500 px-4 py-12 text-center text-sm">
+            {query ? `${t.products.noMatch} “${query}”` : t.products.none}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
