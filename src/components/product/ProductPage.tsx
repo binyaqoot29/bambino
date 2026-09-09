@@ -96,9 +96,11 @@ export async function ProductPage({
           </ol>
         </nav>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_26rem]">
-          {/* gallery + copy */}
-          <div>
+        {/* On a phone the order is gallery, name and price, then the copy;
+            on a desktop the buying column sits beside both. Grid placement
+            does that without duplicating any of the three. */}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-x-16 lg:gap-y-12 xl:grid-cols-[minmax(0,1fr)_26rem]">
+          <div className="lg:col-start-1 lg:row-start-1">
             <div className="relative">
               <ProductGallery
                 images={product.images}
@@ -117,34 +119,10 @@ export async function ProductPage({
                 </span>
               ) : null}
             </div>
-
-            <div className="mt-12 max-w-2xl">
-              <Accordion title={dict.product.description} defaultOpen>
-                <p>{product.description[locale]}</p>
-              </Accordion>
-              <Accordion title={dict.product.details} defaultOpen>
-                <ul className="space-y-2">
-                  {product.details.map((detail) => (
-                    <li key={detail.en} className="flex gap-3">
-                      <CheckIcon className="text-brand-600 mt-1 size-4 shrink-0" />
-                      {detail[locale]}
-                    </li>
-                  ))}
-                </ul>
-              </Accordion>
-              {product.care ? (
-                <Accordion title={dict.product.care}>
-                  <p>{product.care[locale]}</p>
-                </Accordion>
-              ) : null}
-              <Accordion title={dict.product.delivery}>
-                <p>{delivery.productBody}</p>
-              </Accordion>
-            </div>
           </div>
 
           {/* buy column */}
-          <aside className="lg:sticky lg:top-36 lg:self-start">
+          <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-36 lg:self-start">
             {category ? (
               <Link
                 href={routes.category(locale, category.slug)}
@@ -234,6 +212,32 @@ export async function ProductPage({
               {available ? null : ` · ${dict.product.outOfStock}`}
             </p>
           </aside>
+
+          <div className="lg:col-start-1 lg:row-start-2">
+            <div className="max-w-2xl">
+              <Accordion title={dict.product.description} defaultOpen>
+                <p>{product.description[locale]}</p>
+              </Accordion>
+              <Accordion title={dict.product.details} defaultOpen>
+                <ul className="space-y-2">
+                  {product.details.map((detail) => (
+                    <li key={detail.en} className="flex gap-3">
+                      <CheckIcon className="text-brand-600 mt-1 size-4 shrink-0" />
+                      {detail[locale]}
+                    </li>
+                  ))}
+                </ul>
+              </Accordion>
+              {product.care ? (
+                <Accordion title={dict.product.care}>
+                  <p>{product.care[locale]}</p>
+                </Accordion>
+              ) : null}
+              <Accordion title={dict.product.delivery}>
+                <p>{delivery.productBody}</p>
+              </Accordion>
+            </div>
+          </div>
         </div>
 
         {/* related */}
