@@ -2,29 +2,33 @@
 
 /* ==========================================================================
    Bambino — design tokens
-   Derived from docs/Bambino-brand-identity.pdf
-   Primary orchid #BD73A8 · deep plum #661F47 · mint #B7D2DD · cloud #D3E1EC
+
+   The brand is a real orchid (#BD72A2, from the logo artwork) and a deep plum.
+   Everything else here exists to make those two colours read as expensive:
+   warm, low-chroma neutrals instead of cool greys; one serif for headlines;
+   a small champagne accent for ratings and details; and one muted claret for
+   "reduced" that states a saving without shouting it.
    ========================================================================== */
 
 @theme {
   /* --- Brand: orchid → plum ------------------------------------------- */
-  --color-brand-50: #fdf6fa;
-  --color-brand-100: #f9e9f3;
-  --color-brand-200: #f0d2e5;
-  --color-brand-300: #e2b0d0;
-  --color-brand-400: #d091ba;
+  --color-brand-50: #fbf5f8;
+  --color-brand-100: #f6e8ef;
+  --color-brand-200: #edd1e0;
+  --color-brand-300: #dfb0cb;
+  --color-brand-400: #cd90b5;
   --color-brand-500: #bd72a2; /* primary — exact value from the logo artwork */
-  --color-brand-600: #a85b92;
-  --color-brand-700: #8b4676;
-  --color-brand-800: #71355e;
+  --color-brand-600: #a45b8c;
+  --color-brand-700: #86476f;
+  --color-brand-800: #6e355a;
   --color-brand-900: #661f47; /* deep plum — dark surfaces, packaging */
-  --color-brand-950: #46132f;
+  --color-brand-950: #3f122b;
 
-  /* --- Mint / powder blue accent --------------------------------------- */
-  --color-mint-50: #f4fafb;
-  --color-mint-100: #e8f2f6;
-  --color-mint-200: #d3e1ec; /* cloud fill */
-  --color-mint-300: #b7d2dd; /* accent — doodles, embroidery */
+  /* --- Mint / powder blue: quiet, used for tints and doodles ----------- */
+  --color-mint-50: #f4f8f9;
+  --color-mint-100: #e9f1f3;
+  --color-mint-200: #d3e1ec;
+  --color-mint-300: #b7d2dd;
   --color-mint-400: #93b9c8;
   --color-mint-500: #6f9cae;
   --color-mint-600: #578293;
@@ -32,41 +36,53 @@
   --color-mint-800: #3c5661;
   --color-mint-900: #334752;
 
-  /* --- Neutrals: cool and high-contrast, for dense commercial type ----- */
-  --color-ink-50: #f8f9fa;
-  --color-ink-100: #eef0f2;
-  --color-ink-200: #e0e3e7;
-  --color-ink-300: #c6ccd2;
-  --color-ink-400: #929aa3;
-  --color-ink-500: #6b737c;
-  --color-ink-600: #4d545c;
-  --color-ink-700: #383e45;
-  --color-ink-800: #24292e;
-  --color-ink-900: #14181c;
+  /* --- Champagne: stars, hairlines, small luxuries --------------------- */
+  --color-gold-300: #dcc8a3;
+  --color-gold-400: #c9ad78;
+  --color-gold-500: #b9975b;
+  --color-gold-600: #9a7a44;
+
+  /* --- Neutrals: warm and soft, so photography and the orchid lead ------ */
+  --color-ink-50: #faf8f6;
+  --color-ink-100: #f3efeb;
+  --color-ink-200: #e7e1dc;
+  --color-ink-300: #cfc7c0;
+  --color-ink-400: #a3998f;
+  --color-ink-500: #7a706a;
+  --color-ink-600: #5b534e;
+  --color-ink-700: #423c38;
+  --color-ink-800: #2b2623;
+  --color-ink-900: #1b1715;
 
   /* --- Surfaces --------------------------------------------------------- */
-  --color-paper: #ffffff;
-  --color-canvas: #f6f7f8;
-  --color-canvas-mint: #f2f6f8;
+  --color-paper: #fffdfb;
+  --color-canvas: #f8f4f0;
+  --color-canvas-mint: #f1f5f6;
 
   /* --- Semantic --------------------------------------------------------- */
-  --color-sale: #d8232f; /* leads the price-first cards and badges */
-  --color-success: #3f8f6d;
+  --color-sale: #a3383b; /* a saving, stated — never a siren */
+  --color-success: #3d7a5f;
 
   /* --- Type ------------------------------------------------------------- */
-  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system,
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
-  --font-arabic: var(--font-tajawal), var(--font-poppins), ui-sans-serif,
+  --font-arabic: var(--font-tajawal), var(--font-inter), ui-sans-serif,
     system-ui, sans-serif;
+  /* Headlines. Overridden per language on <html> below — a Tailwind utility
+     reads the variable, so `font-display` picks the right face by itself. */
+  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
 
   /* --- Shape ------------------------------------------------------------ */
-  /* Used via `rounded-card` / `rounded-pill`, so the UI's corner language is
-     one edit rather than a sweep through every component. */
-  --radius-card: 0.5rem;
-  --radius-pill: 0.5rem;
+  --radius-card: 1.25rem;
+  --radius-pill: 9999px;
+
+  /* --- Depth: plum-tinted, never grey ------------------------------------ */
+  --shadow-soft: 0 1px 2px rgb(102 31 71 / 0.04), 0 12px 32px -12px rgb(102 31 71 / 0.16);
+  --shadow-lift: 0 2px 4px rgb(102 31 71 / 0.05), 0 28px 56px -20px rgb(102 31 71 / 0.24);
 
   /* --- Motion ----------------------------------------------------------- */
   --ease-soft: cubic-bezier(0.32, 0.72, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ==========================================================================
@@ -79,12 +95,17 @@
     scroll-behavior: smooth;
   }
 
+  html[lang="ar"] {
+    --font-display: var(--font-amiri), "Amiri", var(--font-tajawal), serif;
+  }
+
   body {
     background-color: var(--color-paper);
     color: var(--color-ink-800);
     font-family: var(--font-sans);
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   html[lang="ar"] body {
@@ -96,7 +117,7 @@
   h3,
   h4 {
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
 
   /* Arabic doesn't take negative tracking well. */
@@ -109,13 +130,20 @@
 
   :focus-visible {
     outline: 2px solid var(--color-brand-500);
-    outline-offset: 2px;
+    outline-offset: 3px;
     border-radius: 4px;
   }
 
   ::selection {
     background-color: var(--color-brand-200);
     color: var(--color-brand-900);
+  }
+
+  /* Every clickable thing looks clickable. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary {
+    cursor: pointer;
   }
 }
 
@@ -226,6 +254,38 @@
   }
   @media (width >= 80rem) {
     padding-inline: 3rem;
+  }
+}
+
+/* Small caps label above a headline: the boutique's quiet voice. */
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brand-600);
+
+  [dir="rtl"] & {
+    letter-spacing: 0.04em;
+  }
+}
+
+/* An underline that draws in from the start on hover — for text links. */
+@utility link-draw {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 0.3s var(--ease-out-quint);
+  padding-bottom: 2px;
+
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  [dir="rtl"] & {
+    background-position: 100% 100%;
   }
 }
 

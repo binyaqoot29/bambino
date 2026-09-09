@@ -1,7 +1,10 @@
 import Link from "next/link";
 
+import { BambinoMark } from "@/components/brand/BambinoMark";
 import { DoodleField } from "@/components/brand/Doodles";
 import { ProductArt } from "@/components/product/ProductArt";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ButtonLink } from "@/components/ui/Button";
 import { ArrowIcon } from "@/components/ui/Icons";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
@@ -13,17 +16,20 @@ import {
 } from "@/lib/catalog/queries";
 import { loadCategories } from "@/lib/catalog/categories";
 import type { Category } from "@/lib/catalog/types";
-import { AGE_GROUP_LABELS, type AgeGroup, type Product } from "@/lib/catalog/types";
+import {
+  AGE_GROUP_LABELS,
+  type AgeGroup,
+  type Product,
+} from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/money";
 import { routes } from "@/lib/routes";
-import { ProductCard } from "@/components/product/ProductCard";
 
 const AGE_KEYS = Object.keys(AGE_GROUP_LABELS) as AgeGroup[];
 
 /**
- * Puts merchandise above the fold: a promo grid, then a category strip, then
- * rails that lead with price. Built for a shopper who lands and clicks, not a
- * visitor who reads.
+ * An editorial front page: one hero that states the brand in a serif and
+ * offers two doors in, then the catalogue in generous rails with no boxes
+ * around them. The shop's own words appear once, mid-page, on cream.
  */
 export async function Home({
   locale,
@@ -33,34 +39,26 @@ export async function Home({
   dict: Dictionary;
 }) {
   const [onSale, newIn, bestsellers, all, categories] = await Promise.all([
-    getOnSale(6),
-    getNewIn(6),
+    getOnSale(8),
+    getNewIn(8),
     getBestsellers(5),
     getAllProducts(),
     loadCategories(),
   ]);
-  // Entry price for the promo tile — of the department it links to, not the
-  // whole catalogue, or the number is a lie.
-  const travelFrom = Math.min(
-    ...all.filter((p) => p.department === "travel").map((p) => p.price),
-  );
+  // Entry price for the hero's second door — of the department it opens, not
+  // the whole catalogue, or the number is a lie.
+  const nurseryPrices = all
+    .filter((p) => p.department === "nursery")
+    .map((p) => p.price);
+  const nurseryFrom = nurseryPrices.length ? Math.min(...nurseryPrices) : null;
 
   return (
-    <div className="bg-canvas">
-      <PromoGrid locale={locale} dict={dict} travelFrom={travelFrom} />
+    <div className="bg-paper">
+      <Hero locale={locale} dict={dict} nurseryFrom={nurseryFrom} />
       <CategoryStrip locale={locale} dict={dict} categories={categories} />
-      <AgeChips locale={locale} dict={dict} />
 
       <Rail
-        title={dict.home.onSale}
-        href={routes.collection(locale, "sale")}
-        viewAll={dict.common.viewAll}
-        products={onSale}
-        locale={locale}
-        dict={dict}
-        accent
-      />
-      <Rail
+        eyebrow={dict.home.newInBody}
         title={dict.home.newIn}
         href={routes.collection(locale, "new-in")}
         viewAll={dict.common.viewAll}
@@ -69,10 +67,29 @@ export async function Home({
         dict={dict}
       />
 
-      <BestsellerBlock
+      <Story locale={locale} dict={dict} />
+
+      <Rail
+        eyebrow={dict.home.bestsellersBody}
+        title={dict.home.bestsellers}
+        href={routes.collection(locale, "bestsellers")}
+        viewAll={dict.common.viewAll}
+        products={bestsellers}
         locale={locale}
         dict={dict}
-        products={bestsellers}
+        columns={5}
+      />
+
+      <AgeBand locale={locale} dict={dict} />
+
+      <Rail
+        eyebrow={dict.home.onSaleBody}
+        title={dict.home.onSale}
+        href={routes.collection(locale, "sale")}
+        viewAll={dict.common.viewAll}
+        products={onSale}
+        locale={locale}
+        dict={dict}
       />
     </div>
   );
@@ -80,94 +97,103 @@ export async function Home({
 
 /* -------------------------------------------------------------------------- */
 
-function PromoGrid({
+function Hero({
   locale,
   dict,
-  travelFrom,
+  nurseryFrom,
 }: {
   locale: Locale;
   dict: Dictionary;
-  travelFrom: number;
+  nurseryFrom: number | null;
 }) {
   return (
-    <section className="container-bambino pt-5 pb-8">
-      <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-        {/* main promo */}
+    <section className="bg-canvas">
+      <div className="container-bambino grid items-center gap-10 py-12 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:py-20">
+        <div className="animate-fade-up max-w-xl">
+          <p className="eyebrow">{dict.home.heroEyebrow}</p>
+          <h1 className="font-display text-ink-900 mt-5 text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
+            {dict.home.heroTitle}
+          </h1>
+          <p className="text-ink-600 mt-6 max-w-md text-[17px] leading-relaxed">
+            {dict.home.heroBody}
+          </p>
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <ButtonLink href={routes.collection(locale, "new-in")} size="lg">
+              {dict.home.heroCta}
+            </ButtonLink>
+            <ButtonLink
+              href={routes.department(locale, "nursery")}
+              variant="secondary"
+              size="lg"
+            >
+              {dict.home.heroCtaAlt}
+              {nurseryFrom !== null ? (
+                <span className="text-ink-500 ms-1 text-[12px] normal-case tracking-normal tabular-nums">
+                  · {dict.common.from} {formatPrice(nurseryFrom, locale)}
+                </span>
+              ) : null}
+            </ButtonLink>
+          </div>
+        </div>
+
+        {/* The visual: plum, the mark, and the packaging's doodles. */}
         <Link
           href={routes.collection(locale, "new-in")}
-          className="from-brand-600 to-brand-900 group relative flex min-h-64 overflow-hidden rounded-xl bg-linear-to-br p-7 text-white lg:min-h-80 lg:p-10"
+          aria-label={dict.home.heroCta}
+          className="group bg-brand-900 relative block aspect-[5/4] overflow-hidden rounded-[2rem] shadow-[var(--shadow-lift)] lg:aspect-[4/5] lg:max-h-[38rem]"
         >
           <div
             aria-hidden="true"
-            className="text-mint-300/15 pointer-events-none absolute inset-0"
+            className="pointer-events-none absolute inset-0 text-white/12 transition-transform duration-[1200ms] ease-[var(--ease-out-quint)] group-hover:scale-105"
           >
-            <DoodleField id="promo-doodles" />
+            <DoodleField id="hero-doodles" />
           </div>
-          <div className="relative flex flex-col justify-center">
-            <span className="bg-mint-300 text-brand-900 inline-flex w-fit rounded px-2 py-1 text-[11px] font-bold tracking-wide uppercase">
-              {dict.common.new}
-            </span>
-            <h1 className="mt-4 max-w-md text-3xl leading-tight font-bold lg:text-4xl">
-              {dict.home.heroTitle}
-            </h1>
-            <p className="text-mint-200/90 mt-3 max-w-sm text-sm">
-              {dict.home.heroBody}
-            </p>
-            <span className="text-brand-800 mt-6 inline-flex w-fit items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-bold transition-transform group-hover:translate-x-0.5">
-              {dict.home.heroCta}
-              <ArrowIcon className="flip-rtl size-4" />
-            </span>
-          </div>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgb(189_114_162_/_0.55),transparent_60%)]"
+          />
+          <BambinoMark
+            className="animate-float absolute start-1/2 top-1/2 h-40 w-auto -translate-x-1/2 -translate-y-1/2 text-white/95 drop-shadow-[0_20px_40px_rgb(0_0_0_/_0.25)] sm:h-52 lg:h-64 rtl:translate-x-1/2"
+            leafColor="#B7D2DD"
+          />
+          <p className="font-display absolute inset-x-8 bottom-8 text-2xl leading-tight text-white/90 sm:text-3xl">
+            {dict.brand.tagline}
+          </p>
         </Link>
-
-        {/* stacked secondary promos */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-          <Link
-            href={routes.collection(locale, "sale")}
-            className="ring-ink-200 group relative flex min-h-32 items-center gap-4 overflow-hidden rounded-xl bg-white p-5 ring-1"
-          >
-            <div>
-              <p className="text-sale text-2xl font-extrabold">
-                {dict.home.onSale}
-              </p>
-              <p className="text-ink-500 mt-1 text-xs">
-                {dict.home.onSaleBody}
-              </p>
-              <p className="text-ink-900 mt-2 text-xs font-semibold">
-                {dict.common.shopNow} →
-              </p>
-            </div>
-            <ProductArt
-              art="dress"
-              seed="promo-sale"
-              className="ms-auto size-24 shrink-0 rounded-lg transition-transform group-hover:scale-105"
-            />
-          </Link>
-
-          <Link
-            href={routes.department(locale, "travel")}
-            className="ring-ink-200 group relative flex min-h-32 items-center gap-4 overflow-hidden rounded-xl bg-white p-5 ring-1"
-          >
-            <div>
-              <p className="text-ink-900 text-lg font-bold">
-                {dict.home.heroCtaAlt}
-              </p>
-              <p className="text-ink-500 mt-1 text-xs">
-                {dict.home.usp.safety.body}
-              </p>
-              <p className="text-brand-600 mt-2 text-xs font-semibold tabular-nums">
-                {dict.common.from} {formatPrice(travelFrom, locale)}
-              </p>
-            </div>
-            <ProductArt
-              art="stroller"
-              seed="promo-travel"
-              className="ms-auto size-24 shrink-0 rounded-lg transition-transform group-hover:scale-105"
-            />
-          </Link>
-        </div>
       </div>
     </section>
+  );
+}
+
+function SectionHead({
+  eyebrow,
+  title,
+  href,
+  viewAll,
+}: {
+  eyebrow?: string;
+  title: string;
+  href?: string;
+  viewAll?: string;
+}) {
+  return (
+    <div className="mb-8 flex items-end justify-between gap-6">
+      <div>
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+        <h2 className="font-display text-ink-900 mt-2 text-3xl leading-tight sm:text-4xl">
+          {title}
+        </h2>
+      </div>
+      {href && viewAll ? (
+        <Link
+          href={href}
+          className="link-draw text-ink-900 mb-1.5 inline-flex shrink-0 items-center gap-2 text-[12px] font-medium tracking-[0.14em] uppercase [html[lang=ar]_&]:text-sm [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case"
+        >
+          {viewAll}
+          <ArrowIcon className="flip-rtl size-3.5" />
+        </Link>
+      ) : null}
+    </div>
   );
 }
 
@@ -181,156 +207,127 @@ function CategoryStrip({
   categories: Category[];
 }) {
   return (
-    <section className="container-bambino pb-8">
-      <div className="ring-ink-200 rounded-xl bg-white p-4 ring-1">
-        <h2 className="text-ink-900 mb-3 text-sm font-bold">
-          {dict.home.shopByCategory}
-        </h2>
-        <ul className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 lg:grid lg:grid-cols-7 lg:overflow-visible">
-          {categories.slice(0, 7).map((category) => (
-            <li key={category.slug} className="shrink-0">
-              <Link
-                href={routes.category(locale, category.slug)}
-                className="group hover:bg-ink-50 flex w-24 flex-col items-center gap-2 rounded-lg p-2 transition-colors lg:w-auto"
-              >
+    <section className="container-bambino pt-16 lg:pt-20">
+      <SectionHead title={dict.home.shopByCategory} />
+      <ul className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0 lg:grid lg:grid-cols-7 lg:gap-6 lg:overflow-visible">
+        {categories.slice(0, 7).map((category) => (
+          <li key={category.slug} className="w-28 shrink-0 lg:w-auto">
+            <Link
+              href={routes.category(locale, category.slug)}
+              className="group flex flex-col items-center gap-3 text-center"
+            >
+              <span className="ring-ink-200 group-hover:ring-brand-400 block overflow-hidden rounded-full ring-1 transition-[box-shadow] duration-300">
                 <ProductArt
                   art={category.art}
                   seed={category.slug}
-                  className="size-16 rounded-full transition-transform group-hover:scale-105"
+                  className="size-24 transition-transform duration-700 ease-[var(--ease-out-quint)] group-hover:scale-105 lg:size-28"
                 />
-                <span className="text-ink-700 group-hover:text-brand-600 text-center text-[11px] leading-tight font-medium">
-                  {category.name[locale]}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function AgeChips({ locale, dict }: { locale: Locale; dict: Dictionary }) {
-  return (
-    <section className="container-bambino pb-8">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-ink-900 me-1 text-sm font-bold">
-          {dict.home.shopByAge}:
-        </span>
-        {AGE_KEYS.map((age) => (
-          <Link
-            key={age}
-            href={`${routes.collection(locale, "new-in")}?age=${age}`}
-            className="ring-ink-300 text-ink-700 hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700 inline-flex rounded-lg bg-white px-3 py-1.5 text-xs font-medium ring-1 transition-colors"
-          >
-            {AGE_GROUP_LABELS[age][locale]}
-          </Link>
+              </span>
+              <span className="text-ink-800 group-hover:text-ink-900 text-[13px] leading-tight">
+                {category.name[locale]}
+              </span>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
 
 function Rail({
+  eyebrow,
   title,
   href,
   viewAll,
   products,
   locale,
   dict,
-  accent = false,
+  columns = 4,
 }: {
+  eyebrow?: string;
   title: string;
   href: string;
   viewAll: string;
   products: Product[];
   locale: Locale;
   dict: Dictionary;
-  accent?: boolean;
+  columns?: 4 | 5;
 }) {
   if (products.length === 0) return null;
+  const cols = columns === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4";
 
   return (
-    <section className="container-bambino pb-8">
-      <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-        <div
-          className={`flex items-center justify-between px-4 py-3 ${
-            accent ? "bg-sale text-white" : "border-ink-200 border-b"
-          }`}
-        >
-          <h2
-            className={`text-sm font-bold ${accent ? "" : "text-ink-900"}`}
-          >
-            {title}
-          </h2>
-          <Link
-            href={href}
-            className={`inline-flex items-center gap-1 text-xs font-semibold ${
-              accent ? "text-white" : "text-brand-600 hover:text-brand-700"
-            }`}
-          >
-            {viewAll}
-            <ArrowIcon className="flip-rtl size-3.5" />
-          </Link>
-        </div>
+    <section className="container-bambino pt-16 lg:pt-20">
+      <SectionHead
+        eyebrow={eyebrow}
+        title={title}
+        href={href}
+        viewAll={viewAll}
+      />
+      <ul
+        className={`no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 sm:overflow-visible sm:px-0 ${cols}`}
+      >
+        {products.map((product) => (
+          <li key={product.id} className="w-44 shrink-0 sm:w-auto">
+            <ProductCard product={product} locale={locale} dict={dict} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
-        <ul className="no-scrollbar flex gap-3 overflow-x-auto p-4 lg:grid lg:grid-cols-6 lg:overflow-visible">
-          {products.map((product) => (
-            <li
-              key={product.id}
-              className="w-40 shrink-0 sm:w-44 lg:w-auto"
-            >
-              <ProductCard
-                product={product}
-                locale={locale}
-                dict={dict}
-              />
-            </li>
-          ))}
-        </ul>
+function Story({ locale, dict }: { locale: Locale; dict: Dictionary }) {
+  return (
+    <section className="container-bambino pt-16 lg:pt-24">
+      <div className="bg-canvas relative overflow-hidden rounded-[2rem] px-8 py-14 text-center sm:px-16 lg:py-20">
+        <div
+          aria-hidden="true"
+          className="text-mint-500/14 pointer-events-none absolute inset-0"
+        >
+          <DoodleField id="story-doodles" />
+        </div>
+        <div className="relative mx-auto max-w-2xl">
+          <p className="eyebrow">{dict.home.storyCta}</p>
+          <h2 className="font-display text-ink-900 mt-4 text-3xl leading-tight sm:text-4xl">
+            {dict.home.storyTitle}
+          </h2>
+          <p className="text-ink-600 mt-5 text-[15px] leading-relaxed sm:text-base">
+            {dict.home.storyBody}
+          </p>
+          <ButtonLink
+            href={routes.about(locale)}
+            variant="secondary"
+            size="md"
+            className="mt-8"
+          >
+            {dict.home.storyCta}
+          </ButtonLink>
+        </div>
       </div>
     </section>
   );
 }
 
-function BestsellerBlock({
-  locale,
-  dict,
-  products,
-}: {
-  locale: Locale;
-  dict: Dictionary;
-  products: Product[];
-}) {
-  if (products.length === 0) return null;
-
+function AgeBand({ locale, dict }: { locale: Locale; dict: Dictionary }) {
   return (
-    <section className="container-bambino pb-12">
-      <div className="grid gap-3 lg:grid-cols-[16rem_1fr]">
-        <div className="from-mint-100 to-canvas-mint ring-ink-200 flex flex-col justify-center rounded-xl bg-linear-to-b p-6 ring-1">
-          <h2 className="text-ink-900 text-xl font-bold">
-            {dict.home.bestsellers}
+    <section className="container-bambino pt-16 lg:pt-20">
+      <div className="border-ink-200/70 flex flex-col gap-5 border-y py-8 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h2 className="font-display text-ink-900 text-2xl">
+            {dict.home.shopByAge}
           </h2>
-          <p className="text-ink-500 mt-2 text-xs leading-relaxed">
-            {dict.home.bestsellersBody}
-          </p>
-          <Link
-            href={routes.collection(locale, "bestsellers")}
-            className="text-brand-600 hover:text-brand-700 mt-4 inline-flex items-center gap-1 text-xs font-semibold"
-          >
-            {dict.common.viewAll}
-            <ArrowIcon className="flip-rtl size-3.5" />
-          </Link>
+          <p className="text-ink-500 mt-1 text-sm">{dict.home.shopByAgeBody}</p>
         </div>
-
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {products.map((product) => (
-            <li key={product.id}>
-              <ProductCard
-                product={product}
-                locale={locale}
-                dict={dict}
-              />
+        <ul className="flex flex-wrap gap-2">
+          {AGE_KEYS.map((age) => (
+            <li key={age}>
+              <Link
+                href={`${routes.collection(locale, "new-in")}?age=${age}`}
+                className="ring-ink-300 text-ink-800 hover:bg-brand-900 hover:text-white hover:ring-brand-900 inline-flex rounded-full px-4 py-2.5 text-[13px] ring-1 transition-colors duration-200"
+              >
+                {AGE_GROUP_LABELS[age][locale]}
+              </Link>
             </li>
           ))}
         </ul>

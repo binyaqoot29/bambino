@@ -40,7 +40,7 @@ export function SortSelect({
             { scroll: false },
           )
         }
-        className="text-ink-700 ring-ink-200 hover:ring-ink-300 focus:ring-brand-400 h-10 cursor-pointer appearance-none rounded-full bg-white ps-4 pe-10 text-sm font-medium ring-1 focus:outline-none"
+        className="text-ink-800 ring-ink-300 hover:ring-ink-900 focus:ring-ink-900 h-10 cursor-pointer appearance-none rounded-full bg-paper ps-4 pe-10 text-[13px] ring-1 transition-colors duration-200 focus:outline-none"
       >
         {options.map((key) => (
           <option key={key} value={key}>

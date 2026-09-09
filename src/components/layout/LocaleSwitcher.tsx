@@ -45,7 +45,7 @@ export function LocaleSwitcher({
           router.push(`${href}${search}`);
         }
       }}
-      className={`text-ink-600 hover:text-brand-600 hover:bg-brand-50 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors ${className}`}
+      className={`text-ink-800 hover:bg-ink-100 inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors duration-200 ${className}`}
     >
       <GlobeIcon className="size-4.5" />
       <span>{localeMeta[other].nativeLabel}</span>

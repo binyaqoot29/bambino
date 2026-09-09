@@ -60,7 +60,7 @@ export function AddedToBagDrawer({
       aria-live="polite"
       className="fixed inset-x-3 bottom-3 z-[60] sm:inset-x-auto sm:end-5 sm:bottom-5 sm:w-96"
     >
-      <div className="bg-paper ring-ink-200 animate-float-in overflow-hidden rounded-3xl shadow-[0_24px_48px_-20px_rgb(102_31_71_/_0.35)] ring-1">
+      <div className="bg-paper animate-float-in overflow-hidden rounded-[1.5rem] shadow-[var(--shadow-lift)]">
         <div className="border-ink-100 flex items-center gap-2 border-b px-4 py-3">
           <span className="bg-success/12 text-success inline-flex size-6 items-center justify-center rounded-full">
             <CheckIcon className="size-4" />
@@ -88,13 +88,13 @@ export function AddedToBagDrawer({
               seed={product.id}
               src={product.image}
               sizes="80px"
-              className="size-20 rounded-2xl"
+              className="bg-canvas w-16 rounded-xl aspect-[4/5]"
             />
           </Link>
           <div className="min-w-0 flex-1">
             <Link
               href={routes.product(locale, product.handle)}
-              className="text-ink-900 hover:text-brand-600 line-clamp-2 text-sm font-medium"
+              className="text-ink-900 line-clamp-2 text-sm"
             >
               {product.name}
             </Link>

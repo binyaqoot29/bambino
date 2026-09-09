@@ -40,16 +40,19 @@ export default async function AboutPage({
 
   return (
     <>
-      <section className="from-brand-50 to-mint-50 relative overflow-hidden bg-linear-to-br">
+      <section className="bg-canvas relative overflow-hidden">
         <div
           aria-hidden="true"
-          className="text-mint-400/18 pointer-events-none absolute inset-0"
+          className="text-mint-500/14 pointer-events-none absolute inset-0"
         >
           <DoodleField id="about-doodles" />
         </div>
         <div className="container-bambino relative flex flex-col items-center py-20 text-center lg:py-28">
-          <BambinoMark className="text-brand-500 h-24 w-auto" leafColor="#B7D2DD" />
-          <h1 className="text-brand-900 mt-8 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+          <BambinoMark
+            className="text-brand-500 h-24 w-auto"
+            leafColor="#B7D2DD"
+          />
+          <h1 className="font-display text-ink-900 mt-8 max-w-2xl text-5xl leading-tight sm:text-6xl">
             {dict.home.storyTitle}
           </h1>
           <p className="text-ink-600 mt-5 max-w-xl text-base leading-relaxed sm:text-lg">
@@ -61,11 +64,8 @@ export default async function AboutPage({
       <section className="container-bambino py-16 lg:py-20">
         <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {pillars.map((pillar) => (
-            <li
-              key={pillar.title}
-              className="bg-canvas-mint ring-mint-200/60 rounded-3xl p-7 ring-1"
-            >
-              <h2 className="text-brand-700 text-xl font-medium">
+            <li key={pillar.title} className="border-ink-200/70 border-t pt-6">
+              <h2 className="font-display text-ink-900 text-2xl">
                 {pillar.title}
               </h2>
               <p className="text-ink-600 mt-2.5 text-sm leading-relaxed">
@@ -75,11 +75,9 @@ export default async function AboutPage({
           ))}
         </ul>
 
-        <div className="border-ink-100 mt-16 border-t pt-16 text-center">
-          <p className="text-brand-600 text-sm font-medium tracking-[0.18em] uppercase">
-            {dict.brand.tagline}
-          </p>
-          <p className="text-ink-600 mx-auto mt-5 max-w-2xl leading-relaxed">
+        <div className="border-ink-200/70 mt-20 border-t pt-20 text-center">
+          <p className="eyebrow">{dict.brand.tagline}</p>
+          <p className="font-display text-ink-800 mx-auto mt-6 max-w-2xl text-2xl leading-snug">
             {dict.home.storyBody}
           </p>
           <ButtonLink

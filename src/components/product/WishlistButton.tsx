@@ -23,7 +23,7 @@ export function WishlistButton({
         type="button"
         onClick={() => toggleWishlist(productId)}
         aria-pressed={saved}
-        className="text-ink-600 hover:text-brand-600 inline-flex items-center gap-2 text-sm font-medium transition-colors"
+        className="link-draw text-ink-700 hover:text-ink-900 inline-flex items-center gap-2 text-[13px] transition-colors"
       >
         <HeartIcon
           filled={saved}
@@ -43,7 +43,7 @@ export function WishlistButton({
       }}
       aria-label={saved ? removeLabel : addLabel}
       aria-pressed={saved}
-      className="bg-paper/85 text-ink-500 hover:text-brand-500 absolute end-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full backdrop-blur-sm transition-colors"
+      className="text-ink-700 hover:text-brand-600 absolute end-3 top-3 z-10 inline-flex size-9 items-center justify-center rounded-full bg-white/90 shadow-[var(--shadow-soft)] backdrop-blur-sm transition-[color,transform] duration-200 hover:scale-105"
     >
       <HeartIcon
         filled={saved}

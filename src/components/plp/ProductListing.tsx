@@ -26,8 +26,7 @@ import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/get-dictionary";
 import { ProductCard } from "@/components/product/ProductCard";
 
-/** Dense on purpose — this storefront is about seeing more at once. */
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 24;
 
 export type Crumb = { label: string; href?: string };
 
@@ -44,9 +43,9 @@ export type ListingProps = {
 };
 
 /**
- * A permanent filter rail, a five-across grid, a compact toolbar stating the
- * result count plainly, and the header collapsed to one line so products start
- * high up the page.
+ * A serif title over a four-across grid of tall cards, the filter rail as a
+ * quiet column at the start, and a one-line toolbar with no box around it.
+ * Products get the width; the chrome gets hairlines.
  */
 export async function ProductListing({
   title,
@@ -119,28 +118,32 @@ export async function ProductListing({
   };
 
   const resultLabel = plural(dict.plp, "results", sorted.length);
+  const pageLink = (n: number) =>
+    `${basePath}${buildQuery(params, { page: n })}`;
+  const pager =
+    "text-ink-700 ring-ink-200 hover:ring-ink-900 inline-flex size-10 items-center justify-center rounded-full ring-1 transition-colors duration-200";
 
   return (
-    <div className="bg-canvas">
-      <div className="container-bambino py-5">
+    <div className="bg-paper">
+      <div className="container-bambino pt-8 pb-4 lg:pt-12">
         {crumbs?.length ? (
-          <nav aria-label="Breadcrumb" className="mb-3">
-            <ol className="text-ink-400 flex flex-wrap items-center gap-1.5 text-[11px]">
+          <nav aria-label="Breadcrumb" className="mb-5">
+            <ol className="text-ink-400 flex flex-wrap items-center gap-2 text-[11px] tracking-[0.1em] uppercase [html[lang=ar]_&]:text-[12px] [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case">
               {crumbs.map((crumb, i) => (
                 <li
                   key={`${crumb.label}-${i}`}
-                  className="flex items-center gap-1.5"
+                  className="flex items-center gap-2"
                 >
                   {crumb.href ? (
-                    <Link href={crumb.href} className="hover:text-brand-600">
+                    <Link href={crumb.href} className="hover:text-ink-900">
                       {crumb.label}
                     </Link>
                   ) : (
-                    <span className="text-ink-600">{crumb.label}</span>
+                    <span className="text-ink-700">{crumb.label}</span>
                   )}
                   {i < crumbs.length - 1 ? (
-                    <span aria-hidden="true" className="opacity-40">
-                      ›
+                    <span aria-hidden="true" className="opacity-50">
+                      /
                     </span>
                   ) : null}
                 </li>
@@ -149,20 +152,18 @@ export async function ProductListing({
           </nav>
         ) : null}
 
-        {/* Title and count share a line — products start higher. */}
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h1 className="text-ink-900 text-xl font-bold sm:text-2xl">
+        <div className="max-w-2xl">
+          <h1 className="font-display text-ink-900 text-4xl leading-tight sm:text-5xl">
             {title}
           </h1>
-          <span className="text-ink-500 text-sm tabular-nums">
-            {resultLabel}
-          </span>
+          {description ? (
+            <p className="text-ink-600 mt-4 text-[15px] leading-relaxed">
+              {description}
+            </p>
+          ) : null}
         </div>
-        {description ? (
-          <p className="text-ink-500 mt-1 text-xs">{description}</p>
-        ) : null}
 
-        <div className="mt-5 flex gap-6">
+        <div className="mt-10 flex gap-10">
           <FilterRail
             basePath={basePath}
             params={params}
@@ -173,8 +174,8 @@ export async function ProductListing({
           />
 
           <div className="min-w-0 flex-1">
-            <div className="ring-ink-200 mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 ring-1">
-              <div className="flex items-center gap-2">
+            <div className="border-ink-200/70 flex flex-wrap items-center justify-between gap-3 border-y py-3">
+              <div className="flex items-center gap-4">
                 <FilterSheet
                   basePath={basePath}
                   params={params}
@@ -183,14 +184,14 @@ export async function ProductListing({
                   dict={dict}
                   resultLabel={resultLabel}
                 />
-                <span className="text-ink-500 hidden text-xs tabular-nums lg:inline">
+                <span className="text-ink-500 text-[13px] tabular-nums">
                   {resultLabel}
                 </span>
               </div>
               <SortSelect basePath={basePath} params={params} dict={dict} />
             </div>
 
-            <div className="mb-3">
+            <div className="mt-4">
               <ActiveFilters
                 basePath={basePath}
                 params={params}
@@ -200,17 +201,17 @@ export async function ProductListing({
             </div>
 
             {visible.length === 0 ? (
-              <div className="ring-ink-200 rounded-lg bg-white px-6 py-16 text-center ring-1">
-                <h2 className="text-ink-900 text-base font-bold">
+              <div className="bg-canvas rounded-card mt-6 px-6 py-24 text-center">
+                <h2 className="font-display text-ink-900 text-2xl">
                   {dict.plp.noResults}
                 </h2>
-                <p className="text-ink-500 mx-auto mt-1.5 max-w-sm text-xs">
+                <p className="text-ink-500 mx-auto mt-2 max-w-sm text-sm">
                   {dict.plp.noResultsBody}
                 </p>
               </div>
             ) : (
               <>
-                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <ul className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-5 xl:grid-cols-4">
                   {visible.map((product) => (
                     <li key={product.id}>
                       <ProductCard
@@ -223,13 +224,13 @@ export async function ProductListing({
                 </ul>
 
                 {totalPages > 1 ? (
-                  <nav className="mt-8 flex items-center justify-center gap-1">
+                  <nav className="mt-14 flex items-center justify-center gap-2">
                     {page > 1 ? (
                       <Link
-                        href={`${basePath}${buildQuery(params, { page: page - 1 })}`}
+                        href={pageLink(page - 1)}
                         rel="prev"
                         aria-label="Previous"
-                        className="text-ink-600 ring-ink-300 hover:border-brand-500 inline-flex size-9 items-center justify-center rounded-lg bg-white ring-1"
+                        className={pager}
                       >
                         <ArrowIcon className="flip-rtl size-4 rotate-180" />
                       </Link>
@@ -238,13 +239,13 @@ export async function ProductListing({
                       (n) => (
                         <Link
                           key={n}
-                          href={`${basePath}${buildQuery(params, { page: n })}`}
+                          href={pageLink(n)}
                           aria-current={n === page ? "page" : undefined}
-                          className={`inline-flex size-9 items-center justify-center rounded-lg text-xs font-semibold tabular-nums ${
+                          className={
                             n === page
-                              ? "bg-brand-500 text-white"
-                              : "text-ink-600 ring-ink-300 bg-white ring-1 hover:border-brand-500"
-                          }`}
+                              ? "bg-brand-900 inline-flex size-10 items-center justify-center rounded-full text-[13px] text-white tabular-nums"
+                              : `${pager} text-[13px] tabular-nums`
+                          }
                         >
                           {n}
                         </Link>
@@ -252,10 +253,10 @@ export async function ProductListing({
                     )}
                     {page < totalPages ? (
                       <Link
-                        href={`${basePath}${buildQuery(params, { page: page + 1 })}`}
+                        href={pageLink(page + 1)}
                         rel="next"
                         aria-label="Next"
-                        className="text-ink-600 ring-ink-300 hover:border-brand-500 inline-flex size-9 items-center justify-center rounded-lg bg-white ring-1"
+                        className={pager}
                       >
                         <ArrowIcon className="flip-rtl size-4" />
                       </Link>

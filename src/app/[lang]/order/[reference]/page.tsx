@@ -41,9 +41,9 @@ export default async function OrderPage({
   if (!order) {
     return (
       <div className="container-bambino py-16">
-        <div className="bg-canvas-mint mx-auto flex max-w-xl flex-col items-center rounded-[2rem] px-6 py-20 text-center">
-          <BambinoMark className="text-mint-400 h-20 w-auto" />
-          <h1 className="text-brand-900 mt-6 text-2xl font-medium">
+        <div className="bg-canvas mx-auto flex max-w-xl flex-col items-center rounded-[2rem] px-6 py-20 text-center">
+          <BambinoMark className="text-brand-300 h-20 w-auto" />
+          <h1 className="font-display text-ink-900 mt-6 text-3xl">
             {t.notFound}
           </h1>
           <p className="text-ink-500 mt-2 text-sm">{t.notFoundBody}</p>
@@ -74,9 +74,9 @@ export default async function OrderPage({
       <ClearBag reference={order.reference} />
 
       <div className="mx-auto max-w-2xl">
-        <div className="bg-canvas-mint rounded-[2rem] px-6 py-10 text-center">
-          <BambinoMark className="text-mint-500 mx-auto h-16 w-auto" />
-          <h1 className="text-brand-900 mt-5 text-2xl font-semibold sm:text-3xl">
+        <div className="bg-canvas rounded-[2rem] px-6 py-12 text-center">
+          <BambinoMark className="text-brand-500 mx-auto h-16 w-auto" />
+          <h1 className="font-display text-ink-900 mt-5 text-3xl sm:text-4xl">
             {t.thanks}
           </h1>
           <p className="text-ink-600 mx-auto mt-2 max-w-sm text-sm leading-relaxed">
@@ -87,7 +87,7 @@ export default async function OrderPage({
             {t.reference}
           </p>
           <p
-            className="text-brand-900 mt-1 text-2xl font-bold tracking-wider"
+            className="font-display text-brand-900 mt-1 text-3xl tracking-wider"
             dir="ltr"
           >
             {order.reference}
@@ -97,9 +97,9 @@ export default async function OrderPage({
           </p>
         </div>
 
-        <div className="ring-ink-200 mt-6 rounded-2xl bg-white p-5 ring-1 sm:p-6">
+        <div className="border-ink-200/70 mt-8 border-t pt-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-ink-900 text-sm font-bold">{t.items}</h2>
+            <h2 className="font-display text-ink-900 text-2xl">{t.items}</h2>
             <span className="bg-brand-50 text-brand-700 rounded-full px-2.5 py-1 text-[11px] font-semibold">
               {statusLabel[order.status]}
             </span>
@@ -132,7 +132,10 @@ export default async function OrderPage({
           </ul>
 
           <dl className="border-ink-100 mt-4 space-y-1.5 border-t pt-4 text-sm">
-            <Row label={t.subtotal} value={formatPrice(order.subtotal, locale)} />
+            <Row
+              label={t.subtotal}
+              value={formatPrice(order.subtotal, locale)}
+            />
             <Row
               label={t.deliveryFee}
               value={

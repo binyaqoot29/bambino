@@ -1,6 +1,11 @@
 import type { Locale } from "@/i18n/config";
 import { discountPercent, formatPrice, type Fils } from "@/lib/money";
 
+/**
+ * Prices are set in a regular weight, never bold: a boutique states a price,
+ * it does not shout one. A reduction shows as the new price in claret with
+ * the old price struck through beside it.
+ */
 export function Price({
   amount,
   compareAt,
@@ -22,9 +27,9 @@ export function Price({
   }[size];
 
   return (
-    <span className={`inline-flex items-baseline gap-2 ${className}`}>
+    <span className={`inline-flex items-baseline gap-2.5 ${className}`}>
       <span
-        className={`${scale} font-medium tabular-nums ${
+        className={`${scale} font-normal tabular-nums ${
           discounted ? "text-sale" : "text-ink-900"
         }`}
       >
@@ -57,7 +62,7 @@ export function DiscountBadge({
   ).format(percent);
 
   return (
-    <span className="bg-sale inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium text-white">
+    <span className="bg-brand-900 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide text-white">
       {formatted}% {label}
     </span>
   );

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Tajawal } from "next/font/google";
+import { Amiri, Inter, Playfair_Display, Tajawal } from "next/font/google";
 import { redirect } from "next/navigation";
 
 import { BagProvider } from "@/components/cart/store";
@@ -20,10 +20,23 @@ import { loadSettings } from "@/lib/site-settings";
 import { serveFromSnapshot } from "@/lib/cache/snapshot";
 import "../globals.css";
 
-const poppins = Poppins({
-  variable: "--font-poppins",
+/**
+ * Two faces per language, both loaded here so the layout's className carries
+ * every variable the tokens reference. Display faces are subset to the
+ * weights actually used; Inter is the body and UI face.
+ */
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -31,6 +44,13 @@ const tajawal = Tajawal({
   variable: "--font-tajawal",
   subsets: ["arabic"],
   weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["arabic"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -119,7 +139,7 @@ export default async function LocaleLayout({
     <html
       lang={localeMeta[locale].htmlLang}
       dir={localeMeta[locale].dir}
-      className={`${poppins.variable} ${tajawal.variable} h-full`}
+      className={`${inter.variable} ${playfair.variable} ${tajawal.variable} ${amiri.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col antialiased">

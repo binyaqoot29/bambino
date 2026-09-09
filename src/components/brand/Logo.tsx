@@ -36,7 +36,9 @@ export function Logo({
     <span
       className={[
         "inline-flex select-none",
-        stacked ? "flex-col items-center gap-2" : "flex-row items-center gap-2.5",
+        stacked
+          ? "flex-col items-center gap-2"
+          : "flex-row items-center gap-2.5",
         className,
       ].join(" ")}
       // The brand name is Latin on both locales; keep the lockup LTR.

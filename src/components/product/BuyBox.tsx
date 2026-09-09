@@ -12,6 +12,11 @@ import { SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import type { Product } from "@/lib/catalog/types";
 import { WishlistButton } from "./WishlistButton";
 
+/**
+ * Selection in ink, not orchid: a chosen size is a filled black pill, a chosen
+ * colour a swatch with a hairline ring at a distance. The add button is the
+ * one plum object in the column.
+ */
 export function BuyBox({
   product,
   locale,
@@ -31,9 +36,7 @@ export function BuyBox({
   const singleSize = sizes.length === 1;
 
   const [colour, setColour] = useState(product.colours[0]?.key ?? "");
-  const [size, setSize] = useState<string | null>(
-    singleSize ? sizes[0] : null,
-  );
+  const [size, setSize] = useState<string | null>(singleSize ? sizes[0] : null);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -56,18 +59,23 @@ export function BuyBox({
     window.setTimeout(() => setJustAdded(false), 2000);
   }
 
+  const legend =
+    "text-ink-900 mb-3 flex w-full items-baseline justify-between text-[12px] font-medium tracking-[0.12em] uppercase [html[lang=ar]_&]:text-sm [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {/* colour */}
       {product.colours.length > 1 ? (
         <fieldset>
-          <legend className="text-ink-900 mb-2.5 text-sm font-medium">
-            {dict.common.colour}
-            <span className="text-ink-500 ms-2 font-normal">
-              {product.colours.find((c) => c.key === colour)?.name[locale]}
+          <legend className={legend}>
+            <span>
+              {dict.common.colour}
+              <span className="text-ink-500 ms-2 font-normal tracking-normal normal-case">
+                {product.colours.find((c) => c.key === colour)?.name[locale]}
+              </span>
             </span>
           </legend>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap gap-3">
             {product.colours.map((option) => {
               const selected = option.key === colour;
               const available = colourAvailable(option.key);
@@ -82,15 +90,15 @@ export function BuyBox({
                   aria-pressed={selected}
                   aria-label={option.name[locale]}
                   title={option.name[locale]}
-                  className={`relative inline-flex size-10 items-center justify-center rounded-full ring-1 transition-all ${
+                  className={`relative inline-flex size-9 items-center justify-center rounded-full ring-1 ring-offset-2 transition-[box-shadow] duration-200 ${
                     selected
-                      ? "ring-brand-500 ring-2 ring-offset-2"
+                      ? "ring-ink-900"
                       : "ring-ink-200 hover:ring-ink-400"
-                  } ${available ? "" : "opacity-40"}`}
+                  } ${available ? "" : "opacity-35"}`}
                   style={{ backgroundColor: option.hex }}
                 >
                   {selected ? (
-                    <CheckIcon className="size-4.5 text-white mix-blend-difference" />
+                    <CheckIcon className="size-4 text-white mix-blend-difference" />
                   ) : null}
                 </button>
               );
@@ -102,9 +110,9 @@ export function BuyBox({
       {/* size */}
       {!singleSize ? (
         <fieldset>
-          <legend className="text-ink-900 mb-2.5 flex w-full items-center justify-between text-sm font-medium">
-            {dict.common.size}
-            <span className="text-brand-600 cursor-pointer text-xs font-normal underline underline-offset-4">
+          <legend className={legend}>
+            <span>{dict.common.size}</span>
+            <span className="link-draw text-ink-600 cursor-pointer font-normal tracking-normal normal-case">
               {dict.product.sizeGuide}
             </span>
           </legend>
@@ -123,12 +131,12 @@ export function BuyBox({
                     setQuantity(1);
                   }}
                   aria-pressed={selected}
-                  className={`h-10 rounded-full px-4 text-sm font-medium ring-1 transition-colors ${
+                  className={`h-11 min-w-14 rounded-full px-4 text-[13px] ring-1 transition-colors duration-200 ${
                     selected
-                      ? "bg-brand-500 ring-brand-500 text-white"
+                      ? "bg-ink-900 ring-ink-900 text-white"
                       : stock === 0
-                        ? "text-ink-300 ring-ink-150 ring-ink-200 line-through"
-                        : "text-ink-700 ring-ink-200 hover:ring-brand-400"
+                        ? "text-ink-300 ring-ink-200 line-through"
+                        : "text-ink-800 ring-ink-300 hover:ring-ink-900"
                   }`}
                 >
                   {SIZE_LABELS[option]?.[locale] ?? option}
@@ -137,7 +145,7 @@ export function BuyBox({
             })}
           </div>
           {error ? (
-            <p role="alert" className="text-sale mt-2.5 text-xs">
+            <p role="alert" className="text-sale mt-3 text-xs">
               {dict.product.selectSizeError}
             </p>
           ) : null}
@@ -146,15 +154,15 @@ export function BuyBox({
 
       {/* stock note */}
       {size ? (
-        <p className="text-sm">
+        <p className="text-[13px]">
           {selectedStock === 0 ? (
             <span className="text-ink-500">{dict.product.outOfStock}</span>
           ) : selectedStock <= 3 ? (
-            <span className="text-sale font-medium">
+            <span className="text-sale">
               {plural(dict.product, "lowStock", selectedStock)}
             </span>
           ) : (
-            <span className="text-success inline-flex items-center gap-1.5 font-medium">
+            <span className="text-success inline-flex items-center gap-2">
               <CheckIcon className="size-4" />
               {dict.product.inStock}
             </span>
@@ -164,17 +172,17 @@ export function BuyBox({
 
       {/* quantity + add */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="ring-ink-200 inline-flex h-13 items-center rounded-full ring-1">
+        <div className="ring-ink-300 inline-flex h-14 items-center rounded-full ring-1">
           <button
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
             aria-label={dict.a11y.decreaseQty}
-            className="text-ink-600 hover:text-brand-600 inline-flex size-12 items-center justify-center rounded-full disabled:opacity-35"
+            className="text-ink-700 hover:text-ink-900 inline-flex size-13 items-center justify-center rounded-full disabled:opacity-30"
           >
-            <MinusIcon className="size-4.5" />
+            <MinusIcon className="size-4" />
           </button>
-          <span className="w-8 text-center text-sm font-medium tabular-nums">
+          <span className="w-8 text-center text-sm tabular-nums">
             {quantity}
           </span>
           <button
@@ -184,9 +192,9 @@ export function BuyBox({
             }
             disabled={size !== null && quantity >= selectedStock}
             aria-label={dict.a11y.increaseQty}
-            className="text-ink-600 hover:text-brand-600 inline-flex size-12 items-center justify-center rounded-full disabled:opacity-35"
+            className="text-ink-700 hover:text-ink-900 inline-flex size-13 items-center justify-center rounded-full disabled:opacity-30"
           >
-            <PlusIcon className="size-4.5" />
+            <PlusIcon className="size-4" />
           </button>
         </div>
 

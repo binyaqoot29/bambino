@@ -30,9 +30,10 @@ export type ProductViewProps = {
 };
 
 /**
- * The buy box is a bordered card pinned beside the gallery; price and saving
- * lead it, and the delivery promise sits inside the card rather than in a strip
- * further down. The decision should be makeable without scrolling.
+ * Gallery at the start, a sticky buying column at the end, hairlines between
+ * the parts of the column. The name is set in the serif; the price in a
+ * regular weight below it. Everything the shopper needs to decide is in the
+ * first screen; the description and care notes follow underneath.
  */
 export async function ProductPage({
   product,
@@ -53,36 +54,39 @@ export async function ProductPage({
   const delivery = deliveryCopy(shipping, dict, locale);
   const qualifiesFree = product.price >= shipping.freeThreshold;
 
+  const crumb =
+    "text-ink-400 hover:text-ink-900 transition-colors duration-200";
+
   return (
-    <div className="bg-canvas">
-      <div className="container-bambino py-5">
-        <nav aria-label="Breadcrumb" className="mb-4">
-          <ol className="text-ink-400 flex flex-wrap items-center gap-1.5 text-[11px]">
+    <div className="bg-paper">
+      <div className="container-bambino pt-6 lg:pt-8">
+        <nav aria-label="Breadcrumb" className="mb-6">
+          <ol className="flex flex-wrap items-center gap-2 text-[11px] tracking-[0.1em] uppercase [html[lang=ar]_&]:text-[12px] [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case">
             <li>
-              <Link href={routes.home(locale)} className="hover:text-brand-600">
+              <Link href={routes.home(locale)} className={crumb}>
                 {dict.nav.home}
               </Link>
             </li>
-            <li aria-hidden="true" className="opacity-40">
-              ›
+            <li aria-hidden="true" className="text-ink-300">
+              /
             </li>
             <li>
               <Link
                 href={routes.department(locale, product.department)}
-                className="hover:text-brand-600"
+                className={crumb}
               >
                 {DEPARTMENT_LABELS[product.department][locale]}
               </Link>
             </li>
             {category ? (
               <>
-                <li aria-hidden="true" className="opacity-40">
-                  ›
+                <li aria-hidden="true" className="text-ink-300">
+                  /
                 </li>
                 <li>
                   <Link
                     href={routes.category(locale, category.slug)}
-                    className="hover:text-brand-600"
+                    className={crumb}
                   >
                     {category.name[locale]}
                   </Link>
@@ -92,41 +96,37 @@ export async function ProductPage({
           </ol>
         </nav>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16 xl:grid-cols-[minmax(0,1fr)_26rem]">
           {/* gallery + copy */}
-          <div className="space-y-4">
-            <div className="ring-ink-200 rounded-xl bg-white p-4 ring-1">
-              {/* The gallery arranges its own thumbnails and main shot, so
-                  there's no outer column grid to squeeze it into. */}
-              <div className="relative">
-                <ProductGallery
-                  images={product.images}
-                  art={product.art}
-                  productId={product.id}
-                  label={t(dict.a11y.productImage, {
-                    name: product.name[locale],
-                  })}
-                  thumbLabel={t(dict.a11y.productImage, {
-                    name: product.name[locale],
-                  })}
-                />
-                {percent > 0 ? (
-                  <span className="bg-sale absolute start-3 top-3 z-10 rounded px-2.5 py-1 text-xs font-bold text-white tabular-nums">
-                    <bdi dir="ltr">−{nf.format(percent)}%</bdi>
-                  </span>
-                ) : null}
-              </div>
+          <div>
+            <div className="relative">
+              <ProductGallery
+                images={product.images}
+                art={product.art}
+                productId={product.id}
+                label={t(dict.a11y.productImage, {
+                  name: product.name[locale],
+                })}
+                thumbLabel={t(dict.a11y.productImage, {
+                  name: product.name[locale],
+                })}
+              />
+              {percent > 0 ? (
+                <span className="bg-brand-900 absolute start-4 top-4 z-10 rounded-full px-3 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white tabular-nums uppercase">
+                  <bdi dir="ltr">−{nf.format(percent)}%</bdi>
+                </span>
+              ) : null}
             </div>
 
-            <div className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
+            <div className="mt-12 max-w-2xl">
               <Accordion title={dict.product.description} defaultOpen>
                 <p>{product.description[locale]}</p>
               </Accordion>
               <Accordion title={dict.product.details} defaultOpen>
-                <ul className="space-y-1.5">
+                <ul className="space-y-2">
                   {product.details.map((detail) => (
-                    <li key={detail.en} className="flex gap-2">
-                      <CheckIcon className="text-success mt-0.5 size-4 shrink-0" />
+                    <li key={detail.en} className="flex gap-3">
+                      <CheckIcon className="text-brand-600 mt-1 size-4 shrink-0" />
                       {detail[locale]}
                     </li>
                   ))}
@@ -143,23 +143,23 @@ export async function ProductPage({
             </div>
           </div>
 
-          {/* buy box */}
-          <aside className="lg:sticky lg:top-40 lg:self-start">
-            <div className="ring-ink-200 rounded-xl bg-white p-5 ring-1">
-              {category ? (
-                <Link
-                  href={routes.category(locale, category.slug)}
-                  className="text-brand-600 text-[11px] font-semibold tracking-wide uppercase"
-                >
-                  {category.name[locale]}
-                </Link>
-              ) : null}
-              <h1 className="text-ink-900 mt-1.5 text-lg leading-snug font-bold">
-                {product.name[locale]}
-              </h1>
+          {/* buy column */}
+          <aside className="lg:sticky lg:top-36 lg:self-start">
+            {category ? (
+              <Link
+                href={routes.category(locale, category.slug)}
+                className="eyebrow link-draw"
+              >
+                {category.name[locale]}
+              </Link>
+            ) : null}
+            <h1 className="font-display text-ink-900 mt-3 text-3xl leading-tight sm:text-4xl">
+              {product.name[locale]}
+            </h1>
 
-              <div className="mt-2 flex items-center gap-1.5">
-                <span className="text-brand-400 inline-flex">
+            {product.reviewCount > 0 ? (
+              <div className="mt-3 flex items-center gap-2">
+                <span className="text-gold-500 inline-flex gap-px">
                   {[0, 1, 2, 3, 4].map((i) => (
                     <StarIcon
                       key={i}
@@ -171,98 +171,84 @@ export async function ProductPage({
                     />
                   ))}
                 </span>
-                <span className="text-ink-500 text-[11px] tabular-nums">
+                <span className="text-ink-500 text-[12px] tabular-nums">
                   {nf.format(product.rating)} ·{" "}
                   {plural(dict.product, "reviews", product.reviewCount)}
                 </span>
               </div>
+            ) : null}
 
-              {/* price block leads */}
-              <div className="border-ink-200 mt-4 border-y py-4">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <span
-                    className={`text-2xl font-extrabold tabular-nums ${
-                      percent > 0 ? "text-sale" : "text-ink-900"
-                    }`}
-                  >
-                    {formatPrice(product.price, locale)}
-                  </span>
-                  {product.compareAtPrice ? (
-                    <>
-                      <span className="text-ink-400 text-sm line-through tabular-nums">
-                        {formatPrice(product.compareAtPrice, locale)}
-                      </span>
-                      <span className="bg-sale/10 text-sale rounded px-1.5 py-0.5 text-[11px] font-bold tabular-nums">
-                        <bdi dir="ltr">−{nf.format(percent)}%</bdi>
-                      </span>
-                    </>
-                  ) : null}
-                </div>
+            <p className="text-ink-600 mt-4 text-[15px] leading-relaxed">
+              {product.summary[locale]}
+            </p>
+
+            {/* price */}
+            <div className="border-ink-200/70 mt-6 border-y py-5">
+              <div className="flex flex-wrap items-baseline gap-3">
+                <span
+                  className={`text-2xl tabular-nums ${
+                    percent > 0 ? "text-sale" : "text-ink-900"
+                  }`}
+                >
+                  {formatPrice(product.price, locale)}
+                </span>
                 {product.compareAtPrice ? (
-                  <p className="text-success mt-1 text-xs font-semibold tabular-nums">
-                    {dict.common.save}{" "}
-                    {formatPrice(
-                      product.compareAtPrice - product.price,
-                      locale,
-                    )}
-                  </p>
+                  <span className="text-ink-400 text-sm line-through tabular-nums">
+                    {formatPrice(product.compareAtPrice, locale)}
+                  </span>
                 ) : null}
-                <p className="text-ink-500 mt-1.5 flex items-center gap-1.5 text-[11px]">
-                  <TruckIcon className="text-mint-600 size-3.5" />
-                  {qualifiesFree
-                    ? dict.cart.freeShippingReached
-                    : t(dict.cart.freeShippingProgress, {
-                        amount: formatPrice(
-                          shipping.freeThreshold - product.price,
-                          locale,
-                        ),
-                      })}
-                </p>
               </div>
-
-              <div className="mt-4">
-                <BuyBox product={product} locale={locale} dict={dict} />
-              </div>
-
-              <ul className="border-ink-200 text-ink-600 mt-5 space-y-2 border-t pt-4 text-[11px]">
-                {[
-                  { Icon: TruckIcon, text: dict.home.usp.delivery.title },
-                  { Icon: ReturnIcon, text: dict.home.usp.returns.title },
-                  { Icon: CardIcon, text: dict.home.usp.payment.title },
-                  { Icon: ShieldIcon, text: dict.home.usp.safety.title },
-                ].map(({ Icon, text }) => (
-                  <li key={text} className="flex items-center gap-2">
-                    <Icon className="text-ink-400 size-4 shrink-0" />
-                    {text}
-                  </li>
-                ))}
-              </ul>
-
-              <p className="text-ink-400 mt-4 text-[10px]">
-                {dict.product.sku}: {product.handle.toUpperCase().slice(0, 18)}
-                {available ? null : ` · ${dict.product.outOfStock}`}
+              <p className="text-ink-500 mt-2 flex items-center gap-2 text-[12px]">
+                <TruckIcon className="text-brand-600 size-4" />
+                {qualifiesFree
+                  ? dict.cart.freeShippingReached
+                  : t(dict.cart.freeShippingProgress, {
+                      amount: formatPrice(
+                        shipping.freeThreshold - product.price,
+                        locale,
+                      ),
+                    })}
               </p>
             </div>
+
+            <div className="mt-6">
+              <BuyBox product={product} locale={locale} dict={dict} />
+            </div>
+
+            <ul className="border-ink-200/70 text-ink-600 mt-7 space-y-2.5 border-t pt-5 text-[12px]">
+              {[
+                { Icon: TruckIcon, text: dict.home.usp.delivery.title },
+                { Icon: ReturnIcon, text: dict.home.usp.returns.title },
+                { Icon: CardIcon, text: dict.home.usp.payment.title },
+                { Icon: ShieldIcon, text: dict.home.usp.safety.title },
+              ].map(({ Icon, text }) => (
+                <li key={text} className="flex items-center gap-3">
+                  <Icon className="text-ink-400 size-4 shrink-0" />
+                  {text}
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-ink-400 mt-5 text-[11px] tracking-[0.08em] uppercase [html[lang=ar]_&]:tracking-normal">
+              {dict.product.sku}: {product.handle.toUpperCase().slice(0, 18)}
+              {available ? null : ` · ${dict.product.outOfStock}`}
+            </p>
           </aside>
         </div>
 
         {/* related */}
         {related.length > 0 ? (
-          <section className="mt-8">
-            <div className="ring-ink-200 overflow-hidden rounded-xl bg-white ring-1">
-              <div className="border-ink-200 border-b px-4 py-3">
-                <h2 className="text-ink-900 text-sm font-bold">
-                  {dict.product.relatedTitle}
-                </h2>
-              </div>
-              <ul className="no-scrollbar flex gap-3 overflow-x-auto p-4 lg:grid lg:grid-cols-5 lg:overflow-visible">
-                {related.map((item) => (
-                  <li key={item.id} className="w-40 shrink-0 lg:w-auto">
-                    <ProductCard product={item} locale={locale} dict={dict} />
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <section className="mt-20 lg:mt-28">
+            <h2 className="font-display text-ink-900 mb-8 text-3xl leading-tight">
+              {dict.product.relatedTitle}
+            </h2>
+            <ul className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-x-5 sm:gap-y-10 sm:overflow-visible sm:px-0 lg:grid-cols-5">
+              {related.map((item) => (
+                <li key={item.id} className="w-44 shrink-0 sm:w-auto">
+                  <ProductCard product={item} locale={locale} dict={dict} />
+                </li>
+              ))}
+            </ul>
           </section>
         ) : null}
       </div>

@@ -85,7 +85,7 @@ export function ActiveFilters({
           <button
             type="button"
             onClick={chip.clear}
-            className="bg-brand-50 text-brand-700 hover:bg-brand-100 inline-flex items-center gap-1.5 rounded-full py-1.5 ps-3 pe-2 text-xs font-medium transition-colors"
+            className="bg-ink-900 inline-flex items-center gap-1.5 rounded-full py-1.5 ps-3.5 pe-2.5 text-xs text-white transition-colors hover:bg-ink-700"
           >
             {chip.text}
             <CloseIcon className="size-3.5" />
@@ -106,7 +106,7 @@ export function ActiveFilters({
               onSaleOnly: false,
             })
           }
-          className="text-ink-500 hover:text-ink-800 px-2 text-xs font-medium underline underline-offset-4"
+          className="link-draw text-ink-500 hover:text-ink-900 mx-2 text-xs"
         >
           {dict.plp.clearAll}
         </button>

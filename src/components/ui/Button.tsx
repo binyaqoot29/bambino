@@ -1,28 +1,34 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
-type Variant = "primary" | "secondary" | "ghost" | "plum" | "quiet";
+type Variant = "primary" | "secondary" | "ghost" | "plum" | "quiet" | "light";
 type Size = "sm" | "md" | "lg";
 
+/**
+ * Plum is the buying colour. Orchid is the brand's voice, not its call to
+ * action — on a button it reads soft, and softness is the wrong feeling at
+ * the moment of commitment. `light` is for buttons that sit on plum.
+ */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-brand-500 text-white hover:bg-brand-600 active:bg-brand-700 shadow-sm shadow-brand-500/20",
+    "bg-brand-900 text-white hover:bg-brand-800 active:bg-brand-950 shadow-[0_8px_24px_-12px_rgb(102_31_71_/_0.6)]",
   plum: "bg-brand-900 text-white hover:bg-brand-800 active:bg-brand-950",
   secondary:
-    "bg-white text-brand-700 ring-1 ring-inset ring-brand-200 hover:bg-brand-50 hover:ring-brand-300",
-  ghost: "text-ink-700 hover:bg-ink-100 active:bg-ink-200",
+    "bg-transparent text-ink-900 ring-1 ring-inset ring-ink-900/80 hover:bg-ink-900 hover:text-white",
+  ghost: "text-ink-800 hover:bg-ink-100 active:bg-ink-200",
   quiet:
-    "bg-mint-100 text-mint-800 hover:bg-mint-200 ring-1 ring-inset ring-mint-200",
+    "bg-white/10 text-white ring-1 ring-inset ring-white/25 hover:bg-white/15",
+  light: "bg-paper text-brand-900 hover:bg-white",
 };
 
 const SIZES: Record<Size, string> = {
-  sm: "h-9 px-4 text-sm gap-1.5",
-  md: "h-11 px-6 text-sm gap-2",
-  lg: "h-13 px-8 text-base gap-2.5",
+  sm: "h-10 px-5 text-[12px] gap-1.5",
+  md: "h-12 px-7 text-[13px] gap-2",
+  lg: "h-14 px-9 text-sm gap-2.5",
 };
 
 const BASE =
-  "inline-flex items-center justify-center rounded-full font-medium transition-colors duration-200 disabled:pointer-events-none disabled:opacity-45 whitespace-nowrap";
+  "inline-flex items-center justify-center rounded-full font-medium tracking-[0.06em] uppercase transition-[background-color,color,box-shadow,transform] duration-300 ease-[var(--ease-out-quint)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40 whitespace-nowrap [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case";
 
 export function buttonClass({
   variant = "primary",
@@ -35,7 +41,13 @@ export function buttonClass({
   className?: string;
   block?: boolean;
 } = {}) {
-  return [BASE, VARIANTS[variant], SIZES[size], block ? "w-full" : "", className]
+  return [
+    BASE,
+    VARIANTS[variant],
+    SIZES[size],
+    block ? "w-full" : "",
+    className,
+  ]
     .filter(Boolean)
     .join(" ");
 }

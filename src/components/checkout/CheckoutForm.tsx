@@ -52,9 +52,9 @@ export function CheckoutForm({
   if (lines.length === 0) {
     return (
       <div className="container-bambino py-16">
-        <div className="bg-canvas-mint mx-auto flex max-w-xl flex-col items-center rounded-[2rem] px-6 py-20 text-center">
-          <BambinoMark className="text-mint-400 h-20 w-auto" />
-          <h1 className="text-brand-900 mt-6 text-2xl font-medium">{t.empty}</h1>
+        <div className="bg-canvas mx-auto flex max-w-xl flex-col items-center rounded-[2rem] px-6 py-20 text-center">
+          <BambinoMark className="text-brand-300 h-20 w-auto" />
+          <h1 className="font-display text-ink-900 mt-6 text-3xl">{t.empty}</h1>
           <p className="text-ink-500 mt-2 text-sm">{t.emptyBody}</p>
           <ButtonLink href={routes.home(locale)} className="mt-7">
             {dict.cart.continueShopping}
@@ -90,10 +90,10 @@ export function CheckoutForm({
   );
 
   const field =
-    "focus:ring-brand-500 mt-1.5 h-11 w-full rounded-xl bg-white px-3.5 text-sm ring-1 focus:ring-2 focus:outline-none";
-  const ok = "ring-ink-200";
+    "focus:ring-ink-900 mt-1.5 h-12 w-full rounded-full bg-white px-4 text-sm ring-1 transition-[box-shadow] duration-200 focus:outline-none";
+  const ok = "ring-ink-300";
   const bad = "ring-sale ring-2";
-  const label = "text-ink-700 block text-xs font-semibold";
+  const label = "text-ink-700 block text-[12px] font-medium";
 
   const errorText = (key: string) => {
     const code = errors[key];
@@ -108,7 +108,7 @@ export function CheckoutForm({
       <input type="hidden" name="lang" value={locale} />
       <input type="hidden" name="lines" value={payload} />
 
-      <h1 className="text-brand-900 text-3xl font-semibold tracking-tight sm:text-4xl">
+      <h1 className="font-display text-ink-900 text-4xl sm:text-5xl">
         {t.title}
       </h1>
 
@@ -129,8 +129,8 @@ export function CheckoutForm({
 
       <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-12">
         <div key={attempt} className="space-y-6">
-          <section className="ring-ink-200 rounded-2xl bg-white p-5 ring-1 sm:p-6">
-            <h2 className="text-ink-900 text-sm font-bold">{t.contact}</h2>
+          <section className="border-ink-200/70 border-t pt-6">
+            <h2 className="font-display text-ink-900 text-2xl">{t.contact}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="customerName" className={label}>
@@ -197,8 +197,8 @@ export function CheckoutForm({
             </div>
           </section>
 
-          <section className="ring-ink-200 rounded-2xl bg-white p-5 ring-1 sm:p-6">
-            <h2 className="text-ink-900 text-sm font-bold">{t.delivery}</h2>
+          <section className="border-ink-200/70 border-t pt-6">
+            <h2 className="font-display text-ink-900 text-2xl">{t.delivery}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="governorate" className={label}>
@@ -259,29 +259,31 @@ export function CheckoutForm({
             </div>
           </section>
 
-          <section className="ring-ink-200 rounded-2xl bg-white p-5 ring-1 sm:p-6">
-            <h2 className="text-ink-900 text-sm font-bold">{t.payment}</h2>
+          <section className="border-ink-200/70 border-t pt-6">
+            <h2 className="font-display text-ink-900 text-2xl">{t.payment}</h2>
 
             <div className="mt-4 space-y-2.5">
-              <label className="ring-brand-200 bg-brand-50/40 flex cursor-pointer items-start gap-3 rounded-xl p-3.5 ring-1">
+              <label className="ring-ink-900 flex cursor-pointer items-start gap-3 rounded-2xl p-4 ring-1">
                 <input
                   type="radio"
                   name="paymentMethod"
                   value="cod"
                   defaultChecked
-                  className="accent-brand-500 mt-0.5 size-4"
+                  className="accent-brand-900 mt-0.5 size-4"
                 />
                 <span>
                   <span className="text-ink-900 block text-sm font-semibold">
                     {t.cod}
                   </span>
-                  <span className="text-ink-500 block text-xs">{t.codBody}</span>
+                  <span className="text-ink-500 block text-xs">
+                    {t.codBody}
+                  </span>
                 </span>
               </label>
 
               {/* Shown, disabled, and labelled — so the shopper knows card
                   payment is coming rather than assuming the shop won't take it. */}
-              <label className="ring-ink-200 flex items-start gap-3 rounded-xl p-3.5 opacity-55 ring-1">
+              <label className="ring-ink-200 flex items-start gap-3 rounded-2xl p-4 opacity-50 ring-1">
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -309,15 +311,15 @@ export function CheckoutForm({
                 name="note"
                 rows={3}
                 defaultValue={kept.note ?? ""}
-                className="ring-ink-200 focus:ring-brand-500 mt-1.5 w-full rounded-xl bg-white px-3.5 py-2.5 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="ring-ink-300 focus:ring-ink-900 mt-1.5 w-full rounded-2xl bg-white px-4 py-3 text-sm ring-1 focus:outline-none"
               />
               <p className="text-ink-400 mt-1 text-[11px]">{t.noteHint}</p>
             </div>
           </section>
         </div>
 
-        <aside className="ring-ink-200 rounded-2xl bg-white p-5 ring-1 lg:sticky lg:top-24">
-          <h2 className="text-ink-900 text-sm font-bold">{t.summary}</h2>
+        <aside className="bg-canvas rounded-[1.75rem] p-7 lg:sticky lg:top-36">
+          <h2 className="font-display text-ink-900 text-2xl">{t.summary}</h2>
 
           <ul className="divide-ink-100 mt-4 divide-y">
             {priced.map(({ line, product }) =>
@@ -328,7 +330,7 @@ export function CheckoutForm({
                     seed={product.id}
                     src={product.image}
                     sizes="44px"
-                    className="size-11 shrink-0 rounded-lg"
+                    className="bg-paper w-12 shrink-0 rounded-lg aspect-[4/5]"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-ink-900 truncate text-xs font-medium">

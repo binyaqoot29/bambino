@@ -17,11 +17,9 @@ export default async function NotFound() {
 
   return (
     <div className="container-bambino flex flex-col items-center py-28 text-center">
-      <BambinoMark className="text-mint-400 h-20 w-auto" />
-      <p className="text-brand-400 mt-8 text-sm font-medium tracking-[0.2em] uppercase">
-        404
-      </p>
-      <h1 className="text-brand-900 mt-3 text-3xl font-semibold tracking-tight">
+      <BambinoMark className="text-brand-300 h-20 w-auto" />
+      <p className="eyebrow mt-8">404</p>
+      <h1 className="font-display text-ink-900 mt-3 text-4xl">
         We couldn&apos;t find that page
       </h1>
       {arabicEnabled ? (
@@ -32,14 +30,14 @@ export default async function NotFound() {
       <div className="mt-8 flex gap-3">
         <Link
           href="/en"
-          className="bg-brand-500 hover:bg-brand-600 inline-flex h-11 items-center rounded-full px-6 text-sm font-medium text-white"
+          className="bg-brand-900 hover:bg-brand-800 inline-flex h-12 items-center rounded-full px-7 text-[13px] font-medium tracking-[0.06em] text-white uppercase"
         >
           English
         </Link>
         {arabicEnabled ? (
           <Link
             href="/ar"
-            className="text-brand-700 ring-brand-200 hover:bg-brand-50 inline-flex h-11 items-center rounded-full px-6 text-sm font-medium ring-1"
+            className="text-ink-900 ring-ink-900/80 hover:bg-ink-900 inline-flex h-12 items-center rounded-full px-7 text-[13px] font-medium ring-1 hover:text-white"
           >
             العربية
           </Link>

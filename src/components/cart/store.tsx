@@ -180,11 +180,7 @@ type BagContext = Snapshot & {
 const Context = createContext<BagContext | null>(null);
 
 export function BagProvider({ children }: { children: ReactNode }) {
-  const state = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
+  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
 
   const addItem = useCallback(

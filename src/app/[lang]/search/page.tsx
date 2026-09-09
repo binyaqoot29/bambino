@@ -59,7 +59,7 @@ export default async function SearchPage({
 
   return (
     <div className="container-bambino py-8 lg:py-12">
-      <h1 className="text-brand-900 text-3xl font-semibold tracking-tight sm:text-4xl">
+      <h1 className="font-display text-ink-900 text-4xl sm:text-5xl">
         {query ? t(dict.search.resultsFor, { query }) : dict.search.title}
       </h1>
 
@@ -78,8 +78,8 @@ export default async function SearchPage({
           ))}
         </ul>
       ) : (
-        <div className="bg-canvas-mint mt-8 flex flex-col items-center rounded-[2rem] px-6 py-16 text-center">
-          <BambinoMark className="text-mint-400 h-16 w-auto" />
+        <div className="bg-canvas mt-8 flex flex-col items-center rounded-[2rem] px-6 py-16 text-center">
+          <BambinoMark className="text-brand-300 h-16 w-auto" />
           <h2 className="text-brand-900 mt-6 text-lg font-medium">
             {query ? t(dict.search.noResults, { query }) : dict.search.popular}
           </h2>

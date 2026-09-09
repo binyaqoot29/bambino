@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/config";
 import { StarIcon } from "./Icons";
 
+/** Stars in champagne, small, with the number beside them in a quiet grey. */
 export function Rating({
   value,
   count,
@@ -23,8 +24,8 @@ export function Rating({
   );
 
   return (
-    <span className={`inline-flex items-center gap-1.5 ${className}`}>
-      <span className="text-brand-400 inline-flex" aria-hidden="true">
+    <span className={`inline-flex items-center gap-2 ${className}`}>
+      <span className="text-gold-500 inline-flex gap-px" aria-hidden="true">
         {[0, 1, 2, 3, 4].map((i) => {
           const fill = Math.max(0, Math.min(1, value - i)) * 100;
           return (

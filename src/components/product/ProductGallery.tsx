@@ -36,15 +36,15 @@ export function ProductGallery({
         art={art}
         seed={productId}
         label={label}
-        className="aspect-square w-full rounded-lg"
+        className="rounded-card aspect-[4/5] w-full"
       />
     );
   }
 
   return (
-    <div className="flex flex-col-reverse gap-2 sm:flex-row">
+    <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
       {images.length > 1 ? (
-        <ul className="flex gap-2 sm:flex-col">
+        <ul className="order-2 flex gap-3 sm:order-1 sm:flex-col">
           {images.map((image, index) => (
             <li key={image} className="flex-1 sm:flex-none">
               <button
@@ -52,18 +52,18 @@ export function ProductGallery({
                 onClick={() => setActive(index)}
                 aria-label={thumbLabel.replace("{n}", String(index + 1))}
                 aria-current={index === active ? "true" : undefined}
-                className={`block w-full overflow-hidden rounded-md ring-1 sm:w-16 ${
+                className={`block w-full overflow-hidden rounded-xl transition-[box-shadow,opacity] duration-200 sm:w-18 ${
                   index === active
-                    ? "ring-brand-500 ring-2"
-                    : "ring-ink-200 hover:ring-ink-300"
+                    ? "ring-ink-900 ring-1"
+                    : "opacity-70 hover:opacity-100"
                 }`}
               >
                 <ProductArt
                   art={art}
                   seed={productId}
                   src={image}
-                  sizes="64px"
-                  className="aspect-square w-full"
+                  sizes="80px"
+                  className="bg-canvas aspect-[4/5] w-full"
                 />
               </button>
             </li>
@@ -71,12 +71,11 @@ export function ProductGallery({
         </ul>
       ) : null}
 
-      {/* The main shot must fit on screen without scrolling. The frame is a
-          square whose side is the column width or what fits under the
-          header, whichever is smaller — 13rem covers the header, the
-          announcement bar, the breadcrumbs and the card's padding. The photo
-          sits whole inside it: cropping the main shot hides the product. */}
-      <div className="min-w-0 flex-1">
+      {/* The main shot must fit on screen without scrolling. The frame's height
+          is capped to what fits under the header — 13rem covers the header,
+          the announcement strip and the breadcrumbs — and its width follows
+          the 4:5 proportion. The photo sits whole inside it on cream. */}
+      <div className="order-1 min-w-0 flex-1 sm:order-2">
         <ProductArt
           art={art}
           seed={productId}
@@ -85,7 +84,7 @@ export function ProductGallery({
           priority
           fit="contain"
           sizes="(max-width: 640px) 100vw, 720px"
-          className="mx-auto aspect-square w-full max-w-[min(100%,calc(100dvh-13rem))] rounded-lg"
+          className="bg-canvas rounded-card mx-auto aspect-[4/5] w-full max-w-[min(100%,calc((100dvh-13rem)*0.8))]"
         />
       </div>
     </div>

@@ -16,7 +16,6 @@ import {
   HeartIcon,
   MenuIcon,
   SearchIcon,
-  TruckIcon,
   UserIcon,
 } from "@/components/ui/Icons";
 import type { Locale } from "@/i18n/config";
@@ -44,9 +43,10 @@ import type { AgeLink, NavDepartment } from "@/lib/nav";
 import { routes } from "@/lib/routes";
 
 /**
- * Leads with search — the widest input on the page — and packs the utility rail
- * tight beside it. Below the bar sits the department row, so any department is
- * one click away without opening anything.
+ * A boutique header: the lockup at the start, a quiet search field in the
+ * middle, and the utilities as plain glyphs at the end. Below it, the
+ * departments as small capitals with a hairline under the open one. Nothing
+ * here is coloured except the mark itself; the products carry the colour.
  */
 export function Header({
   locale,
@@ -97,7 +97,7 @@ export function Header({
   }
   function hoverClose() {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(() => setOpenDepartment(null), 120);
+    closeTimer.current = window.setTimeout(() => setOpenDepartment(null), 140);
   }
 
   function submitSearch(event: React.FormEvent<HTMLFormElement>) {
@@ -109,32 +109,36 @@ export function Header({
   }
 
   const openPanel = nav.find((d) => d.key === openDepartment);
+  const iconButton =
+    "text-ink-800 hover:bg-ink-100 relative inline-flex size-10 items-center justify-center rounded-full transition-colors duration-200";
 
   return (
     <>
-      {/* Utility strip — thin, factual, no rotation. */}
-      <div className="bg-brand-900 text-mint-200/90 hidden text-[11px] md:block">
-        <div className="container-bambino flex h-8 items-center justify-between">
-          <p className="flex items-center gap-1.5">
-            <TruckIcon className="size-3.5" />
-            {announcements[0]}
-          </p>
-          <div className="flex items-center gap-5">
-            {announcements.slice(1).map((message) => (
-              <span key={message}>{message}</span>
-            ))}
-          </div>
+      {/* Utility strip — one line of fact in small capitals. */}
+      <div className="bg-brand-900 hidden text-[11px] tracking-[0.12em] text-white/85 uppercase md:block [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case">
+        <div className="container-bambino flex h-9 items-center justify-center gap-6">
+          {announcements.map((message, i) => (
+            <span key={message} className="flex items-center gap-6">
+              {i > 0 ? (
+                <span
+                  aria-hidden="true"
+                  className="bg-white/30 size-1 rounded-full"
+                />
+              ) : null}
+              {message}
+            </span>
+          ))}
         </div>
       </div>
 
-      <header className="border-ink-200 bg-paper sticky top-0 z-50 border-b">
+      <header className="border-ink-200/70 bg-paper/92 sticky top-0 z-50 border-b backdrop-blur-md">
         <div className="container-bambino">
-          <div className="flex h-16 items-center gap-3 lg:gap-6">
+          <div className="flex h-16 items-center gap-3 lg:h-20 lg:gap-8">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
               aria-label={strings.openMenu}
-              className="text-ink-700 hover:bg-ink-100 -ms-2 inline-flex size-10 shrink-0 items-center justify-center rounded-lg lg:hidden"
+              className={`${iconButton} -ms-2 shrink-0 lg:hidden`}
             >
               <MenuIcon className="size-6" />
             </button>
@@ -142,47 +146,41 @@ export function Header({
             <Link
               href={routes.home(locale)}
               aria-label="Bambino"
-              className="flex shrink-0 items-center gap-2"
+              className="flex shrink-0 items-center gap-2.5"
               dir="ltr"
             >
-              <BambinoMark className="text-brand-500 h-8 w-auto" />
-              <Wordmark className="text-brand-500 hidden h-4.5 w-auto sm:block" />
+              <BambinoMark className="text-brand-500 h-9 w-auto lg:h-10" />
+              <Wordmark className="text-brand-900 hidden h-4.5 w-auto sm:block lg:h-5" />
             </Link>
 
-            {/* Search is the centrepiece here. */}
+            {/* A quiet field, not a search bar. */}
             <form
               onSubmit={submitSearch}
               role="search"
-              className="relative hidden flex-1 md:block"
+              className="relative mx-auto hidden w-full max-w-md md:block"
             >
-              <SearchIcon className="text-ink-400 pointer-events-none absolute start-3.5 top-1/2 size-4.5 -translate-y-1/2" />
+              <SearchIcon className="text-ink-400 pointer-events-none absolute start-4 top-1/2 size-4.5 -translate-y-1/2" />
               <input
                 type="search"
                 name="q"
                 placeholder={strings.searchPlaceholder}
                 aria-label={strings.search}
-                className="ring-ink-300 focus:ring-brand-500 h-11 w-full rounded-lg bg-white ps-11 pe-24 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="bg-canvas placeholder:text-ink-400 focus:bg-paper focus:ring-brand-400 h-11 w-full rounded-full ps-11 pe-5 text-sm ring-1 ring-transparent transition-[background-color,box-shadow] duration-300 focus:ring-1 focus:outline-none"
               />
-              <button
-                type="submit"
-                className="bg-brand-500 hover:bg-brand-600 absolute end-1.5 top-1/2 h-8 -translate-y-1/2 rounded-md px-4 text-xs font-semibold text-white"
-              >
-                {strings.search}
-              </button>
             </form>
 
-            <div className="ms-auto flex items-center gap-1 md:ms-0">
+            <div className="ms-auto flex items-center gap-0.5 md:ms-0">
               {showLanguageSwitch ? (
                 <LocaleSwitcher
                   locale={locale}
                   label={strings.changeLanguage}
-                  className="hidden rounded-lg sm:inline-flex"
+                  className="hidden rounded-full sm:inline-flex"
                 />
               ) : null}
               <Link
                 href={routes.wishlist(locale)}
                 aria-label={strings.wishlist}
-                className="text-ink-700 hover:bg-ink-100 relative hidden size-10 items-center justify-center rounded-lg sm:inline-flex"
+                className={`${iconButton} hidden sm:inline-flex`}
               >
                 <HeartIcon className="size-5.5" />
                 {ready && wishlist.length > 0 ? (
@@ -192,23 +190,18 @@ export function Header({
               <button
                 type="button"
                 aria-label={strings.account}
-                className="text-ink-700 hover:bg-ink-100 hidden size-10 items-center justify-center rounded-lg lg:inline-flex"
+                className={`${iconButton} hidden lg:inline-flex`}
               >
                 <UserIcon className="size-5.5" />
               </button>
               <Link
                 href={routes.cart(locale)}
                 aria-label={strings.cart}
-                className="bg-brand-500 hover:bg-brand-600 relative inline-flex h-10 items-center gap-2 rounded-lg px-3 text-white"
+                className={iconButton}
               >
-                <BagIcon className="size-5" />
-                <span className="hidden text-xs font-semibold tabular-nums lg:inline">
-                  {ready ? count : 0}
-                </span>
+                <BagIcon className="size-5.5" />
                 {ready && count > 0 ? (
-                  <span className="bg-sale absolute -end-1 -top-1 inline-flex min-w-4.5 items-center justify-center rounded-full px-1 text-[10px] leading-4.5 font-bold text-white tabular-nums lg:hidden">
-                    {count}
-                  </span>
+                  <Count value={count} locale={locale} />
                 ) : null}
               </Link>
             </div>
@@ -221,13 +214,13 @@ export function Header({
             className="pb-3 md:hidden"
           >
             <div className="relative">
-              <SearchIcon className="text-ink-400 pointer-events-none absolute start-3.5 top-1/2 size-4.5 -translate-y-1/2" />
+              <SearchIcon className="text-ink-400 pointer-events-none absolute start-4 top-1/2 size-4.5 -translate-y-1/2" />
               <input
                 type="search"
                 name="q"
                 placeholder={strings.searchPlaceholder}
                 aria-label={strings.search}
-                className="ring-ink-300 focus:ring-brand-500 h-10 w-full rounded-lg bg-white ps-11 pe-4 text-sm ring-1 focus:ring-2 focus:outline-none"
+                className="bg-canvas placeholder:text-ink-400 focus:ring-brand-400 h-11 w-full rounded-full ps-11 pe-4 text-sm ring-1 ring-transparent focus:ring-1 focus:outline-none"
               />
             </div>
           </form>
@@ -235,54 +228,43 @@ export function Header({
 
         {/* Department bar */}
         <nav
-          className="border-ink-200 hidden border-t lg:block"
+          className="border-ink-200/70 hidden border-t lg:block"
           onMouseLeave={hoverClose}
           onClick={() => setOpenDepartment(null)}
         >
-          <div className="container-bambino flex items-center gap-1">
+          <div className="container-bambino flex items-center justify-center gap-1">
             {nav.map((department) => (
               <Link
                 key={department.key}
                 href={department.href}
                 onMouseEnter={() => hoverOpen(department.key)}
                 onFocus={() => hoverOpen(department.key)}
-                className={`inline-flex h-11 items-center gap-1 px-3 text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                className={`relative inline-flex h-12 items-center gap-1.5 px-4 text-[12px] font-medium tracking-[0.14em] whitespace-nowrap uppercase transition-colors duration-200 [html[lang=ar]_&]:text-[13px] [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case after:absolute after:inset-x-4 after:bottom-0 after:h-px after:origin-start after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-[var(--ease-out-quint)] ${
                   openDepartment === department.key
-                    ? "text-brand-600"
-                    : "text-ink-700 hover:text-brand-600"
+                    ? "text-ink-900 after:scale-x-100"
+                    : "text-ink-600 hover:text-ink-900 hover:after:scale-x-100"
                 }`}
               >
                 {department.label}
-                <ChevronDownIcon className="size-3.5 opacity-50" />
+                <ChevronDownIcon className="size-3 opacity-40" />
               </Link>
             ))}
             {collections.length ? (
-              <span className="bg-ink-200 mx-2 h-4 w-px" />
+              <span aria-hidden="true" className="bg-ink-200 mx-3 h-4 w-px" />
             ) : null}
-            {collections.map((collection) =>
-              // A reduced-price shelf earns the red treatment; everything else
-              // sits at the same weight as the departments beside it.
-              collection.rule === "sale" ? (
-                <Link
-                  key={collection.slug}
-                  href={routes.collection(locale, collection.slug)}
-                  className="text-sale inline-flex h-11 items-center gap-1.5 px-3 text-[13px] font-bold"
-                >
-                  {collection.label}
-                  <span className="bg-sale rounded px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    %
-                  </span>
-                </Link>
-              ) : (
-                <Link
-                  key={collection.slug}
-                  href={routes.collection(locale, collection.slug)}
-                  className="text-ink-700 hover:text-brand-600 inline-flex h-11 items-center px-3 text-[13px] font-semibold"
-                >
-                  {collection.label}
-                </Link>
-              ),
-            )}
+            {collections.map((collection) => (
+              <Link
+                key={collection.slug}
+                href={routes.collection(locale, collection.slug)}
+                className={`relative inline-flex h-12 items-center px-4 text-[12px] font-medium tracking-[0.14em] whitespace-nowrap uppercase transition-colors duration-200 [html[lang=ar]_&]:text-[13px] [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case after:absolute after:inset-x-4 after:bottom-0 after:h-px after:origin-start after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:scale-x-100 ${
+                  collection.rule === "sale"
+                    ? "text-sale hover:text-sale"
+                    : "text-ink-600 hover:text-ink-900"
+                }`}
+              >
+                {collection.label}
+              </Link>
+            ))}
           </div>
         </nav>
 
@@ -290,23 +272,23 @@ export function Header({
           <div
             onMouseEnter={() => hoverOpen(openPanel.key)}
             onMouseLeave={hoverClose}
-            className="border-ink-200 bg-paper absolute inset-x-0 top-full hidden border-b border-t shadow-lg lg:block"
+            className="border-ink-200/70 bg-paper animate-fade-up absolute inset-x-0 top-full hidden border-b shadow-[var(--shadow-lift)] lg:block"
           >
-            <div className="container-bambino grid grid-cols-[1fr_16rem] gap-8 py-6">
-              <ul className="grid grid-cols-4 gap-x-6 gap-y-0.5">
+            <div className="container-bambino grid grid-cols-[1fr_18rem] gap-12 py-10">
+              <ul className="grid grid-cols-4 gap-x-8 gap-y-2">
                 {openPanel.categories.map((category) => (
                   <li key={category.slug}>
                     <Link
                       href={category.href}
-                      className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-ink-100"
+                      className="group flex items-center gap-4 rounded-2xl p-2 transition-colors duration-200 hover:bg-canvas"
                     >
                       <ProductArt
                         art={category.art}
                         seed={category.slug}
-                        className="size-11 shrink-0 rounded-md"
+                        className="size-14 shrink-0 rounded-full"
                       />
                       <span>
-                        <span className="text-ink-900 group-hover:text-brand-700 block text-[13px] font-medium">
+                        <span className="text-ink-900 block text-sm">
                           {category.label}
                         </span>
                         <span className="text-ink-400 block text-[11px] tabular-nums">
@@ -317,16 +299,14 @@ export function Header({
                   </li>
                 ))}
               </ul>
-              <div className="border-ink-200 border-s ps-8">
-                <p className="text-ink-400 text-[10px] font-bold tracking-[0.14em] uppercase">
-                  {strings.shopByAge}
-                </p>
-                <ul className="mt-2.5 flex flex-wrap gap-1.5">
+              <div className="border-ink-200/70 border-s ps-10">
+                <p className="eyebrow">{strings.shopByAge}</p>
+                <ul className="mt-4 flex flex-wrap gap-2">
                   {ages.map((age) => (
                     <li key={age.key}>
                       <Link
                         href={age.href}
-                        className="bg-ink-100 text-ink-700 hover:bg-brand-50 hover:text-brand-700 inline-flex rounded-md px-2.5 py-1.5 text-[11px] font-medium"
+                        className="ring-ink-200 text-ink-700 hover:bg-brand-900 hover:text-white hover:ring-brand-900 inline-flex rounded-full px-3.5 py-2 text-[12px] font-medium ring-1 transition-colors duration-200"
                       >
                         {age.label}
                       </Link>
@@ -359,7 +339,7 @@ function Count({ value, locale }: { value: number; locale: Locale }) {
     locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW",
   ).format(value);
   return (
-    <span className="bg-sale absolute end-1 top-1 inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-bold text-white tabular-nums">
+    <span className="bg-brand-900 absolute end-0.5 top-0.5 inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-semibold text-white tabular-nums">
       {formatted}
     </span>
   );
@@ -390,18 +370,19 @@ function MobileMenu({
         type="button"
         aria-label={strings.close}
         onClick={onClose}
-        className="absolute inset-0 bg-black/40"
+        className="bg-brand-950/40 absolute inset-0 backdrop-blur-[2px]"
       />
-      <div className="bg-paper absolute inset-y-0 start-0 flex w-[86%] max-w-sm flex-col">
-        <div className="border-ink-200 flex h-14 items-center justify-between border-b px-4">
-          <span className="text-ink-900 text-sm font-bold">
-            {strings.shopByAge.split(" ")[0]}
+      <div className="bg-paper animate-float-in absolute inset-y-0 start-0 flex w-[86%] max-w-sm flex-col shadow-[var(--shadow-lift)]">
+        <div className="border-ink-200/70 flex h-16 items-center justify-between border-b px-5">
+          <span dir="ltr" className="flex items-center gap-2">
+            <BambinoMark className="text-brand-500 h-7 w-auto" />
+            <Wordmark className="text-brand-900 h-3.5 w-auto" />
           </span>
           <button
             type="button"
             onClick={onClose}
             aria-label={strings.closeMenu}
-            className="text-ink-700 hover:bg-ink-100 inline-flex size-9 items-center justify-center rounded-lg"
+            className="text-ink-700 hover:bg-ink-100 inline-flex size-10 items-center justify-center rounded-full"
           >
             <CloseIcon className="size-5.5" />
           </button>
@@ -421,22 +402,22 @@ function MobileMenu({
                   type="button"
                   onClick={() => setExpanded(open ? null : department.key)}
                   aria-expanded={open}
-                  className="text-ink-900 flex w-full items-center justify-between px-4 py-3 text-start text-sm font-semibold"
+                  className="text-ink-900 flex w-full items-center justify-between px-5 py-4 text-start text-[13px] font-medium tracking-[0.12em] uppercase [html[lang=ar]_&]:text-base [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case"
                 >
                   {department.label}
                   <ChevronDownIcon
-                    className={`text-ink-400 size-4 transition-transform ${
+                    className={`text-ink-400 size-4 transition-transform duration-300 ${
                       open ? "rotate-180" : ""
                     }`}
                   />
                 </button>
                 {open ? (
-                  <ul className="bg-ink-50 pb-1">
+                  <ul className="bg-canvas pb-2">
                     {department.categories.map((category) => (
                       <li key={category.slug}>
                         <Link
                           href={category.href}
-                          className="text-ink-600 flex items-center justify-between px-4 py-2.5 text-[13px]"
+                          className="text-ink-700 flex items-center justify-between px-5 py-3 text-sm"
                         >
                           {category.label}
                           <span className="text-ink-400 text-[11px] tabular-nums">
@@ -452,13 +433,13 @@ function MobileMenu({
           })}
 
           {collections.length ? (
-            <div className="border-ink-100 space-y-2.5 border-b px-4 py-3">
+            <div className="border-ink-100 space-y-3 border-b px-5 py-4">
               {collections.map((collection) => (
                 <Link
                   key={collection.slug}
                   href={routes.collection(locale, collection.slug)}
-                  className={`block text-sm font-bold ${
-                    collection.rule === "sale" ? "text-sale" : "text-ink-800"
+                  className={`block text-[13px] font-medium tracking-[0.12em] uppercase [html[lang=ar]_&]:text-base [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case ${
+                    collection.rule === "sale" ? "text-sale" : "text-ink-900"
                   }`}
                 >
                   {collection.label}
@@ -467,16 +448,14 @@ function MobileMenu({
             </div>
           ) : null}
 
-          <div className="px-4 py-4">
-            <p className="text-ink-400 text-[10px] font-bold tracking-[0.14em] uppercase">
-              {strings.shopByAge}
-            </p>
-            <ul className="mt-2 flex flex-wrap gap-1.5">
+          <div className="px-5 py-5">
+            <p className="eyebrow">{strings.shopByAge}</p>
+            <ul className="mt-3 flex flex-wrap gap-2">
               {ages.map((age) => (
                 <li key={age.key}>
                   <Link
                     href={age.href}
-                    className="bg-ink-100 text-ink-700 inline-flex rounded-md px-2.5 py-1.5 text-[11px] font-medium"
+                    className="ring-ink-200 text-ink-700 inline-flex rounded-full px-3.5 py-2 text-[12px] font-medium ring-1"
                   >
                     {age.label}
                   </Link>
@@ -486,7 +465,14 @@ function MobileMenu({
           </div>
         </nav>
 
-        <div className="border-ink-200 border-t p-3">
+        <div className="border-ink-200/70 flex items-center justify-between border-t p-4">
+          <Link
+            href={routes.wishlist(locale)}
+            className="text-ink-700 inline-flex items-center gap-2 text-sm"
+          >
+            <HeartIcon className="size-5" />
+            {strings.wishlist}
+          </Link>
           {showLanguageSwitch ? (
             <LocaleSwitcher locale={locale} label={strings.changeLanguage} />
           ) : null}

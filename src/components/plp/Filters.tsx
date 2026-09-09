@@ -93,12 +93,14 @@ function FilterPanel({ basePath, params, facets, locale, dict }: FilterProps) {
                 <button
                   key={option.value}
                   type="button"
-                  onClick={() => apply({ sizes: toggle(params.sizes, option.value) })}
+                  onClick={() =>
+                    apply({ sizes: toggle(params.sizes, option.value) })
+                  }
                   aria-pressed={on}
                   className={`rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-colors ${
                     on
-                      ? "bg-brand-500 text-white ring-brand-500"
-                      : "text-ink-600 ring-ink-200 hover:ring-brand-300"
+                      ? "bg-ink-900 text-white ring-ink-900"
+                      : "text-ink-700 ring-ink-300 hover:ring-ink-900"
                   }`}
                 >
                   {option.label}
@@ -126,7 +128,7 @@ function FilterPanel({ basePath, params, facets, locale, dict }: FilterProps) {
                   aria-label={option.label}
                   className={`relative inline-flex size-8 items-center justify-center rounded-full ring-1 transition-all ${
                     on
-                      ? "ring-brand-500 ring-2 ring-offset-2"
+                      ? "ring-ink-900 ring-1 ring-offset-2"
                       : "ring-ink-200 hover:ring-ink-300"
                   }`}
                   style={{ backgroundColor: option.hex }}
@@ -170,7 +172,7 @@ function FilterPanel({ basePath, params, facets, locale, dict }: FilterProps) {
               { scroll: false },
             )
           }
-          className="text-brand-600 hover:text-brand-700 text-sm font-medium underline underline-offset-4"
+          className="link-draw text-ink-700 hover:text-ink-900 text-[13px]"
         >
           {dict.plp.clearAll}
         </button>
@@ -199,12 +201,12 @@ export function FilterSheet(props: FilterProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-ink-700 ring-ink-200 inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium ring-1"
+        className="text-ink-800 ring-ink-300 inline-flex h-10 items-center gap-2 rounded-full px-4 text-[13px] ring-1"
       >
         <FilterIcon className="size-4.5" />
         {dict.plp.filters}
         {active > 0 ? (
-          <span className="bg-brand-500 inline-flex size-5 items-center justify-center rounded-full text-[11px] text-white">
+          <span className="bg-brand-900 inline-flex size-5 items-center justify-center rounded-full text-[11px] text-white">
             {active}
           </span>
         ) : null}
@@ -220,7 +222,9 @@ export function FilterSheet(props: FilterProps) {
           />
           <div className="bg-paper absolute inset-y-0 end-0 flex w-[88%] max-w-sm flex-col">
             <div className="border-ink-200 flex h-16 items-center justify-between border-b px-5">
-              <h2 className="text-ink-900 font-medium">{dict.plp.filters}</h2>
+              <h2 className="font-display text-ink-900 text-xl">
+                {dict.plp.filters}
+              </h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -254,9 +258,7 @@ function FacetGroup({
 }) {
   return (
     <section>
-      <h3 className="text-ink-900 mb-3 text-[13px] font-semibold tracking-wide">
-        {title}
-      </h3>
+      <h3 className="eyebrow text-ink-900 mb-4">{title}</h3>
       <div className="space-y-1.5">{children}</div>
     </section>
   );
@@ -285,8 +287,8 @@ function CheckboxRow({
         aria-hidden="true"
         className={`inline-flex size-4.5 shrink-0 items-center justify-center rounded-[6px] ring-1 transition-colors ${
           checked
-            ? "bg-brand-500 ring-brand-500 text-white"
-            : "ring-ink-300 group-hover:ring-brand-300 bg-white"
+            ? "bg-ink-900 ring-ink-900 text-white"
+            : "ring-ink-300 group-hover:ring-ink-500"
         }`}
       >
         {checked ? <CheckIcon className="size-3.5" /> : null}
@@ -335,10 +337,14 @@ function PriceFilter({
         value={value}
         onChange={(event) => setValue(Number(event.target.value))}
         aria-label={applyLabel}
-        className="accent-brand-500 mt-3 w-full"
+        className="accent-brand-900 mt-3 w-full"
       />
       <div className="mt-3 flex gap-2">
-        <Button size="sm" variant="secondary" onClick={() => onApply(undefined, value)}>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => onApply(undefined, value)}
+        >
           {applyLabel}
         </Button>
         {dirty ? (

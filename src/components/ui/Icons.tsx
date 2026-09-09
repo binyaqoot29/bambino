@@ -39,7 +39,11 @@ export function HeartIcon({
   filled = false,
 }: IconProps & { filled?: boolean }) {
   return (
-    <svg {...base} className={className} fill={filled ? "currentColor" : "none"}>
+    <svg
+      {...base}
+      className={className}
+      fill={filled ? "currentColor" : "none"}
+    >
       <path d="M12 20s-7-4.4-7-9.3A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7 2.7C19 15.6 12 20 12 20Z" />
     </svg>
   );
@@ -117,8 +121,7 @@ export function StarIcon({
   fillPercent = 100,
   id = "star",
 }: IconProps & { fillPercent?: number; id?: string }) {
-  const d =
-    "M12 3.6l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z";
+  const d = "M12 3.6l2.5 5.1 5.6.8-4 3.9.9 5.6-5-2.6-5 2.6.9-5.6-4-3.9 5.6-.8z";
   return (
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <defs>

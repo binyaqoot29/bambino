@@ -22,9 +22,8 @@ import { loadSettings } from "@/lib/site-settings";
 const PAYMENTS = ["KNET", "Visa", "Mastercard", "Apple Pay", "COD"];
 
 /**
- * A service band of guarantees first, then dense link columns on white. Built
- * as a utility rather than a showpiece — the guarantees are the part shoppers
- * actually scan for.
+ * Four promises on cream, the newsletter on plum, then the link columns with
+ * the lockup and a line of the brand's own words. Hairlines, not boxes.
  */
 export async function Footer({
   locale,
@@ -56,21 +55,20 @@ export async function Footer({
   ];
 
   return (
-    <footer className="mt-14">
-      {/* service guarantees */}
-      <div className="border-ink-200 border-y bg-white">
-        <ul className="container-bambino grid gap-px py-0 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="mt-24">
+      {/* service promises */}
+      <div className="border-ink-200/70 bg-canvas border-t">
+        <ul className="container-bambino grid gap-x-8 gap-y-8 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:py-14">
           {guarantees.map(({ Icon, item }) => (
-            <li
-              key={item.title}
-              className="flex items-start gap-3 py-5 lg:px-5"
-            >
-              <Icon className="text-brand-500 mt-0.5 size-6 shrink-0" />
+            <li key={item.title} className="flex items-start gap-4">
+              <span className="ring-ink-200 text-brand-700 inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-white ring-1">
+                <Icon className="size-5" />
+              </span>
               <div>
-                <p className="text-ink-900 text-[13px] font-semibold">
-                  {item.title}
+                <p className="text-ink-900 text-sm font-medium">{item.title}</p>
+                <p className="text-ink-500 mt-1 text-[13px] leading-relaxed">
+                  {item.body}
                 </p>
-                <p className="text-ink-500 mt-0.5 text-xs">{item.body}</p>
               </div>
             </li>
           ))}
@@ -81,18 +79,21 @@ export async function Footer({
         <Newsletter locale={locale} dict={dict} />
       </div>
 
-      <div className="bg-ink-50">
-        <div className="container-bambino grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+      <div className="bg-paper">
+        <div className="container-bambino grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-8 lg:py-20">
           <div>
-            <span className="flex items-center gap-2" dir="ltr">
-              <BambinoMark className="text-brand-500 h-8 w-auto" />
-              <Wordmark className="text-brand-500 h-4.5 w-auto" />
+            <span className="flex items-center gap-2.5" dir="ltr">
+              <BambinoMark className="text-brand-500 h-9 w-auto" />
+              <Wordmark className="text-brand-900 h-4.5 w-auto" />
             </span>
-            <p className="text-ink-500 mt-4 max-w-xs text-xs leading-relaxed">
+            <p className="font-display text-ink-700 mt-6 max-w-xs text-lg leading-snug">
+              {dict.brand.tagline}
+            </p>
+            <p className="text-ink-500 mt-3 max-w-xs text-[13px] leading-relaxed">
               {dict.footer.aboutBody}
             </p>
             {socials.length ? (
-              <ul className="mt-5 flex gap-2">
+              <ul className="mt-6 flex gap-2">
                 {socials.map(({ href, Icon, label }) => (
                   <li key={label}>
                     <a
@@ -100,7 +101,7 @@ export async function Footer({
                       target="_blank"
                       rel="noreferrer noopener"
                       aria-label={label}
-                      className="ring-ink-300 text-ink-600 hover:border-brand-500 hover:text-brand-600 inline-flex size-9 items-center justify-center rounded-lg ring-1"
+                      className="ring-ink-200 text-ink-600 hover:bg-brand-900 hover:text-white hover:ring-brand-900 inline-flex size-10 items-center justify-center rounded-full ring-1 transition-colors duration-200"
                     >
                       <Icon className="size-4.5" />
                     </a>
@@ -135,28 +136,23 @@ export async function Footer({
           </Column>
         </div>
 
-        <div className="border-ink-200 border-t">
-          <div className="container-bambino flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap items-center gap-1.5">
+        <div className="border-ink-200/70 border-t">
+          <div className="container-bambino flex flex-col gap-4 py-6 sm:flex-row sm:items-center sm:justify-between">
+            <ul className="text-ink-500 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] tracking-[0.08em] uppercase [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case">
               {PAYMENTS.map((method) => (
-                <span
-                  key={method}
-                  className="ring-ink-300 text-ink-600 rounded bg-white px-2 py-1 text-[10px] font-medium ring-1"
-                >
-                  {method}
-                </span>
+                <li key={method}>{method}</li>
               ))}
-            </div>
-            <div className="text-ink-500 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
+            </ul>
+            <div className="text-ink-500 flex flex-wrap items-center gap-x-5 gap-y-1 text-[12px]">
               <Link
                 href={routes.about(locale)}
-                className="hover:text-brand-600"
+                className="link-draw hover:text-ink-900"
               >
                 {links.privacy}
               </Link>
               <Link
                 href={routes.about(locale)}
-                className="hover:text-brand-600"
+                className="link-draw hover:text-ink-900"
               >
                 {links.terms}
               </Link>
@@ -178,10 +174,8 @@ function Column({
 }) {
   return (
     <div>
-      <h2 className="text-ink-900 text-[11px] font-bold tracking-[0.12em] uppercase">
-        {title}
-      </h2>
-      <ul className="mt-3 space-y-2">{children}</ul>
+      <h2 className="eyebrow text-ink-900">{title}</h2>
+      <ul className="mt-5 space-y-2.5">{children}</ul>
     </div>
   );
 }
@@ -191,7 +185,7 @@ function Row({ href, children }: { href: string; children: React.ReactNode }) {
     <li>
       <Link
         href={href}
-        className="text-ink-600 hover:text-brand-600 text-[13px] transition-colors"
+        className="link-draw text-ink-600 hover:text-ink-900 text-[14px] transition-colors duration-200"
       >
         {children}
       </Link>

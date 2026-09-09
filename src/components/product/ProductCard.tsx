@@ -10,10 +10,17 @@ import { inStock, type Product } from "@/lib/catalog/types";
 import { discountPercent, formatPrice } from "@/lib/money";
 import { routes } from "@/lib/routes";
 
+/** Days after launch a product still counts as new on its card. */
+const NEW_FOR_DAYS = 21;
+
 /**
- * Compact and price-led: the price is the largest thing on the card, the saving
- * is stated in dinars as well as percent, and the rating collapses to a single
- * number so the card stays short and the grid stays dense.
+ * Image first, everything else quiet.
+ *
+ * The photograph sits in a tall cream frame with no border, and the card has
+ * no box around it — the grid's white space does the separating. The name is
+ * set plainly, the price in a regular weight, and a reduction is a small plum
+ * pill on the image rather than a red flash. The hover is a slow 4% zoom on
+ * the image alone.
  */
 export function ProductCard({
   product,
@@ -29,13 +36,14 @@ export function ProductCard({
   const percent = product.compareAtPrice
     ? discountPercent(product.price, product.compareAtPrice)
     : 0;
+  const isNew = product.daysOld <= NEW_FOR_DAYS;
   const nf = new Intl.NumberFormat(
     locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW",
   );
 
   return (
-    <article className="group ring-ink-200 hover:ring-brand-300 relative flex flex-col rounded-lg bg-white ring-1 transition-shadow hover:shadow-md">
-      <div className="relative">
+    <article className="group relative flex flex-col">
+      <div className="bg-canvas rounded-card relative overflow-hidden">
         <WishlistButton
           productId={product.id}
           addLabel={dict.product.addToWishlist}
@@ -51,28 +59,34 @@ export function ProductCard({
             art={product.art}
             seed={product.id}
             src={product.images[0]}
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
-            className="aspect-square w-full rounded-t-lg"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 320px"
+            className="aspect-[4/5] w-full transition-transform duration-700 ease-[var(--ease-out-quint)] group-hover:scale-[1.04]"
           />
         </Link>
 
-        {percent > 0 ? (
-          <span className="bg-sale absolute start-0 top-2.5 rounded-e px-2 py-1 text-[11px] font-bold text-white tabular-nums">
-            <bdi dir="ltr">−{nf.format(percent)}%</bdi>
-          </span>
-        ) : null}
+        <div className="absolute start-3 top-3 flex flex-col items-start gap-1.5">
+          {percent > 0 ? (
+            <span className="bg-brand-900 rounded-full px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] text-white tabular-nums uppercase">
+              <bdi dir="ltr">−{nf.format(percent)}%</bdi>
+            </span>
+          ) : isNew ? (
+            <span className="text-ink-900 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium tracking-[0.08em] uppercase backdrop-blur-sm [html[lang=ar]_&]:tracking-normal">
+              {dict.common.new}
+            </span>
+          ) : null}
+        </div>
 
         {!available ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-            <span className="bg-ink-800 rounded px-2.5 py-1 text-[11px] font-semibold text-white">
+          <div className="absolute inset-x-0 bottom-0 flex justify-center pb-3">
+            <span className="text-ink-700 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-medium backdrop-blur-sm">
               {dict.product.outOfStock}
             </span>
           </div>
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-3">
-        <h3 className="text-ink-800 line-clamp-2 text-[13px] leading-snug">
+      <div className="flex flex-1 flex-col pt-3.5 pb-1">
+        <h3 className="text-ink-900 line-clamp-2 text-[14px] leading-snug">
           <Link
             href={routes.product(locale, product.handle)}
             className="before:absolute before:inset-0 before:content-['']"
@@ -81,24 +95,14 @@ export function ProductCard({
           </Link>
         </h3>
 
-        <div className="text-ink-400 mt-1.5 flex items-center gap-1 text-[11px]">
-          <StarIcon
-            id={`m-${product.id}`}
-            fillPercent={100}
-            className="text-brand-400 size-3"
-          />
-          <span className="text-ink-600 font-medium tabular-nums">
-            {nf.format(product.rating)}
-          </span>
-          <span className="tabular-nums">
-            ({nf.format(product.reviewCount)})
-          </span>
-        </div>
+        <p className="text-ink-400 mt-1 text-[12px]">
+          {plural(dict.product, "colourCount", product.colours.length)}
+        </p>
 
-        <div className="mt-auto pt-2.5">
-          <div className="flex items-baseline gap-2">
+        <div className="mt-2 flex items-baseline justify-between gap-3">
+          <span className="flex items-baseline gap-2">
             <span
-              className={`text-[15px] font-bold tabular-nums ${
+              className={`text-[14px] tabular-nums ${
                 percent > 0 ? "text-sale" : "text-ink-900"
               }`}
             >
@@ -109,17 +113,17 @@ export function ProductCard({
                 {formatPrice(product.compareAtPrice, locale)}
               </span>
             ) : null}
-          </div>
-          {product.compareAtPrice ? (
-            <p className="text-success mt-0.5 text-[11px] font-medium tabular-nums">
-              {dict.common.save}{" "}
-              {formatPrice(product.compareAtPrice - product.price, locale)}
-            </p>
-          ) : (
-            <p className="text-ink-400 mt-0.5 text-[11px]">
-              {plural(dict.product, "colourCount", product.colours.length)}
-            </p>
-          )}
+          </span>
+          {product.reviewCount > 0 ? (
+            <span className="text-ink-400 inline-flex items-center gap-1 text-[11px] tabular-nums">
+              <StarIcon
+                id={`m-${product.id}`}
+                fillPercent={100}
+                className="text-gold-500 size-3"
+              />
+              {nf.format(product.rating)}
+            </span>
+          ) : null}
         </div>
       </div>
     </article>

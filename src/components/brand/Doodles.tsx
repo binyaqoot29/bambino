@@ -54,7 +54,12 @@ export function Sprig({ className }: DoodleProps) {
         strokeLinecap="round"
         fill="none"
       />
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none">
+      <g
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      >
         <path d="M12 12c-3-1-5-3.5-5.5-6.5C9.5 6 11.5 8.5 12 12Z" />
         <path d="M12 12c3-1 5-3.5 5.5-6.5C14.5 6 12.5 8.5 12 12Z" />
         <path d="M12 21c-3-1-5-3.5-5.5-6.5C9.5 15 11.5 17.5 12 21Z" />
