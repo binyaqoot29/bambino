@@ -505,6 +505,14 @@ Connect the repo under **Workers & Pages → Create → Import a repository**:
 | Deploy command | `npx opennextjs-cloudflare deploy` |
 | Root directory | `/` |
 
+The Worker reaches Supabase through **Hyperdrive** (binding `HYPERDRIVE` in
+`wrangler.jsonc`, config named `bambino` in the Cloudflare dashboard). Hyperdrive
+holds a warm connection pool near the database, so the per-request client on
+Workers skips the TCP, TLS and auth round-trips to Mumbai. Its query cache is
+**disabled on purpose**: with it on, an admin edit could reappear unchanged for
+up to a minute. If the binding is missing the Worker falls back to
+`DATABASE_URL`, so keep that set too — the build step needs it regardless.
+
 Then set the runtime secrets — `DATABASE_URL`, `SUPABASE_URL`,
 `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` — and
 **also add `DATABASE_URL` as a build variable**: the migration step runs at

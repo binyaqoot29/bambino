@@ -29,8 +29,26 @@ const globalForDb = globalThis as unknown as {
   __bambinoDb?: Promise<unknown>;
 };
 
+/**
+ * On Workers, prefer the Hyperdrive binding's connection string over
+ * DATABASE_URL. Both reach the same Supabase database; Hyperdrive just holds
+ * the pool near it. The import is lazy so nothing about OpenNext is loaded on
+ * Node, and a Worker deployed without the binding still falls back to the
+ * secret rather than failing.
+ */
+async function connectionString(): Promise<string | undefined> {
+  if (onWorkers) {
+    const { getCloudflareContext } = await import("@opennextjs/cloudflare");
+    const { env } = await getCloudflareContext({ async: true });
+    const hyperdrive = (env as { HYPERDRIVE?: { connectionString: string } })
+      .HYPERDRIVE;
+    if (hyperdrive?.connectionString) return hyperdrive.connectionString;
+  }
+  return process.env.DATABASE_URL;
+}
+
 async function create(): Promise<Database> {
-  const url = process.env.DATABASE_URL;
+  const url = await connectionString();
 
   if (url) {
     /**
@@ -44,6 +62,9 @@ async function create(): Promise<Database> {
      * prepared statement made on one may not exist on the next.
      */
     const client = postgres(url, {
+      // Hyperdrive supports named prepared statements, but Supabase's own
+      // pooler behind it may not hand the same connection back, so keep them
+      // off on every path. The cost is one extra parse per query.
       prepare: false,
       // One connection per instance. The pooler multiplexes; opening more here
       // just holds slots the next invocation needs.

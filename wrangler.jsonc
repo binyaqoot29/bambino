@@ -20,6 +20,13 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Hyperdrive keeps a warm connection pool to Supabase near the database, so
+  // the per-request client in src/db/client.ts pays one short hop instead of a
+  // fresh TCP + TLS + auth handshake from Kuwait to Mumbai on every request.
+  // The config (and the database password) live in Cloudflare, not here.
+  "hyperdrive": [
+    { "binding": "HYPERDRIVE", "id": "ac9db2ff3e2842f59b6af38f5314d407" }
+  ],
   "observability": {
     "enabled": true
   }
