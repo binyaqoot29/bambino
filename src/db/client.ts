@@ -1,17 +1,16 @@
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 import * as schema from "./schema";
 
 /**
  * One Drizzle instance, two drivers.
  *
- * - **Production / any real DATABASE_URL** → Neon over HTTP. Serverless-safe:
- *   no connection pool to exhaust across lambda invocations.
+ * - **Deployed / any real DATABASE_URL** → Supabase Postgres over postgres-js.
  * - **Local, no DATABASE_URL** → PGlite, Postgres compiled to WASM, persisted
- *   under .pglite/. Same SQL dialect as Neon, so local behaviour matches
- *   production without Docker or a Postgres install.
+ *   under .pglite/. Same SQL dialect, so local behaviour matches production
+ *   without Docker or a Postgres install.
  *
  * PGlite is imported lazily and only on the local path, so it never ends up in
  * a serverless bundle.
@@ -19,9 +18,8 @@ import * as schema from "./schema";
  * Two things to know about the local PGlite database:
  * - It is **single-writer**. Running a script while `next dev` holds it will
  *   fail; stop the dev server first.
- * - Killing the dev server mid-write can leave the data directory unopenable
- *   ("RuntimeError: Aborted()"). It's disposable — `npm run db:reset` rebuilds
- *   it from the seed in a couple of seconds.
+ * - A killed dev server can leave a stale `postmaster.pid`, after which every
+ *   open blocks. Delete it, or `npm run db:reset` — the database is disposable.
  */
 
 export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
@@ -34,7 +32,25 @@ async function create(): Promise<Database> {
   const url = process.env.DATABASE_URL;
 
   if (url) {
-    return drizzleNeon(neon(url), { schema }) as unknown as Database;
+    /**
+     * Point this at Supabase's **transaction pooler** (port 6543), not the
+     * direct connection. Each serverless invocation is its own short-lived
+     * process, and enough of them against port 5432 will exhaust Postgres's
+     * connection limit.
+     *
+     * `prepare: false` is required by that pooler: in transaction mode a
+     * connection is handed to a different client between statements, so a
+     * prepared statement made on one may not exist on the next.
+     */
+    const client = postgres(url, {
+      prepare: false,
+      // One connection per instance. The pooler multiplexes; opening more here
+      // just holds slots the next invocation needs.
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 10,
+    });
+    return drizzlePostgres(client, { schema }) as unknown as Database;
   }
 
   // Guard on "is this a real deployment", not on NODE_ENV. A local
@@ -56,7 +72,7 @@ async function create(): Promise<Database> {
 /**
  * Cached on globalThis so dev's module reloading doesn't open a new PGlite
  * instance on every hot update — two instances on one directory would fight
- * over the same files.
+ * over the same files — and so a warm serverless instance reuses its pool.
  */
 export function getDb() {
   globalForDb.__bambinoDb ??= create();

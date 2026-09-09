@@ -1,9 +1,9 @@
 /**
  * Prepares the database at build time.
  *
- * Neon's connection string is marked Sensitive by the Vercel integration, so it
- * can't be pulled to a laptop — migrations have to run where the env var lives,
- * which is inside the build. This runs on every deploy:
+ * Migrations run inside the build because that is where the connection string
+ * lives — it is a deployment secret and never sits on a laptop. This runs on
+ * every deploy:
  *
  *   1. apply any pending migrations (idempotent — tracked in _migrations)
  *   2. run any seed steps that haven't run yet

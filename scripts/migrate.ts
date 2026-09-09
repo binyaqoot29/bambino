@@ -2,9 +2,9 @@
  * Applies the SQL in drizzle/ to whichever database is configured.
  *
  * Written by hand rather than using drizzle-kit's migrator because this has to
- * run against PGlite locally and Neon in production, and drizzle-kit binds to
- * one driver. Statements are tracked in a `_migrations` table so re-running is
- * a no-op.
+ * run against PGlite locally and Supabase in production, and drizzle-kit binds
+ * to one driver. Statements are tracked in a `_migrations` table so re-running
+ * is a no-op.
  *
  *   npm run db:migrate
  */

@@ -228,8 +228,10 @@ function isOwnImage(url: string): boolean {
     const parsed = new URL(url);
     return (
       parsed.protocol === "https:" &&
-      parsed.hostname.endsWith(".public.blob.vercel-storage.com") &&
-      parsed.pathname.startsWith("/products/")
+      parsed.hostname.endsWith(".supabase.co") &&
+      parsed.pathname.startsWith(
+        "/storage/v1/object/public/product-images/products/",
+      )
     );
   } catch {
     return false;

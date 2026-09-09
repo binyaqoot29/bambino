@@ -55,11 +55,12 @@ function reference(): string {
  *    is a public POST endpoint, so the browser is only trusted to say *what*
  *    and *how many*. Everything charged is looked up here.
  *
- * 2. **Stock moves in one statement.** The production driver is neon-http,
- *    which has no transaction support at all — `db.transaction()` throws there
- *    while working fine on local PGlite, which is exactly the kind of
- *    difference that ships a bug. So the decrement is a single all-or-nothing
- *    UPDATE, and the writes that follow it compensate if they fail.
+ * 2. **Stock and the order commit together, or not at all.** The decrement is
+ *    still a single all-or-nothing UPDATE — that is what makes two people
+ *    buying the last item safe, and no transaction isolation level gives it to
+ *    you for free — but it now runs inside a transaction with the insert, so a
+ *    failure after the stock moves rolls it back instead of needing a
+ *    compensating write to put it right.
  */
 export async function placeOrder(
   input: PlaceOrderInput,
@@ -129,41 +130,43 @@ export async function placeOrder(
     input.paymentMethod === "cod" && shipping.codEnabled ? shipping.codFee : 0;
   const total = subtotal + deliveryFee + codFee;
 
-  // Take the stock first. If this doesn't fully succeed nothing has changed,
-  // and an order that can't be fulfilled is never created.
-  const taken = await takeStock(db, decrements);
-  if (!taken) return { ok: false, reason: "out-of-stock" };
+  const row = {
+    id: crypto.randomUUID(),
+    reference: reference(),
+    customerName: input.customerName,
+    phone: input.phone,
+    email: input.email || null,
+    address: input.address,
+    locale: input.locale,
+    lines,
+    paymentMethod: input.paymentMethod,
+    // Cash on delivery is unpaid until the driver hands it over. A card
+    // payment would be marked paid by its gateway callback, not here.
+    paymentStatus: "unpaid" as const,
+    subtotal,
+    deliveryFee,
+    codFee,
+    total,
+    note: input.note || null,
+  };
 
   try {
-    const row = {
-      id: crypto.randomUUID(),
-      reference: reference(),
-      customerName: input.customerName,
-      phone: input.phone,
-      email: input.email || null,
-      address: input.address,
-      locale: input.locale,
-      lines,
-      paymentMethod: input.paymentMethod,
-      // Cash on delivery is unpaid until the driver hands it over. A card
-      // payment would be marked paid by its gateway callback, not here.
-      paymentStatus: "unpaid" as const,
-      subtotal,
-      deliveryFee,
-      codFee,
-      total,
-      note: input.note || null,
-    };
-
-    await db.insert(schema.orders).values(row);
-    return { ok: true, reference: row.reference };
+    await db.transaction(async (tx) => {
+      // Stock first: if it can't all be taken, nothing else should happen.
+      const taken = await takeStock(tx as unknown as Db, decrements);
+      if (!taken) throw new OutOfStock();
+      await tx.insert(schema.orders).values(row);
+    });
   } catch (error) {
-    // The stock is already spoken for by an order that doesn't exist. Put it
-    // back rather than leaving the shop owner's inventory quietly wrong.
-    await restoreStock(db, decrements);
+    if (error instanceof OutOfStock) return { ok: false, reason: "out-of-stock" };
     throw error;
   }
+
+  return { ok: true, reference: row.reference };
 }
+
+/** Rolls the transaction back without dressing a normal outcome up as a fault. */
+class OutOfStock extends Error {}
 
 type Db = Awaited<ReturnType<typeof getDb>>;
 type StockMove = { variantId: string; quantity: number };

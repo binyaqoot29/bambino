@@ -13,17 +13,16 @@ const nextConfig: NextConfig = {
     /**
      * Product photos, and nothing else.
      *
-     * Scoped to this shop's own Blob store and the `products/` prefix inside
-     * it rather than a wildcard: the image endpoint will fetch and serve
-     * anything it's allowed to, so a loose pattern turns it into an open proxy
-     * that runs on the shop's bill. The store id is public — it's in the URL of
-     * every image the shop serves.
+     * Scoped to this project's Storage host and the one public bucket rather
+     * than a wildcard: the image endpoint fetches and serves whatever it is
+     * allowed to, so a loose pattern turns it into an open proxy running on the
+     * shop's bill.
      */
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "wamdmuvfiqmz8xuw.public.blob.vercel-storage.com",
-        pathname: "/products/**",
+        hostname: "seldftubunfrmgbnazxd.supabase.co",
+        pathname: "/storage/v1/object/public/product-images/**",
         search: "",
       },
     ],

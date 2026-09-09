@@ -23,7 +23,7 @@ depending on your `Accept-Language`.
 | UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript |
 | i18n | Native `app/[lang]` + `src/proxy.ts`, no dependency |
-| Data | Postgres via Drizzle — Neon deployed, PGlite locally |
+| Data | Postgres via Drizzle — Supabase deployed, PGlite locally |
 | State | `useSyncExternalStore` over `localStorage` |
 
 ## Brand
@@ -99,21 +99,27 @@ Storage follows the same split as the database:
 
 | Environment | Backend |
 |---|---|
-| Deployed (`BLOB_READ_WRITE_TOKEN` set) | Vercel Blob |
+| Deployed (`SUPABASE_URL` set) | Supabase Storage, `product-images` bucket |
 | Local | `public/uploads/`, gitignored |
 
-The local backend exists because the Blob token is marked Secret on Vercel and
-can't be pulled to a laptop — exactly like Neon's connection string. Without it,
-uploading would be untestable anywhere but production.
+The local backend exists because the service role key can't sit on a laptop —
+exactly like the connection string. Without it, uploading would be untestable
+anywhere but production.
+
+It talks to the Storage REST API with `fetch` rather than pulling in
+`@supabase/supabase-js`, which would bring realtime, auth and PostgREST clients
+along for the two calls this makes by hand.
 
 Two things are deliberately strict. Saved image URLs are **checked against an
-allowlist** (this shop's own Blob host and path prefix, or the local uploads
+allowlist** (this project's Storage host and bucket prefix, or the local uploads
 path): the list is posted by the browser, so without that check an edited
 request could point a product's photo anywhere on the internet and the shop
-would serve it. And `next.config.ts` scopes `remotePatterns` to that one store
-and prefix rather than a wildcard, because the image endpoint will fetch and
-optimise anything it is allowed to — a loose pattern turns it into an open proxy
-running on the shop's bill.
+would serve it. And `next.config.ts` scopes `remotePatterns` the same way rather
+than using a wildcard, because the image endpoint fetches and optimises whatever
+it is allowed to — a loose pattern is an open proxy running on the shop's bill.
+
+The bucket enforces the same 6MB cap and MIME allowlist as the upload route, so
+a bad file is refused even if the route were bypassed.
 
 ## Design
 
@@ -159,7 +165,7 @@ it. One Drizzle schema (`src/db/schema.ts`), two drivers:
 | Environment | Driver | Notes |
 |---|---|---|
 | Local (no `DATABASE_URL`) | **PGlite** — Postgres compiled to WASM, in `.pglite/` | No Docker or Postgres install needed |
-| Anywhere with `DATABASE_URL` | **Neon** over HTTP | Serverless-safe, no connection pool to exhaust |
+| Anywhere with `DATABASE_URL` | **Supabase** over postgres-js | Point it at the transaction pooler, not the direct connection |
 
 ```bash
 npm run db:migrate   # apply drizzle/*.sql
@@ -178,11 +184,29 @@ of this applies to Neon.
 `src/lib/catalog/products.ts` stays in the repo as the seed fixture. It is no
 longer what the storefront reads.
 
-### Going live on Neon
+### Going live on Supabase
 
-1. In Vercel → Storage, create a **Neon** Postgres database and connect it to
-   the project. That sets `DATABASE_URL` automatically.
-2. Deploy. That's it.
+Three variables:
+
+| Variable | Where it comes from |
+|---|---|
+| `DATABASE_URL` | Project settings → Database → **Transaction pooler** (port 6543) |
+| `SUPABASE_URL` | Project settings → API → Project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project settings → API → `service_role` (secret) |
+
+The pooler matters. Each serverless invocation is its own short-lived process,
+and enough of them against the direct connection will exhaust Postgres's
+connection limit. `prepare: false` in `db/client.ts` is required by that pooler
+for the same reason: in transaction mode a connection is handed to a different
+client between statements, so a prepared statement made on one may not exist on
+the next.
+
+**Row Level Security is on, with no policies, deliberately.** Supabase publishes
+every `public` table through PostgREST, and its anon key is public by design —
+without this, anyone holding that key could read `orders`, which contains real
+customer names, phone numbers and home addresses. This app never uses PostgREST;
+it connects directly with a role that bypasses RLS. Policies would only be
+needed if shopper accounts ever arrive.
 
 Migrations run during the build (`scripts/setup-db.ts`), which applies anything
 pending and then runs the seed.

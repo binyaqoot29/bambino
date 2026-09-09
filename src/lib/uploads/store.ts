@@ -7,13 +7,19 @@ import { join } from "node:path";
  *
  * One interface, two backends — the same split the database uses:
  *
- * - **Deployed** (`BLOB_READ_WRITE_TOKEN` present) → Vercel Blob.
+ * - **Deployed** (`SUPABASE_URL` present) → Supabase Storage, public bucket.
  * - **Local** → `public/uploads/`, served straight off the filesystem.
  *
- * The local path exists because the Blob token is marked Secret on Vercel and
- * can't be pulled to a laptop, exactly like Neon's connection string. Without a
- * local backend, uploading would be untestable anywhere but production.
+ * The local path exists because the service role key can't sit on a laptop,
+ * exactly like the database connection string. Without a local backend,
+ * uploading would be untestable anywhere but production.
+ *
+ * Talks to the Storage REST API directly rather than pulling in
+ * `@supabase/supabase-js`, which would bring a realtime, auth and PostgREST
+ * client along for two calls this file makes by hand.
  */
+
+const BUCKET = "product-images";
 
 /** What the shop will accept. Anything else is a mistake or an attack. */
 const ALLOWED = new Map([
@@ -23,8 +29,9 @@ const ALLOWED = new Map([
 ]);
 
 /**
- * 6MB. The browser resizes before uploading, so anything near this is a photo
- * that skipped the resize — worth rejecting rather than storing.
+ * 6MB, matching the cap on the bucket itself. The browser resizes before
+ * uploading, so anything near this is a photo that skipped the resize — worth
+ * refusing rather than storing.
  */
 export const MAX_BYTES = 6 * 1024 * 1024;
 
@@ -32,8 +39,10 @@ export type SaveResult =
   | { ok: true; url: string }
   | { ok: false; reason: "type" | "size" | "failed" };
 
-function usingBlob() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+function remote() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return url && key ? { url: url.replace(/\/$/, ""), key } : null;
 }
 
 export async function saveImage(file: File): Promise<SaveResult> {
@@ -43,34 +52,49 @@ export async function saveImage(file: File): Promise<SaveResult> {
 
   // A random name, not the uploaded one: filenames arrive from the browser and
   // are attacker-controlled, and the original tells us nothing useful.
-  const name = `products/${randomUUID()}.${extension}`;
+  const path = `products/${randomUUID()}.${extension}`;
+  const backend = remote();
 
   try {
-    if (usingBlob()) {
-      const { put } = await import("@vercel/blob");
-      const blob = await put(name, file, {
-        access: "public",
-        contentType: file.type,
-        // The name is already unique; a suffix would only make it uglier.
-        addRandomSuffix: false,
-      });
-      return { ok: true, url: blob.url };
+    if (backend) {
+      const response = await fetch(
+        `${backend.url}/storage/v1/object/${BUCKET}/${path}`,
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${backend.key}`,
+            "content-type": file.type,
+            // Never silently replace: the path is a fresh UUID, so a collision
+            // would mean something is wrong rather than something is a retry.
+            "x-upsert": "false",
+          },
+          body: file,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `storage ${response.status}: ${(await response.text()).slice(0, 200)}`,
+        );
+      }
+
+      return {
+        ok: true,
+        url: `${backend.url}/storage/v1/object/public/${BUCKET}/${path}`,
+      };
     }
 
     const dir = join(process.cwd(), "public", "uploads", "products");
     await mkdir(dir, { recursive: true });
-    const filename = name.split("/")[1];
-    await writeFile(
-      join(dir, filename),
-      Buffer.from(await file.arrayBuffer()),
-    );
+    const filename = path.split("/")[1];
+    await writeFile(join(dir, filename), Buffer.from(await file.arrayBuffer()));
     return { ok: true, url: `/uploads/products/${filename}` };
   } catch (error) {
     // The caller only gets a code — the shop owner can't act on a stack trace.
     // But swallowing it entirely leaves a 500 with no cause in the logs, which
     // is how an upload outage becomes unfixable.
     console.error("[uploads] save failed", {
-      backend: usingBlob() ? "blob" : "local",
+      backend: backend ? "supabase" : "local",
       type: file.type,
       bytes: file.size,
       error: error instanceof Error ? error.message : String(error),
@@ -91,10 +115,18 @@ export async function deleteImage(url: string): Promise<void> {
       await unlink(join(process.cwd(), "public", url));
       return;
     }
-    if (usingBlob() && url.startsWith("http")) {
-      const { del } = await import("@vercel/blob");
-      await del(url);
-    }
+
+    const backend = remote();
+    if (!backend) return;
+
+    const marker = `/storage/v1/object/public/${BUCKET}/`;
+    const index = url.indexOf(marker);
+    if (index === -1) return;
+
+    await fetch(
+      `${backend.url}/storage/v1/object/${BUCKET}/${url.slice(index + marker.length)}`,
+      { method: "DELETE", headers: { authorization: `Bearer ${backend.key}` } },
+    );
   } catch {
     // Already gone, or storage unavailable. Neither should block the edit.
   }
