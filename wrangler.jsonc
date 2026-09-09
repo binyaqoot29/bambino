@@ -20,14 +20,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // Smart Placement runs this Worker near the database instead of at the
-  // visitor's edge. Every page issues a series of dependent queries, so the
-  // cost that matters is the round trip per query, not the one hop from the
-  // visitor. Hyperdrive was measured for this and rejected: its pool sat
-  // ~200 ms from Mumbai, so each query took three times longer than a direct
-  // connection. A `cf-placement` response header shows when placement is
-  // active; it takes some traffic before Cloudflare decides.
-  "placement": { "mode": "smart" },
   "observability": {
     "enabled": true
   }
