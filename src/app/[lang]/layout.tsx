@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Tajawal } from "next/font/google";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { BagProvider } from "@/components/cart/store";
 import { AddedToBagDrawer } from "@/components/cart/AddedToBagDrawer";
@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { isLocale, locales, localeMeta, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/get-dictionary";
+import { resolveLocale } from "@/i18n/resolve-locale";
 import { buildProductIndex } from "@/lib/catalog/index-client";
 import { buildAgeLinks, buildNav } from "@/lib/nav";
 import { visibleCollections } from "@/lib/catalog/collections";
@@ -84,7 +85,11 @@ export default async function LocaleLayout({
   params,
 }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
-  if (!isLocale(lang)) notFound();
+  // `/about` or `/cart` with no language: [lang] matched the page name as if it
+  // were a locale. Send it to the right language rather than 404 — the
+  // multi-segment case lives in app/[...path], and this is the single-segment
+  // half of what src/proxy.ts used to do.
+  if (!isLocale(lang)) redirect(`/${await resolveLocale()}/${lang}`);
 
   const locale: Locale = lang;
   const dict = getDictionary(locale);
