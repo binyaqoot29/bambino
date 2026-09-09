@@ -74,7 +74,39 @@ async function requireAdmin() {
   }
 }
 
-export type ProductFormState = {
+/**
+ * What a form gets back when a submit is rejected.
+ *
+ * React clears a form's fields after a Server Action returns, so a validation
+ * error would otherwise throw away everything that was typed — the shop owner
+ * fixes one blank and retypes the other thirty. The action echoes every
+ * posted value back in `values`, and `attempt` increments so the form can
+ * remount its fields (`key={attempt}`) and pick those values up as defaults.
+ */
+export type FormEcho = {
+  values?: Record<string, string | string[]>;
+  attempt?: number;
+};
+
+/** Multi-value fields, always echoed as arrays even when one box is ticked. */
+const LIST_FIELDS = new Set(["colours", "sizes", "ageGroups", "image", "membership"]);
+
+function echo(prev: FormEcho, formData: FormData): Required<FormEcho> {
+  const values: Record<string, string | string[]> = {};
+  for (const [key, raw] of formData.entries()) {
+    if (typeof raw !== "string") continue; // files are never echoed
+    if (LIST_FIELDS.has(key)) {
+      const list = (values[key] as string[] | undefined) ?? [];
+      list.push(raw);
+      values[key] = list;
+    } else {
+      values[key] = raw;
+    }
+  }
+  return { values, attempt: (prev.attempt ?? 0) + 1 };
+}
+
+export type ProductFormState = FormEcho & {
   error?: string;
   fieldErrors?: Record<string, string>;
 };
@@ -253,16 +285,17 @@ function isOwnImage(url: string): boolean {
 
 export async function saveProduct(
   productId: string | null,
-  _prev: ProductFormState,
+  prev: ProductFormState,
   formData: FormData,
 ): Promise<ProductFormState> {
   await requireAdmin();
 
+  const kept = echo(prev, formData);
   const input = parseForm(formData);
   const category = await findCategory(input.category);
   const { fieldErrors, price } = validate(input, Boolean(category));
   if (Object.keys(fieldErrors).length) {
-    return { error: "Please fix the highlighted fields", fieldErrors };
+    return { error: "Please fix the highlighted fields", fieldErrors, ...kept };
   }
 
   const db = await getDb();
@@ -277,6 +310,7 @@ export async function saveProduct(
     return {
       error: "That web address is already used by another product",
       fieldErrors: { handle: "Already taken" },
+      ...kept,
     };
   }
 
@@ -401,17 +435,18 @@ export async function setStock(formData: FormData) {
  * Categories
  * ----------------------------------------------------------------------- */
 
-export type CategoryFormState = {
+export type CategoryFormState = FormEcho & {
   error?: string;
   fieldErrors?: Record<string, string>;
 };
 
 export async function saveCategory(
   originalSlug: string | null,
-  _prev: CategoryFormState,
+  prev: CategoryFormState,
   formData: FormData,
 ): Promise<CategoryFormState> {
   await requireAdmin();
+  const kept = echo(prev, formData);
 
   const text = (k: string) => String(formData.get(k) ?? "").trim();
   const nameEn = text("nameEn");
@@ -436,7 +471,7 @@ export async function saveCategory(
   }
 
   if (Object.keys(fieldErrors).length) {
-    return { error: "Please fix the highlighted fields", fieldErrors };
+    return { error: "Please fix the highlighted fields", fieldErrors, ...kept };
   }
 
   const db = await getDb();
@@ -450,6 +485,7 @@ export async function saveCategory(
     return {
       error: "That web address is already used by another category",
       fieldErrors: { slug: "Already taken" },
+      ...kept,
     };
   }
 
