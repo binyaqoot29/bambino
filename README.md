@@ -88,12 +88,18 @@ of forgetting. Call sites pass `src` and stop thinking about it.
 
 ### Uploading
 
-The browser **resizes before uploading** — longest edge 1600px, JPEG at 82%. A
-4.4MB phone photo becomes about 24KB. That is not only a page-speed win: it
-keeps uploads under the request body limit, which a photo straight off a phone
-would otherwise exceed. If anything in the canvas path fails it sends the
-original rather than losing the upload, and the server still enforces its own
-type and size limits.
+The browser **shrinks and re-encodes before uploading** — longest edge 2000px,
+WebP at 86% (JPEG at 90% if the browser cannot encode WebP), EXIF rotation
+applied so phone photos are stored upright. A phone photo of 3–8MB becomes
+roughly 150–300KB with no visible loss. The stored file is the master: what a
+visitor downloads is smaller still, because `next/image` goes through
+`src/lib/images/supabase-loader.ts`, which asks Supabase Storage's image
+transformations for exactly the width each slot renders (a 64px thumbnail, a
+260px card, a 520px gallery frame) and serves WebP to browsers that accept it.
+The shop never sends a full-size photo to a visitor. Transformations are part
+of the Pro plan: 100 distinct images a month included, then $5 per thousand.
+If a photo fails to shrink in the browser it is uploaded as-is rather than
+lost, and the server still enforces its own limits.
 
 Storage follows the same split as the database:
 
@@ -487,8 +493,9 @@ Three things about this setup are decisions, not defaults:
   on a Cloudflare deploy, the shop would 500 on the next schema change with no
   build error to point at. The setup is idempotent, so running it twice costs
   nothing.
-- **No image optimizer** (`images.unoptimized`). Photos are already resized to
-  ~27KB in the browser, Workers has no built-in optimizer, and the alternative
+- **No Next image optimizer.** `next/image` uses a custom loader that points
+  at Supabase's image transformations, so there is no `/_next/image` route
+  on the Worker at all. Workers has no built-in optimizer, and the alternative
   is Cloudflare Images billed per transformation. It also removes the
   `/_next/image` endpoint — where Next's 16.3.3 RCE lived — entirely.
 - **Nothing Node-only loads at module scope.** The local-disk upload branch

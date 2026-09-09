@@ -24,34 +24,28 @@ const nextConfig: NextConfig = {
 
   images: {
     /**
-     * No image optimizer.
+     * Product photos are resized and re-encoded on the fly by Supabase
+     * Storage's image transformations, through the loader below, so every
+     * slot gets exactly the width it renders and browsers that accept WebP
+     * get WebP. Workers has no built-in optimizer and Cloudflare Images is
+     * billed per transformation, whereas this is part of the Supabase plan
+     * the project already pays for (100 origin images a month included,
+     * then $5 per thousand). The loader leaves non-Storage sources alone.
      *
-     * Photos are resized in the browser before upload — longest edge 1600px,
-     * ~27KB — so there is little left for an optimizer to do. Workers has no
-     * built-in one; the alternative is Cloudflare Images, which is billed per
-     * transformation. Skipping it also removes the /_next/image endpoint
-     * entirely, which is where Next's 16.3.3 RCE lived. remotePatterns below
-     * still documents the only host photos may come from, and is enforced by
-     * the upload allowlist rather than here.
+     * Using a custom loader also means there is no /_next/image endpoint at
+     * all, which is where Next 16.3.3's RCE lived.
      */
-    unoptimized: true,
+    loader: "custom",
+    loaderFile: "./src/lib/images/supabase-loader.ts",
 
     /**
-     * Product photos, and nothing else.
-     *
-     * Scoped to this project's Storage host and the one public bucket rather
-     * than a wildcard: the image endpoint fetches and serves whatever it is
-     * allowed to, so a loose pattern turns it into an open proxy running on the
-     * shop's bill.
+     * Widths the srcset may ask for. Capped at 2000 — stored photos are at
+     * most 2000px on the long edge, so anything larger would only upscale —
+     * and dense enough at the small end that a 2× phone screen showing a
+     * 50vw card gets a 640 or 768, not a 1024.
      */
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "seldftubunfrmgbnazxd.supabase.co",
-        pathname: "/storage/v1/object/public/product-images/**",
-        search: "",
-      },
-    ],
+    deviceSizes: [320, 480, 640, 768, 1024, 1280, 1600, 2000],
+    imageSizes: [64, 96, 128, 192, 256],
   },
 };
 
