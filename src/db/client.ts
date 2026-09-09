@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
@@ -63,9 +64,6 @@ async function create(): Promise<Database> {
   // fell through to the PGlite branch — a package deliberately excluded from
   // that bundle — and surfaced as a module-not-found 500 instead of a message
   // naming the actual problem.
-  const onWorkers =
-    typeof navigator !== "undefined" &&
-    navigator.userAgent?.includes("Cloudflare-Workers");
   if (process.env.VERCEL || process.env.CI || onWorkers) {
     throw new Error(
       "DATABASE_URL is not set. A deployed instance needs a Postgres connection string — see README, 'Database'.",
@@ -79,11 +77,34 @@ async function create(): Promise<Database> {
 }
 
 /**
- * Cached on globalThis so dev's module reloading doesn't open a new PGlite
- * instance on every hot update — two instances on one directory would fight
- * over the same files — and so a warm serverless instance reuses its pool.
+ * Workers is detected by the runtime's own user agent. Used twice: to refuse
+ * the PGlite fallback there, and to decide how the client is cached.
  */
-export function getDb() {
+const onWorkers =
+  typeof navigator !== "undefined" &&
+  navigator.userAgent?.includes("Cloudflare-Workers");
+
+/**
+ * Per request on Workers; per process everywhere else.
+ *
+ * Caching the client on globalThis is right on Node: a warm serverless
+ * instance reuses its connection, and dev's module reloading doesn't open a
+ * second PGlite on the same directory. On Cloudflare Workers it is exactly
+ * wrong. A TCP socket opened during one request cannot be used by another —
+ * the runtime binds I/O to the request that created it — so a cached client
+ * works for the first request in an isolate and fails for every one after.
+ * React's cache() scopes the instance to the current request instead, which
+ * is what Cloudflare's own guidance amounts to: create the client inside the
+ * handler, never in module scope.
+ *
+ * Opening a connection per request is the cost of that, and the reason to
+ * put Hyperdrive in front of Supabase: it terminates TCP near the database,
+ * so a fresh per-request connection from the edge is cheap.
+ */
+const perRequest = cache(() => create());
+
+export function getDb(): Promise<Database> {
+  if (onWorkers) return perRequest();
   globalForDb.__bambinoDb ??= create();
   return globalForDb.__bambinoDb as Promise<Database>;
 }
