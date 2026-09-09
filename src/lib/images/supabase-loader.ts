@@ -35,5 +35,9 @@ export default function supabaseLoader({
   }
   const render = src.replace(OBJECT_PREFIX, RENDER_PREFIX);
   const q = Math.min(100, Math.max(20, quality ?? DEFAULT_QUALITY));
-  return `${render}?width=${width}&quality=${q}`;
+  // resize=contain is not optional. With only a width, Supabase keeps the
+  // original height and crops the sides to the requested width, so a 1242×1129
+  // photo asked for at 640 came back 640×1129 with its edges cut off. contain
+  // scales the whole picture to the width and keeps its proportions.
+  return `${render}?width=${width}&quality=${q}&resize=contain`;
 }
