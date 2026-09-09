@@ -76,6 +76,12 @@ export default async function AdminProductsPage({
             />
           </form>
           <Link
+            href="/admin/transfer"
+            className="ring-ink-300 hover:bg-ink-900 hover:text-white inline-flex h-9 shrink-0 items-center rounded-full bg-white px-4 text-[13px] font-medium whitespace-nowrap ring-1 transition-colors duration-200"
+          >
+            {t.nav.transfer}
+          </Link>
+          <Link
             href="/admin/products/new"
             className="bg-brand-900 hover:bg-brand-800 inline-flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-medium whitespace-nowrap text-white"
           >

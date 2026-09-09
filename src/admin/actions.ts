@@ -13,6 +13,14 @@ import { COLOURS, DEPARTMENT_ORDER, SIZE_LABELS } from "@/lib/catalog/taxonomy";
 import type { AgeGroup, ArtKey, Department } from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
 import { restoreOrderStock } from "@/lib/orders/place";
+import {
+  applyInventoryImport,
+  applyProductImport,
+  attachPhotosByHandle,
+  planInventoryImport,
+  planProductImport,
+  type ImportProblem,
+} from "@/lib/transfer/products";
 import { deleteImage } from "@/lib/uploads/store";
 import { isOrderStatus } from "@/lib/orders/types";
 import {
@@ -89,7 +97,13 @@ export type FormEcho = {
 };
 
 /** Multi-value fields, always echoed as arrays even when one box is ticked. */
-const LIST_FIELDS = new Set(["colours", "sizes", "ageGroups", "image", "membership"]);
+const LIST_FIELDS = new Set([
+  "colours",
+  "sizes",
+  "ageGroups",
+  "image",
+  "membership",
+]);
 
 function echo(prev: FormEcho, formData: FormData): Required<FormEcho> {
   const values: Record<string, string | string[]> = {};
@@ -548,7 +562,6 @@ export async function deleteCategory(formData: FormData) {
   redirect("/admin/categories?deleted=1");
 }
 
-
 /* --------------------------------------------------------------------------
  * Orders
  * ----------------------------------------------------------------------- */
@@ -954,4 +967,111 @@ export async function setAdminLocale(formData: FormData) {
     maxAge: 60 * 60 * 24 * 365,
   });
   redirect(String(formData.get("returnTo") ?? "/admin"));
+}
+
+/* --------------------------------------------------------------------------
+ * Import & export
+ * ----------------------------------------------------------------------- */
+
+export type ImportState = {
+  kind?: "products" | "inventory";
+  /** Rows the file contained, before any problem check. */
+  rows?: number;
+  checkedOnly?: boolean;
+  created?: number;
+  updated?: number;
+  problems?: ImportProblem[];
+  missingColumns?: string[];
+  error?: string;
+};
+
+/** 2MB of CSV is tens of thousands of rows; anything bigger is a mistake. */
+const MAX_CSV_BYTES = 2 * 1024 * 1024;
+
+async function readCsv(
+  formData: FormData,
+): Promise<string | { error: string }> {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return { error: "empty" };
+  if (file.size > MAX_CSV_BYTES) return { error: "size" };
+  return file.text();
+}
+
+/**
+ * Product CSV in. Validates every row first and writes nothing unless the
+ * whole file is clean: a half-imported sheet is worse than a rejected one.
+ * "Check only" runs the same validation and stops.
+ */
+export async function importProducts(
+  _prev: ImportState,
+  formData: FormData,
+): Promise<ImportState> {
+  await requireAdmin();
+  const csv = await readCsv(formData);
+  if (typeof csv !== "string") return { kind: "products", error: csv.error };
+
+  const plan = await planProductImport(csv);
+  const rows =
+    plan.products.length + new Set(plan.problems.map((p) => p.line)).size;
+  const checkedOnly = formData.get("check") === "on";
+  if (plan.missingColumns.length || plan.problems.length || checkedOnly) {
+    return {
+      kind: "products",
+      rows,
+      checkedOnly,
+      problems: plan.problems,
+      missingColumns: plan.missingColumns,
+    };
+  }
+
+  const result = await applyProductImport(plan);
+  await storefrontChanged();
+  return { kind: "products", rows, ...result, problems: [] };
+}
+
+export async function importInventory(
+  _prev: ImportState,
+  formData: FormData,
+): Promise<ImportState> {
+  await requireAdmin();
+  const csv = await readCsv(formData);
+  if (typeof csv !== "string") return { kind: "inventory", error: csv.error };
+
+  const plan = await planInventoryImport(csv);
+  const rows = plan.updates.length + plan.problems.length;
+  const checkedOnly = formData.get("check") === "on";
+  if (plan.missingColumns.length || plan.problems.length || checkedOnly) {
+    return {
+      kind: "inventory",
+      rows,
+      checkedOnly,
+      problems: plan.problems,
+      missingColumns: plan.missingColumns,
+    };
+  }
+
+  const updated = await applyInventoryImport(plan);
+  await storefrontChanged();
+  return { kind: "inventory", rows, updated, problems: [] };
+}
+
+/**
+ * Bulk photos: the browser has already uploaded each file through
+ * /admin/upload and matched it to a handle by filename; this attaches the
+ * resulting URLs. Only URLs this shop issued are kept, as everywhere else.
+ */
+export async function attachPhotos(
+  batches: { handle: string; urls: string[] }[],
+): Promise<{ attached: number; unknown: string[] }> {
+  await requireAdmin();
+  const clean = batches
+    .filter((b) => typeof b.handle === "string" && Array.isArray(b.urls))
+    .map((b) => ({
+      handle: b.handle.trim(),
+      urls: b.urls.map(String).slice(0, 12),
+    }))
+    .slice(0, 500);
+  const result = await attachPhotosByHandle(clean);
+  if (result.attached) await storefrontChanged();
+  return result;
 }
