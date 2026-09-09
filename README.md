@@ -22,7 +22,7 @@ depending on your `Accept-Language`.
 | Framework | Next.js 16 (App Router, Turbopack) |
 | UI | React 19, Tailwind CSS v4 |
 | Language | TypeScript |
-| i18n | Native `app/[lang]` + `src/proxy.ts`, no dependency |
+| i18n | Native `app/[lang]`, no dependency, no middleware |
 | Data | Postgres via Drizzle — Supabase deployed, PGlite locally |
 | State | `useSyncExternalStore` over `localStorage` |
 
@@ -152,8 +152,11 @@ to `dd73ef5` if the decision is ever revisited.
 
 ## Localisation
 
-- Every page lives under `/{locale}`. [`src/proxy.ts`](src/proxy.ts) redirects
-  bare paths using a saved cookie, then `Accept-Language`, then English.
+- Every page lives under `/{locale}`. A bare path is redirected by a server
+  component — [`resolveLocale`](src/i18n/resolve-locale.ts): a saved cookie,
+  then `Accept-Language`, then the shop's configured default, and only ever a
+  language the shop is currently serving. There is deliberately no middleware;
+  see **Rendering**.
 - Arabic renders with `dir="rtl"`; layout uses logical properties throughout
   (`ms-`/`me-`, `ps-`/`pe-`, `start-`/`end-`) so mirroring is automatic.
 - Copy lives in [`src/i18n/dictionaries/`](src/i18n/dictionaries). Dictionaries
@@ -394,10 +397,15 @@ The trade is a query per page view instead of static HTML. At this catalogue's
 size that's the right way round; if traffic ever changes that, this line and the
 `revalidatePath` calls in the admin actions are the two places to revisit.
 
-`/` is handled by [`src/app/page.tsx`](src/app/page.tsx) rather than by the
-proxy, because which language a visitor lands in depends on settings in the
-database and Next's guidance is explicit that the proxy isn't for data fetching.
-The proxy still handles locale-less deeper links, which fall back to English.
+There is **no middleware/proxy**. The locale redirect is done by pages:
+[`app/page.tsx`](src/app/page.tsx) for `/`, [`app/[...path]`](src/app/%5B...path%5D/page.tsx)
+for deeper locale-less links, and the `[lang]` layout for single-segment ones
+like `/about`. Two reasons. Which language a visitor lands in depends on a
+database setting, and Next is explicit that the proxy isn't for data fetching —
+so middleware could never honour "Arabic is switched off". And in Next 16 the
+proxy is Node-runtime by design (`runtime` is forbidden in it), which on
+Cloudflare Workers is an experimental, unsupported path — for a redirect that
+needs nothing Node. Pages do the same job on any host.
 
 ## Checkout and orders
 
@@ -457,6 +465,52 @@ call), the items, a status trail, a paid/unpaid toggle and private staff notes.
 Cancelling returns every item to stock, and is **terminal**: reopening a
 cancelled order would put it live again without re-taking stock that may since
 have sold, so the screen says it can't be undone and the action enforces that.
+
+## Hosting
+
+The shop is built to run on **Cloudflare Workers** through the OpenNext
+adapter; Vercel hosts the demo only and is due to be deleted.
+
+```bash
+npm run build:cf   # migrations + seed, then the Workers bundle → .open-next/
+npm run preview    # build, then serve it locally in the real Workers runtime
+npm run deploy     # push .open-next/ to Cloudflare
+```
+
+Three things about this setup are decisions, not defaults:
+
+- **`build:cf` runs the database setup itself** rather than trusting the
+  adapter to call the package's `build` script. If migrations silently skipped
+  on a Cloudflare deploy, the shop would 500 on the next schema change with no
+  build error to point at. The setup is idempotent, so running it twice costs
+  nothing.
+- **No image optimizer** (`images.unoptimized`). Photos are already resized to
+  ~27KB in the browser, Workers has no built-in optimizer, and the alternative
+  is Cloudflare Images billed per transformation. It also removes the
+  `/_next/image` endpoint — where Next's 16.3.3 RCE lived — entirely.
+- **Nothing Node-only loads at module scope.** The local-disk upload branch
+  imports `node:fs` lazily, so one `store.ts` bundles for Workers (where those
+  modules are stubs) and never touches them there.
+
+### Deploying from GitHub
+
+Connect the repo under **Workers & Pages → Create → Import a repository**:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build:cf` |
+| Deploy command | `npx opennextjs-cloudflare deploy` |
+| Root directory | `/` |
+
+Then set the runtime secrets — `DATABASE_URL`, `SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` — and
+**also add `DATABASE_URL` as a build variable**: the migration step runs at
+build time and needs it there, not only at runtime. This is the same split
+Vercel had.
+
+`wrangler.jsonc` enables `nodejs_compat` with a 2026 compatibility date, which
+is what makes those secrets appear on `process.env` unchanged. The Next
+version matters here: the adapter's peer range starts at **16.3.3**.
 
 ## What is not built
 

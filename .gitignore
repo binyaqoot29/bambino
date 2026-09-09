@@ -48,3 +48,7 @@ next-env.d.ts
 
 # Uploaded product photos. Local only — deployments store these in Vercel Blob.
 /public/uploads/
+
+# OpenNext / Cloudflare build output and generated binding types
+/.open-next/
+cloudflare-env.d.ts

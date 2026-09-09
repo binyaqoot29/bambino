@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "bambino",
+  "main": ".open-next/worker.js",
+  // Pinned to the day this was set up. Moving it forward opts into newer
+  // runtime behaviour; do it deliberately, not by accident.
+  "compatibility_date": "2026-09-09",
+  // nodejs_compat is required by OpenNext. With a compatibility date past
+  // 2025-04-01 it also populates process.env from vars and secrets, which is
+  // how DATABASE_URL and the Supabase keys reach the app unchanged.
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

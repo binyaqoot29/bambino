@@ -1,7 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-
 /**
  * Product image storage.
  *
@@ -17,6 +13,11 @@ import { join } from "node:path";
  * Talks to the Storage REST API directly rather than pulling in
  * `@supabase/supabase-js`, which would bring a realtime, auth and PostgREST
  * client along for two calls this file makes by hand.
+ *
+ * Nothing Node-only is imported at module load. The local branch pulls in
+ * `node:fs` and `node:path` only when it runs, so the same file bundles for
+ * Cloudflare Workers — where those modules are stubs — and never touches them
+ * there, because `SUPABASE_URL` is always set on a deployment.
  */
 
 const BUCKET = "product-images";
@@ -52,7 +53,7 @@ export async function saveImage(file: File): Promise<SaveResult> {
 
   // A random name, not the uploaded one: filenames arrive from the browser and
   // are attacker-controlled, and the original tells us nothing useful.
-  const path = `products/${randomUUID()}.${extension}`;
+  const path = `products/${crypto.randomUUID()}.${extension}`;
   const backend = remote();
 
   try {
@@ -84,6 +85,10 @@ export async function saveImage(file: File): Promise<SaveResult> {
       };
     }
 
+    const [{ mkdir, writeFile }, { join }] = await Promise.all([
+      import("node:fs/promises"),
+      import("node:path"),
+    ]);
     const dir = join(process.cwd(), "public", "uploads", "products");
     await mkdir(dir, { recursive: true });
     const filename = path.split("/")[1];
@@ -112,6 +117,10 @@ export async function saveImage(file: File): Promise<SaveResult> {
 export async function deleteImage(url: string): Promise<void> {
   try {
     if (url.startsWith("/uploads/")) {
+      const [{ unlink }, { join }] = await Promise.all([
+        import("node:fs/promises"),
+        import("node:path"),
+      ]);
       await unlink(join(process.cwd(), "public", url));
       return;
     }
