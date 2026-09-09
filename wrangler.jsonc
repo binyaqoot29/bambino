@@ -24,8 +24,19 @@
   // the per-request client in src/db/client.ts pays one short hop instead of a
   // fresh TCP + TLS + auth handshake from Kuwait to Mumbai on every request.
   // The config (and the database password) live in Cloudflare, not here.
+  //
+  // localConnectionString is only read by wrangler's local emulation. The
+  // deploy command opens that emulation to read the environment, and wrangler
+  // refuses to start it for a Hyperdrive binding with no local string — so a
+  // missing value fails the deploy, not just `npm run preview`. The value is a
+  // placeholder; nothing connects to it. To preview against a real database,
+  // set CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE instead.
   "hyperdrive": [
-    { "binding": "HYPERDRIVE", "id": "ac9db2ff3e2842f59b6af38f5314d407" }
+    {
+      "binding": "HYPERDRIVE",
+      "id": "ac9db2ff3e2842f59b6af38f5314d407",
+      "localConnectionString": "postgresql://bambino:bambino@localhost:5432/bambino"
+    }
   ],
   "observability": {
     "enabled": true
