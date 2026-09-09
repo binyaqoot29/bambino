@@ -64,11 +64,19 @@ async function create(): Promise<Database> {
      */
     const client = postgres(url, {
       prepare: false,
-      // One connection per instance. The pooler multiplexes; opening more here
-      // just holds slots the next invocation needs.
-      max: 1,
+      // No pipelining, and a small pool instead. postgres-js stacks
+      // simultaneous queries onto one busy connection by default, and
+      // Supabase's shared transaction pooler (Supavisor) does not support
+      // that: a page running three queries in Promise.all hung forever on a
+      // single connection (measured 2026-09-09). max_pipeline: 0 makes a busy
+      // connection refuse further queries, so concurrent queries either take
+      // another connection from the pool or wait for one — never pipeline.
+      max: 5,
       idle_timeout: 20,
       connect_timeout: 10,
+      // Parsed by postgres-js (see its src/index.js) but absent from its
+      // type definitions, hence the cast.
+      ...({ max_pipeline: 0 } as object),
     });
     return drizzlePostgres(client, { schema }) as unknown as Database;
   }
