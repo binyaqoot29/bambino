@@ -14,12 +14,14 @@ import { useRef, useState } from "react";
  * bucket filling with pixels nobody will ever see.
  *
  * WebP at 0.86 keeps every detail a person can see in a product photo at
- * roughly a third of the bytes of the same picture as JPEG. Browsers that
- * cannot encode WebP (none current, but the fallback is free) get JPEG.
+ * roughly a third of the bytes of the same picture as JPEG. Safari cannot
+ * encode WebP and gets the JPEG fallback; the server then re-encodes that
+ * master as WebP itself (see src/lib/uploads/store.ts), so the stored
+ * result is the same whichever browser the photo came from.
  */
 const MAX_EDGE = 2000;
 const WEBP_QUALITY = 0.86;
-const JPEG_QUALITY = 0.9;
+const JPEG_QUALITY = 0.85;
 
 type Item = { url: string; uploading?: boolean; error?: string };
 

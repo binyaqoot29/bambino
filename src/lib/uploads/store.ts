@@ -79,9 +79,10 @@ export async function saveImage(file: File): Promise<SaveResult> {
         );
       }
 
+      const stored = await toWebpMaster(backend, path, file);
       return {
         ok: true,
-        url: `${backend.url}/storage/v1/object/public/${BUCKET}/${path}`,
+        url: `${backend.url}/storage/v1/object/public/${BUCKET}/${stored}`,
       };
     }
 
@@ -105,6 +106,72 @@ export async function saveImage(file: File): Promise<SaveResult> {
       error: error instanceof Error ? error.message : String(error),
     });
     return { ok: false, reason: "failed" };
+  }
+}
+
+/** Longest edge of a stored master; matches the browser-side resize. */
+const MASTER_EDGE = 2000;
+const MASTER_QUALITY = 86;
+
+/**
+ * Re-encodes a freshly uploaded JPEG or PNG as a WebP master, server-side.
+ *
+ * The browser already tries to send WebP, but Safari cannot encode it and
+ * falls back to JPEG at around three times the bytes. Workers has no image
+ * library, so the conversion is delegated to Supabase's own transformation
+ * endpoint: fetch the just-stored object through it at master size with
+ * WebP accepted, store the result under a `.webp` name, and delete the
+ * original. One transformation per upload; the master is then the same
+ * regardless of which browser it came from.
+ *
+ * Every failure path keeps the original: a master that exists as JPEG is
+ * strictly better than an upload that vanished. Returns the path to keep.
+ */
+async function toWebpMaster(
+  backend: { url: string; key: string },
+  path: string,
+  file: File,
+): Promise<string> {
+  if (file.type === "image/webp") return path;
+  try {
+    const rendered = await fetch(
+      `${backend.url}/storage/v1/render/image/public/${BUCKET}/${path}` +
+        `?width=${MASTER_EDGE}&height=${MASTER_EDGE}&resize=contain&quality=${MASTER_QUALITY}`,
+      { headers: { accept: "image/webp,image/*" } },
+    );
+    if (!rendered.ok || rendered.headers.get("content-type") !== "image/webp") {
+      return path;
+    }
+    const webp = await rendered.arrayBuffer();
+    // Not smaller: keep what the browser sent rather than trade bytes for a
+    // second transformation.
+    if (webp.byteLength >= file.size) return path;
+
+    const webpPath = path.replace(/\.[a-z]+$/, ".webp");
+    const put = await fetch(`${backend.url}/storage/v1/object/${BUCKET}/${webpPath}`, {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${backend.key}`,
+        "content-type": "image/webp",
+        "x-upsert": "false",
+      },
+      body: webp,
+    });
+    if (!put.ok) return path;
+
+    // The original is now redundant. Best effort: a leftover file costs a
+    // few hundred KB of storage, a failed upload would cost a photo.
+    await fetch(`${backend.url}/storage/v1/object/${BUCKET}/${path}`, {
+      method: "DELETE",
+      headers: { authorization: `Bearer ${backend.key}` },
+    }).catch(() => undefined);
+    return webpPath;
+  } catch (error) {
+    console.error("[uploads] webp master failed, keeping original", {
+      path,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return path;
   }
 }
 
