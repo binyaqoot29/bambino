@@ -201,7 +201,7 @@ Three variables:
 
 | Variable | Where it comes from |
 |---|---|
-| `DATABASE_URL` | Project settings → Database → **Transaction pooler** (port 6543) |
+| `DATABASE_URL` | Connect → **Transaction pooler** (host `aws-0-ap-south-1.pooler.supabase.com`, port 6543, user `postgres.<ref>`). Not the database's own host: that one is IPv6-only unless the paid IPv4 add-on is active, and its dedicated pooler dies with the add-on. |
 | `SUPABASE_URL` | Project settings → API → Project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project settings → API → `service_role` (secret) |
 
@@ -505,14 +505,14 @@ Connect the repo under **Workers & Pages → Create → Import a repository**:
 | Deploy command | `npx opennextjs-cloudflare deploy` |
 | Root directory | `/` |
 
-The Worker runs with **Smart Placement** (`placement` in `wrangler.jsonc`), so
-Cloudflare moves it next to the database once it has seen some traffic. Each
-page issues a chain of dependent queries, and that chain is what dominates
-response time; the single hop from the visitor to Mumbai is cheap by
-comparison. **Hyperdrive was measured and rejected** for the same reason: its
-connection pool was placed ~200 ms from Mumbai, which tripled per-query
-latency. The client still prefers a `HYPERDRIVE` binding if one is ever bound
-(`src/db/client.ts`), so re-testing it later needs no code change.
+Two things about the shared pooler matter in `src/db/client.ts`. It does not
+support **pipelined queries**, and postgres-js pipelines anything run
+concurrently on a busy connection, so the client sets `max_pipeline: 0` and a
+pool of five: concurrent queries take separate connections or wait, never
+stack. Without that, every page with a `Promise.all` hung until the request
+timed out (2026-09-09). Hyperdrive and Smart Placement were both measured and
+rejected: Hyperdrive's pool sat ~200 ms from Mumbai and tripled per-query
+latency; the client still prefers a `HYPERDRIVE` binding if one is ever bound.
 
 Then set the runtime secrets — `DATABASE_URL`, `SUPABASE_URL`,
 `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` — and
