@@ -469,7 +469,10 @@ have sold, so the screen says it can't be undone and the action enforces that.
 ## Hosting
 
 The shop runs on **Cloudflare Workers** through the OpenNext adapter, at
-`bambino.binyaqoot29.workers.dev` until it has its own domain.
+**https://bambino.ltd** (`www` serves the same Worker). Both hostnames are
+Workers Custom Domains declared in `wrangler.jsonc`; Cloudflare manages their
+DNS records and certificate, and "Always Use HTTPS" is on for the zone. The
+`bambino.binyaqoot29.workers.dev` address still works as a fallback.
 
 ```bash
 npm run build:cf   # migrations + seed, then the Workers bundle → .open-next/

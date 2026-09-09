@@ -9,6 +9,13 @@
   // 2025-04-01 it also populates process.env from vars and secrets, which is
   // how DATABASE_URL and the Supabase keys reach the app unchanged.
   "compatibility_flags": ["nodejs_compat"],
+  // The shop's address. Both hostnames are Workers Custom Domains: Cloudflare
+  // owns the DNS records and the certificate, and the zone must hold no other
+  // A/AAAA/CNAME for them or the deploy refuses to bind.
+  "routes": [
+    { "pattern": "bambino.ltd", "custom_domain": true },
+    { "pattern": "www.bambino.ltd", "custom_domain": true }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
