@@ -30,11 +30,12 @@ const globalForDb = globalThis as unknown as {
 };
 
 /**
- * On Workers, prefer the Hyperdrive binding's connection string over
- * DATABASE_URL. Both reach the same Supabase database; Hyperdrive just holds
- * the pool near it. The import is lazy so nothing about OpenNext is loaded on
- * Node, and a Worker deployed without the binding still falls back to the
- * secret rather than failing.
+ * On Workers, a Hyperdrive binding named HYPERDRIVE wins over DATABASE_URL if
+ * one is bound. None is bound today: measured from Kuwait, Hyperdrive's pool
+ * added ~150 ms to every query against Supabase in Mumbai, so the Worker
+ * connects directly and Smart Placement (wrangler.jsonc) moves it near the
+ * database instead. The hook stays so a future binding needs no code change.
+ * The import is lazy so nothing about OpenNext is loaded on Node.
  */
 async function connectionString(): Promise<string | undefined> {
   if (onWorkers) {
@@ -62,9 +63,6 @@ async function create(): Promise<Database> {
      * prepared statement made on one may not exist on the next.
      */
     const client = postgres(url, {
-      // Hyperdrive supports named prepared statements, but Supabase's own
-      // pooler behind it may not hand the same connection back, so keep them
-      // off on every path. The cost is one extra parse per query.
       prepare: false,
       // One connection per instance. The pooler multiplexes; opening more here
       // just holds slots the next invocation needs.
@@ -118,9 +116,9 @@ const onWorkers =
  * is what Cloudflare's own guidance amounts to: create the client inside the
  * handler, never in module scope.
  *
- * Opening a connection per request is the cost of that, and the reason to
- * put Hyperdrive in front of Supabase: it terminates TCP near the database,
- * so a fresh per-request connection from the edge is cheap.
+ * Opening a connection per request is the cost of that, and the reason for
+ * Smart Placement: with the Worker next to the database, the handshake and
+ * every query after it are a few milliseconds instead of a Gulf–India hop.
  */
 const perRequest = cache(() => create());
 

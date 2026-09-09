@@ -505,13 +505,14 @@ Connect the repo under **Workers & Pages → Create → Import a repository**:
 | Deploy command | `npx opennextjs-cloudflare deploy` |
 | Root directory | `/` |
 
-The Worker reaches Supabase through **Hyperdrive** (binding `HYPERDRIVE` in
-`wrangler.jsonc`, config named `bambino` in the Cloudflare dashboard). Hyperdrive
-holds a warm connection pool near the database, so the per-request client on
-Workers skips the TCP, TLS and auth round-trips to Mumbai. Its query cache is
-**disabled on purpose**: with it on, an admin edit could reappear unchanged for
-up to a minute. If the binding is missing the Worker falls back to
-`DATABASE_URL`, so keep that set too — the build step needs it regardless.
+The Worker runs with **Smart Placement** (`placement` in `wrangler.jsonc`), so
+Cloudflare moves it next to the database once it has seen some traffic. Each
+page issues a chain of dependent queries, and that chain is what dominates
+response time; the single hop from the visitor to Mumbai is cheap by
+comparison. **Hyperdrive was measured and rejected** for the same reason: its
+connection pool was placed ~200 ms from Mumbai, which tripled per-query
+latency. The client still prefers a `HYPERDRIVE` binding if one is ever bound
+(`src/db/client.ts`), so re-testing it later needs no code change.
 
 Then set the runtime secrets — `DATABASE_URL`, `SUPABASE_URL`,
 `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` — and
