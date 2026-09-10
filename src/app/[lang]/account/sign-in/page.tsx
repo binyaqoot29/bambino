@@ -30,7 +30,10 @@ export default async function SignInPage({
   const [{ lang }, query] = await Promise.all([params, searchParams]);
   if (!isLocale(lang)) notFound();
   const locale: Locale = lang;
-  const next = typeof query.next === "string" ? query.next : undefined;
+  // A same-site path only: the value comes from the URL, and an already
+  // signed-in visitor must not be bounced to another site by a crafted link.
+  const raw = typeof query.next === "string" ? query.next : "";
+  const next = raw.startsWith("/") && !raw.startsWith("//") ? raw : undefined;
 
   if (await currentCustomer()) redirect(next ?? routes.account(locale));
 

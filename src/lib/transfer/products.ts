@@ -3,6 +3,7 @@ import "server-only";
 import { eq, inArray } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
+import { freeProductId } from "@/lib/catalog/product-id";
 import type { OrderRow } from "@/db/schema";
 import { loadCategories } from "@/lib/catalog/categories";
 import { COLOURS, SIZE_LABELS } from "@/lib/catalog/taxonomy";
@@ -477,7 +478,7 @@ export async function applyProductImport(
         .where(eq(schema.products.id, id));
       updated++;
     } else {
-      id = item.handle;
+      id = await freeProductId(db, item.handle);
       await db.insert(schema.products).values({ id, ...item.values });
       created++;
     }

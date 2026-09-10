@@ -122,8 +122,6 @@ export async function placeOrder(
     decrements.push({ variantId: variant.id, quantity: line.quantity });
   }
 
-  if (!lines.length)
-    return { ok: false, reason: "unavailable", detail: missing };
   if (missing.length)
     return { ok: false, reason: "unavailable", detail: missing };
 
@@ -233,8 +231,11 @@ async function restoreStock(db: Db, moves: StockMove[]): Promise<void> {
  * deleted — so the variants are resolved back by that triple, and any that no
  * longer exist are simply skipped.
  */
-export async function restoreOrderStock(orderId: string): Promise<void> {
-  const db = await getDb();
+export async function restoreOrderStock(
+  orderId: string,
+  db?: Db,
+): Promise<void> {
+  db ??= await getDb();
   const [order] = await db
     .select()
     .from(schema.orders)

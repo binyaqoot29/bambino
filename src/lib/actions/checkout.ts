@@ -123,7 +123,8 @@ export async function submitOrder(
     lines,
     customerName,
     phone: phone!,
-    email: emailRaw,
+    // Lower-cased, so the order shows in the account that uses this address.
+    email: emailRaw.toLowerCase(),
     address,
     paymentMethod: "cod",
     note: String(formData.get("note") ?? "").trim(),

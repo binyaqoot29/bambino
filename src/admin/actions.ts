@@ -17,6 +17,7 @@ import type {
   Department,
 } from "@/lib/catalog/types";
 import { isCollectionRule } from "@/lib/catalog/collection-rules";
+import { freeProductId } from "@/lib/catalog/product-id";
 import { restoreOrderStock } from "@/lib/orders/place";
 import { deleteMessage, markMessageRead } from "@/lib/messages";
 import {
@@ -429,7 +430,7 @@ export async function saveProduct(
       .set(values)
       .where(eq(schema.products.id, id));
   } else {
-    id = handle;
+    id = await freeProductId(db, handle);
     await db.insert(schema.products).values({ id, ...values });
   }
 
@@ -624,13 +625,16 @@ export async function setOrderStatus(formData: FormData) {
   // this is what makes that true rather than a hope.
   if (order.status === "cancelled") return;
 
+  // The restock and the status change commit together: stock put back for
+  // an order that then failed to cancel would be sold twice.
   const restocking = status === "cancelled";
-  if (restocking) await restoreOrderStock(id);
-
-  await db
-    .update(schema.orders)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(schema.orders.id, id));
+  await db.transaction(async (tx) => {
+    if (restocking) await restoreOrderStock(id, tx as unknown as typeof db);
+    await tx
+      .update(schema.orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(schema.orders.id, id));
+  });
 
   await storefrontChanged();
   redirect(`/admin/orders/${id}?${restocking ? "restocked" : "status"}=1`);
@@ -790,6 +794,13 @@ export async function saveCollection(
   if (isNew) {
     await db.insert(schema.collections).values(values);
   } else {
+    // Membership rows point at the slug by foreign key, so they go before a
+    // rename can happen; they are written back below in the form's order.
+    // (A collection that switched from curated to automatic keeps none:
+    // the rule decides membership and a stored list would only mislead.)
+    await db
+      .delete(schema.collectionProducts)
+      .where(eq(schema.collectionProducts.collectionSlug, original));
     await db
       .update(schema.collections)
       .set(values)
@@ -804,10 +815,6 @@ export async function saveCollection(
       .map((v) => String(v))
       .filter(Boolean);
 
-    await db
-      .delete(schema.collectionProducts)
-      .where(eq(schema.collectionProducts.collectionSlug, slug));
-
     if (ids.length) {
       await db.insert(schema.collectionProducts).values(
         ids.map((productId, index) => ({
@@ -817,12 +824,6 @@ export async function saveCollection(
         })),
       );
     }
-  } else if (!isNew) {
-    // Switched from curated to automatic: the stored list is now misleading,
-    // because nothing reads it and the rule decides membership instead.
-    await db
-      .delete(schema.collectionProducts)
-      .where(eq(schema.collectionProducts.collectionSlug, slug));
   }
 
   await storefrontChanged();
@@ -997,7 +998,14 @@ export async function setAdminLocale(formData: FormData) {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
-  redirect(String(formData.get("returnTo") ?? "/admin"));
+  // Only back into the admin: the field is posted by the browser, and a
+  // redirect to an arbitrary address would make this an open redirect.
+  const returnTo = String(formData.get("returnTo") ?? "");
+  redirect(
+    returnTo.startsWith("/admin") && !returnTo.startsWith("/admin//")
+      ? returnTo
+      : "/admin",
+  );
 }
 
 /* --------------------------------------------------------------------------
