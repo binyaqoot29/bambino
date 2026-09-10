@@ -5,11 +5,7 @@ import type { Locale } from "@/i18n/config";
  * currency (1 KWD = 1000 fils), so 12.500 KD is `12500`. Never store money as
  * a float.
  */
-export type Fils = number;
-
-export const CURRENCY = "KWD";
-
-/**
+export type Fils = number; /**
  * Kuwaiti retail writes the amount first and abbreviates the currency:
  * `12.500 KD` / `12.500 د.ك`. `Intl`'s own currency style would give
  * "KWD 12.500", which reads as a bank statement, so the symbol is appended.
@@ -38,19 +34,6 @@ function formatter(locale: Locale, decimals: number) {
 
 export function formatPrice(fils: Fils, locale: Locale): string {
   return `${formatter(locale, 3).format(fils / 1000)} ${SYMBOL[locale]}`;
-}
-
-/** Bare number, no currency — for use next to a separate "KD" label. */
-export function formatAmount(fils: Fils, locale: Locale): string {
-  return formatter(locale, 3).format(fils / 1000);
-}
-
-export function currencySymbol(locale: Locale) {
-  return SYMBOL[locale];
-}
-
-export function formatNumber(value: number, locale: Locale): string {
-  return formatter(locale, 0).format(value);
 }
 
 export function discountPercent(price: Fils, compareAt: Fils): number {

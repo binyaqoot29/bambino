@@ -97,7 +97,7 @@ async function requireAdmin() {
  * posted value back in `values`, and `attempt` increments so the form can
  * remount its fields (`key={attempt}`) and pick those values up as defaults.
  */
-export type FormEcho = {
+type FormEcho = {
   values?: Record<string, string | string[]>;
   attempt?: number;
 };
@@ -475,25 +475,7 @@ export async function deleteProduct(formData: FormData) {
 
   await storefrontChanged();
   redirect("/admin/products?deleted=1");
-}
-
-export async function setStock(formData: FormData) {
-  await requireAdmin();
-
-  const variantId = String(formData.get("variantId") ?? "");
-  const stock = Math.max(0, Number(formData.get("stock")) || 0);
-  if (!variantId) return;
-
-  const db = await getDb();
-  await db
-    .update(schema.variants)
-    .set({ stock })
-    .where(eq(schema.variants.id, variantId));
-
-  await storefrontChanged();
-}
-
-/* --------------------------------------------------------------------------
+} /* --------------------------------------------------------------------------
  * Categories
  * ----------------------------------------------------------------------- */
 

@@ -30,7 +30,7 @@ const SIZES: Record<Size, string> = {
 const BASE =
   "inline-flex items-center justify-center rounded-full font-medium tracking-[0.06em] uppercase transition-[background-color,color,box-shadow,transform] duration-300 ease-[var(--ease-out-quint)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40 whitespace-nowrap [html[lang=ar]_&]:tracking-normal [html[lang=ar]_&]:normal-case";
 
-export function buttonClass({
+function buttonClass({
   variant = "primary",
   size = "md",
   className = "",

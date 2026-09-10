@@ -6,7 +6,7 @@ import { loadSettings } from "@/lib/site-settings";
 import { isLocale, locales, type Locale } from "./config";
 
 /** Set by the storefront when a visitor picks a language explicitly. */
-export const LOCALE_COOKIE = "bambino_locale";
+const LOCALE_COOKIE = "bambino_locale";
 
 /**
  * Which language a visitor should land in when the URL doesn't say.

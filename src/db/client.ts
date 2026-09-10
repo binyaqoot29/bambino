@@ -23,7 +23,7 @@ import * as schema from "./schema";
  *   open blocks. Delete it, or `npm run db:reset` — the database is disposable.
  */
 
-export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
+type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 const globalForDb = globalThis as unknown as {
   __bambinoDb?: Promise<unknown>;

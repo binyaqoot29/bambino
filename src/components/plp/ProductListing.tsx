@@ -28,7 +28,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 
 const PAGE_SIZE = 24;
 
-export type Crumb = { label: string; href?: string };
+type Crumb = { label: string; href?: string };
 
 export type ListingProps = {
   title: string;

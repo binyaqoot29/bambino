@@ -23,7 +23,7 @@ import {
  * `useBag()` API.
  * ----------------------------------------------------------------------- */
 
-export type CartLine = {
+type CartLine = {
   /** `${productId}::${size}::${colour}` — one line per variant. */
   key: string;
   productId: string;

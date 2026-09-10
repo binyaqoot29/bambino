@@ -10,4 +10,4 @@ import "server-only";
  * bundle.
  */
 
-export { getDb, schema, type Database } from "./client";
+export { getDb, schema } from "./client";

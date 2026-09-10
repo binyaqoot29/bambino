@@ -15,7 +15,7 @@ import {
   type ListingParams,
 } from "./search-params";
 
-export type FacetOption = {
+type FacetOption = {
   value: string;
   label: string;
   count: number;

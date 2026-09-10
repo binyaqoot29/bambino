@@ -56,11 +56,7 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export function isOrderStatus(value: string): value is OrderStatus {
   return (ORDER_STATUSES as readonly string[]).includes(value);
 }
-
-/** Statuses that no longer count as owing stock — used to restore it. */
-export const CANCELLED_STATUSES: OrderStatus[] = ["cancelled"];
-
-export const PAYMENT_METHODS = ["cod", "knet"] as const;
+const PAYMENT_METHODS = ["cod", "knet"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 export function isPaymentMethod(value: string): value is PaymentMethod {

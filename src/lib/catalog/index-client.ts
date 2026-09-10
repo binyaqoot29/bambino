@@ -8,7 +8,7 @@ import type { ArtKey } from "./types";
  * (bag drawer, cart lines, wishlist) can read without another round trip.
  * Roughly 6KB for the whole seed catalogue.
  */
-export type MiniProduct = {
+type MiniProduct = {
   id: string;
   handle: string;
   name: string;

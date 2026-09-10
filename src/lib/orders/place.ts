@@ -5,11 +5,7 @@ import { rowsOf } from "@/db/rows";
 import type { Locale } from "@/i18n/config";
 import { invalidateSnapshots } from "@/lib/cache/snapshot";
 import { loadShipping } from "@/lib/site-settings";
-import type {
-  DeliveryAddress,
-  OrderLine,
-  PaymentMethod,
-} from "./types";
+import type { DeliveryAddress, OrderLine, PaymentMethod } from "./types";
 
 /** What the browser asks for. Quantities and identity only — never prices. */
 export type RequestedLine = {
@@ -32,7 +28,11 @@ export type PlaceOrderInput = {
 
 export type PlaceOrderResult =
   | { ok: true; reference: string }
-  | { ok: false; reason: "empty" | "unavailable" | "out-of-stock"; detail?: string[] };
+  | {
+      ok: false;
+      reason: "empty" | "unavailable" | "out-of-stock";
+      detail?: string[];
+    };
 
 /**
  * Reference codes.
@@ -122,8 +122,10 @@ export async function placeOrder(
     decrements.push({ variantId: variant.id, quantity: line.quantity });
   }
 
-  if (!lines.length) return { ok: false, reason: "unavailable", detail: missing };
-  if (missing.length) return { ok: false, reason: "unavailable", detail: missing };
+  if (!lines.length)
+    return { ok: false, reason: "unavailable", detail: missing };
+  if (missing.length)
+    return { ok: false, reason: "unavailable", detail: missing };
 
   const subtotal = lines.reduce((n, l) => n + l.unitPrice * l.quantity, 0);
   const deliveryFee =
@@ -160,7 +162,8 @@ export async function placeOrder(
       await tx.insert(schema.orders).values(row);
     });
   } catch (error) {
-    if (error instanceof OutOfStock) return { ok: false, reason: "out-of-stock" };
+    if (error instanceof OutOfStock)
+      return { ok: false, reason: "out-of-stock" };
     throw error;
   }
 
@@ -211,7 +214,7 @@ async function takeStock(db: Db, moves: StockMove[]): Promise<boolean> {
 }
 
 /** Puts stock back — compensation, and cancelling an order. */
-export async function restoreStock(db: Db, moves: StockMove[]): Promise<void> {
+async function restoreStock(db: Db, moves: StockMove[]): Promise<void> {
   if (!moves.length) return;
   await db.execute(sql`
     WITH requested(variant_id, qty) AS (VALUES ${requestedCte(moves)})

@@ -33,16 +33,6 @@ export async function getProductByHandle(
   return (await loadCatalogue()).find((p) => p.handle === handle);
 }
 
-export async function getProductsByIds(ids: string[]): Promise<Product[]> {
-  if (ids.length === 0) return [];
-  const wanted = new Set(ids);
-  return (await loadCatalogue()).filter((p) => wanted.has(p.id));
-}
-
-export async function getFeatured(limit = 8) {
-  return (await loadCatalogue()).filter((p) => p.featured).slice(0, limit);
-}
-
 export async function getBestsellers(limit = 8) {
   return (await loadCatalogue()).filter((p) => p.bestseller).slice(0, limit);
 }
@@ -72,27 +62,13 @@ export async function getRelated(product: Product, limit = 4) {
   );
   return [...sameCategory, ...sameDepartment].slice(0, limit);
 }
-
-export async function getProductsByAge(age: AgeGroup, limit?: number) {
-  const matches = (await loadCatalogue()).filter((p) =>
-    p.ageGroups.includes(age),
-  );
-  return limit ? matches.slice(0, limit) : matches;
-}
-
 export async function getProductsInCategory(slug: string) {
   return (await loadCatalogue()).filter((p) => p.category === slug);
 }
 
 export async function getProductsInDepartment(department: string) {
   return (await loadCatalogue()).filter((p) => p.department === department);
-}
-
-export async function countInCategory(slug: string) {
-  return (await loadCatalogue()).filter((p) => p.category === slug).length;
-}
-
-/** Counts for every category in one pass — the nav needs all of them at once. */
+} /** Counts for every category in one pass — the nav needs all of them at once. */
 export async function countsByCategory(): Promise<Record<string, number>> {
   const [all, categories] = await Promise.all([
     loadCatalogue(),
@@ -238,12 +214,6 @@ export function buildFacets(products: Product[]) {
     minPrice: prices.length ? Math.min(...prices) : 0,
     maxPrice: prices.length ? Math.max(...prices) : 0,
   };
-}
-
-export type Facets = ReturnType<typeof buildFacets>;
-
-export async function getCategories() {
-  return loadCategories();
 }
 
 /** A sync lookup for render paths, built from one category query. */

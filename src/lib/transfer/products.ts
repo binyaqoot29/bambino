@@ -30,7 +30,7 @@ import { GOVERNORATE_LABELS } from "@/lib/orders/types";
  * can contain a comma.
  */
 
-export const ART_KEYS: ArtKey[] = [
+const ART_KEYS: ArtKey[] = [
   "bodysuit",
   "dress",
   "tee",
@@ -47,7 +47,7 @@ export const ART_KEYS: ArtKey[] = [
   "bag",
 ];
 
-export const PRODUCT_COLUMNS = [
+const PRODUCT_COLUMNS = [
   "handle",
   "name_en",
   "name_ar",
@@ -593,22 +593,7 @@ export async function applyInventoryImport(
       .where(eq(schema.variants.id, u.variantId));
   }
   return plan.updates.length;
-}
-
-/* --------------------------------------------------------------------------
- * Bulk photos
- * ----------------------------------------------------------------------- */
-
-/**
- * "cloud-sleepsuit-2.jpg" → "cloud-sleepsuit". A trailing number, with or
- * without a separator, is the photo's position, not part of the handle.
- */
-export function handleFromFilename(name: string): string {
-  const base = name.replace(/\.[a-z0-9]+$/i, "");
-  return slugify(base.replace(/[\s_-]*\(?\d{1,2}\)?$/, ""));
-}
-
-/** Appends photos to products by handle. Returns handles it could not find. */
+} /** Appends photos to products by handle. Returns handles it could not find. */
 export async function attachPhotosByHandle(
   batches: { handle: string; urls: string[] }[],
 ): Promise<{ attached: number; unknown: string[] }> {

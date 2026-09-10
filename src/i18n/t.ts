@@ -51,5 +51,3 @@ export function createTranslator(locale: Locale) {
 
   return { t, plural };
 }
-
-export type Translator = ReturnType<typeof createTranslator>;

@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { asc, eq, inArray } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 
 import { getDb, schema } from "@/db";
 import { snapshot } from "@/lib/cache/snapshot";
@@ -93,78 +93,6 @@ async function loadCatalogueFromDb(): Promise<Product[]> {
     db.select().from(schema.products).orderBy(asc(schema.products.handle)),
     db.select().from(schema.variants),
   ]);
-
-  const byProduct = new Map<string, (typeof variantRows)[number][]>();
-  for (const v of variantRows) {
-    const list = byProduct.get(v.productId);
-    if (list) list.push(v);
-    else byProduct.set(v.productId, [v]);
-  }
-
-  return productRows.map((product) =>
-    toDomain({ product, variants: byProduct.get(product.id) ?? [] }),
-  );
-}
-
-export const loadProductByHandle = cache(
-  async (handle: string): Promise<Product | undefined> => {
-    const db = await getDb();
-
-    const [product] = await db
-      .select()
-      .from(schema.products)
-      .where(eq(schema.products.handle, handle))
-      .limit(1);
-    if (!product) return undefined;
-
-    const variants = await db
-      .select()
-      .from(schema.variants)
-      .where(eq(schema.variants.productId, product.id));
-
-    return toDomain({ product, variants });
-  },
-);
-
-export async function loadProductById(
-  id: string,
-): Promise<Product | undefined> {
-  const db = await getDb();
-
-  const [product] = await db
-    .select()
-    .from(schema.products)
-    .where(eq(schema.products.id, id))
-    .limit(1);
-  if (!product) return undefined;
-
-  const variants = await db
-    .select()
-    .from(schema.variants)
-    .where(eq(schema.variants.productId, product.id));
-
-  return toDomain({ product, variants });
-}
-
-export async function loadProductsByIds(ids: string[]): Promise<Product[]> {
-  if (ids.length === 0) return [];
-  const db = await getDb();
-
-  const productRows = await db
-    .select()
-    .from(schema.products)
-    .where(inArray(schema.products.id, ids));
-  if (productRows.length === 0) return [];
-
-  const variantRows = await db
-    .select()
-    .from(schema.variants)
-    .where(
-      inArray(
-        schema.variants.productId,
-        productRows.map((p) => p.id),
-      ),
-    );
 
   const byProduct = new Map<string, (typeof variantRows)[number][]>();
   for (const v of variantRows) {

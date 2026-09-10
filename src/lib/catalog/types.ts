@@ -126,14 +126,3 @@ export function isSortKey(value: string): value is SortKey {
 export function inStock(product: Product) {
   return product.variants.some((v) => v.stock > 0);
 }
-
-export function stockFor(product: Product, size?: string, colour?: string) {
-  return product.variants
-    .filter((v) => (size ? v.size === size : true))
-    .filter((v) => (colour ? v.colour === colour : true))
-    .reduce((total, v) => total + v.stock, 0);
-}
-
-export function sizesOf(product: Product) {
-  return [...new Set(product.variants.map((v) => v.size))];
-}

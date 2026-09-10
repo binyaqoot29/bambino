@@ -18,7 +18,7 @@ import type { Locale } from "@/i18n/config";
  */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export function isValidEmail(value: string): boolean {
+function isValidEmail(value: string): boolean {
   return EMAIL.test(value.trim()) && value.trim().length <= 254;
 }
 

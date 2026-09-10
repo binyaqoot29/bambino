@@ -40,15 +40,7 @@ export const artOptions = [
 ].map((value) => ({
   value,
   label: value.charAt(0).toUpperCase() + value.slice(1),
-}));
-
-export const colourOptions = Object.values(COLOURS).map((c) => ({
-  value: c.key,
-  label: c.name.en,
-  hex: c.hex,
-}));
-
-/** The palette grouped by family, as the picker shows it. */
+})); /** The palette grouped by family, as the picker shows it. */
 export const colourFamilies = COLOUR_FAMILIES.map((family) => ({
   key: family.key,
   label: family.name.en,

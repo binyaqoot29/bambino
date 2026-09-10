@@ -16,7 +16,7 @@ import { loadSubscribers } from "@/lib/subscribers";
  * on this dashboard means today in the shop, not in UTC.
  */
 
-export const RANGES = [7, 30, 90] as const;
+const RANGES = [7, 30, 90] as const;
 export type Range = (typeof RANGES)[number];
 
 export function isRange(value: number): value is Range {
@@ -32,11 +32,11 @@ const dayKey = new Intl.DateTimeFormat("en-CA", {
 });
 
 /** "2026-09-09" in Kuwait for any instant. */
-export function kuwaitDay(date: Date): string {
+function kuwaitDay(date: Date): string {
   return dayKey.format(date);
 }
 
-export type Metric = {
+type Metric = {
   value: number;
   previous: number;
   /** Percent change vs the previous window; null when there was nothing before. */
@@ -51,8 +51,8 @@ function metric(value: number, previous: number): Metric {
   };
 }
 
-export type DayPoint = { day: string; revenue: number; orders: number };
-export type Named = {
+type DayPoint = { day: string; revenue: number; orders: number };
+type Named = {
   key: string;
   name: { en: string; ar: string };
   value: number;

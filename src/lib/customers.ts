@@ -52,7 +52,7 @@ async function derive(
   );
 }
 
-export async function hashPassword(password: string): Promise<string> {
+async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const bits = await derive(password, salt, ITERATIONS);
   return `pbkdf2$${ITERATIONS}$${b64(salt)}$${b64(bits)}`;
@@ -82,7 +82,7 @@ async function sha256(text: string): Promise<string> {
  * Accounts
  * ----------------------------------------------------------------------- */
 
-export function normaliseEmail(raw: string): string {
+function normaliseEmail(raw: string): string {
   return raw.trim().toLowerCase();
 }
 

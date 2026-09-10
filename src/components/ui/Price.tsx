@@ -1,5 +1,5 @@
 import type { Locale } from "@/i18n/config";
-import { discountPercent, formatPrice, type Fils } from "@/lib/money";
+import { formatPrice, type Fils } from "@/lib/money";
 
 /**
  * Prices are set in a regular weight, never bold: a boutique states a price,
@@ -40,30 +40,6 @@ export function Price({
           {formatPrice(compareAt!, locale)}
         </span>
       ) : null}
-    </span>
-  );
-}
-
-export function DiscountBadge({
-  amount,
-  compareAt,
-  label,
-  locale,
-}: {
-  amount: Fils;
-  compareAt?: Fils;
-  label: string;
-  locale: Locale;
-}) {
-  if (!compareAt || compareAt <= amount) return null;
-  const percent = discountPercent(amount, compareAt);
-  const formatted = new Intl.NumberFormat(
-    locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW",
-  ).format(percent);
-
-  return (
-    <span className="bg-brand-900 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium tracking-wide text-white">
-      {formatted}% {label}
     </span>
   );
 }
